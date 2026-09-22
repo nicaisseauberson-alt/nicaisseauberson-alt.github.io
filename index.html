@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Nicaisse Auberson — Informaticien & Enseignant | Portfolio 2026</title>
+  
+  <meta name="description" content="Portfolio officiel de Nicaisse Auberson — Informaticien et Enseignant. Astuces tech, projets numériques, recommandations cinéma et architectures logicielles modernes.">
+  <meta name="author" content="Nicaisse Auberson">
+  <meta name="theme-color" content="#07090e">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Nicaisse Auberson — Informaticien & Enseignant">
+  <meta property="og:description" content="Portfolio 2026 nouvelle génération : 3D interactive, astuces tech et univers cinéma.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/logo.jpg">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <!-- Ambient mesh background -->
+  <div class="ambient-glow"></div>
+
+  <!-- NAVIGATION -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#hero" class="brand">
+        <div class="brand-icon">
+          <img src="assets/logo.jpg" alt="Logo Nicaisse Auberson">
+        </div>
+        <span class="profile-name">Nicaisse Auberson</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#presentation" class="active">Profil</a></li>
+          <li><a href="#astuces">Astuces Tech</a></li>
+          <li><a href="#cinema">Cinéma</a></li>
+          <li><a href="#projets">Projets & Fichiers</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn btn-outline btn-sm" onclick="adminManager.openLoginOrDashboard()">
+          <span>🔐</span> Espace Admin
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrapper">
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="hero">
+      <div class="hero-grid">
+        
+        <!-- Left: Intro text -->
+        <div class="hero-text-content">
+          <div class="hero-badge">
+            <span class="pulse-dot"></span>
+            <span id="profile-availability">Informaticien & Enseignant • Disponible</span>
+          </div>
+
+          <h1 class="hero-title">
+            <span>Nicaisse</span><br>
+            Auberson
+          </h1>
+
+          <div class="hero-subtitle">
+            <span>Informaticien</span>
+            <span class="dot">•</span>
+            <span>Enseignant</span>
+            <span class="dot">•</span>
+            <span style="color: #60a5fa;">Innovateur Tech</span>
+          </div>
+
+          <p class="hero-desc" id="profile-tagline">
+            Allier la rigueur informatique à la transmission du savoir — Architectures web modernes, ingénierie logicielle et pédagogie de pointe.
+          </p>
+
+          <div class="hero-cta">
+            <a href="#astuces" class="btn btn-primary">Explorer les Astuces Tech 🚀</a>
+            <a href="#cinema" class="btn btn-outline">Espace Cinéma 🎬</a>
+          </div>
+        </div>
+
+        <!-- Right: 3D Optical Illusion Logo -->
+        <div class="logo3d-wrapper">
+          <div id="logo3d-canvas"></div>
+          <div class="canvas-hint">Toucher / Glisser pour faire pivoter en 3D</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- BENTO GRID PRESENTATION -->
+    <section id="presentation" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-tag">Vision & Savoir-faire</div>
+          <h2 class="section-title">Ingénierie & Pédagogie</h2>
+        </div>
+      </div>
+
+      <div class="bento-grid">
+        
+        <!-- Card 1: Informaticien & Architecte -->
+        <div class="bento-card col-8">
+          <div class="card-icon">💻</div>
+          <h3 class="card-title">Informaticien de Pointe</h3>
+          <p class="card-desc" id="profile-bio">
+            Spécialiste en technologies logicielles et architectures modernes, j'élabore des solutions fiables, performantes et sécurisées adaptées aux exigences du web d'aujourd'hui et de demain.
+          </p>
+          <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+            <span class="tag">Architecture Cloud</span>
+            <span class="tag">Performance Web 2026</span>
+            <span class="tag">Cybersécurité</span>
+            <span class="tag">Automatisation</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Enseignant & Formateur -->
+        <div class="bento-card col-4">
+          <div class="card-icon">🎓</div>
+          <h3 class="card-title">Enseignant Passionné</h3>
+          <p class="card-desc">
+            Transmettre les fondamentaux du code et susciter des vocations grâce à une pédagogie vivante, claire et axée sur des projets réels.
+          </p>
+        </div>
+
+        <!-- Card 3: Compétences Clés -->
+        <div class="bento-card col-6">
+          <h3 class="card-title">Expertises & Domaines</h3>
+          <p class="card-desc">Maîtrise technique et méthodologique continue.</p>
+          <div class="skills-list" id="skills-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Card 4: Compatibilité & Écosystème -->
+        <div class="bento-card col-6" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div class="card-icon">⚡</div>
+            <h3 class="card-title">Expérience Multi-Écrans</h3>
+            <p class="card-desc">
+              Optimisé pour tous les appareils et navigateurs modernes. Navigation instantanée, protection de la vie privée et fluidité 120 FPS.
+            </p>
+          </div>
+          <div style="display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap;">
+            <div class="tag" style="background: rgba(59,130,246,0.1); color: #93c5fd;">📱 iPhone / Android</div>
+            <div class="tag" style="background: rgba(234,88,12,0.1); color: #fdba74;">🦁 Brave Browser</div>
+            <div class="tag" style="background: rgba(34,197,94,0.1); color: #86efac;">💻 PC & Mac</div>
+            <div class="tag" style="background: rgba(168,85,247,0.1); color: #d8b4fe;">⚡ 100% Fluide</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION ASTUCES TECH -->
+    <section id="astuces" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-tag">Partage de connaissances</div>
+          <h2 class="section-title">Astuces Tech & Code</h2>
+        </div>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="search-filter-bar">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="tips-search" class="search-input" placeholder="Rechercher une astuce, une commande ou un mot-clé...">
+        </div>
+      </div>
+
+      <!-- Grid of Tips -->
+      <div class="tips-grid" id="tips-grid">
+        <!-- Rendered by app.js -->
+      </div>
+    </section>
+
+    <!-- SECTION CINÉMA -->
+    <section id="cinema" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-tag">Culture & Passions</div>
+          <h2 class="section-title">L'Espace Cinéma</h2>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 480px;">
+          Sélection de chefs-d'œuvre, réflexions cinématographiques et liens officiels recommandés par Nicaisse.
+        </p>
+      </div>
+
+      <div class="cinema-grid" id="cinema-grid">
+        <!-- Rendered by app.js -->
+      </div>
+    </section>
+
+    <!-- SECTION PROJETS & TÉLÉCHARGEMENTS -->
+    <section id="projets" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-tag">Ressources & Réalisations</div>
+          <h2 class="section-title">Projets & Fichiers</h2>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+          Documents et supports téléchargeables en accès libre.
+        </p>
+      </div>
+
+      <div class="projects-grid" id="projects-grid">
+        <!-- Rendered by app.js -->
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="section">
+      <div class="bento-card col-12" style="text-align: center; padding: 60px 24px;">
+        <h2 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 16px;">Prêt à échanger ?</h2>
+        <p style="color: var(--text-muted); max-width: 540px; margin: 0 auto 32px; font-size: 1.05rem;">
+          Que ce soit pour une intervention pédagogique, une conférence ou un projet informatique d'envergure, n'hésitez pas à me contacter.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+          <a href="mailto:contact@nicaisseauberson.ch" class="btn btn-primary">✉️ Envoyer un message</a>
+          <button class="btn btn-outline" onclick="adminManager.openLoginOrDashboard()">🔐 Accès Administrateur</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="wrapper">
+      <div class="footer-content">
+        <div class="footer-text">
+          © 2026 <strong class="profile-name">Nicaisse Auberson</strong> — Informaticien & Enseignant. Tous droits réservés.
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <button class="admin-lock-btn" id="admin-open-btn">
+            <span>🔒</span> Espace Admin (Nicaisse)
+          </button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ADMIN MODAL -->
+  <div class="modal-overlay" id="admin-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="admin-modal-title" style="font-weight: 700; font-size: 1.25rem;">Espace Administrateur</h3>
+        <button class="modal-close" onclick="adminManager.closeModal()">&times;</button>
+      </div>
+      <div class="admin-tabs" id="admin-tabs" style="display: none;">
+        <!-- Tabs rendered by admin.js -->
+      </div>
+      <div class="modal-body" id="admin-modal-body">
+        <!-- Content rendered by admin.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <!-- 1. Three.js for 3D Optical Illusion -->
+  <script src="assets/three.min.js"></script>
+  <!-- 2. Data & Storage Engine -->
+  <script src="assets/data.js"></script>
+  <!-- 3. 3D Scene Initialization -->
+  <script src="assets/three-logo.js"></script>
+  <!-- 4. Main Application UI -->
+  <script src="assets/app.js"></script>
+  <!-- 5. Admin & Visitor Management Engine -->
+  <script src="assets/admin.js"></script>
+
+</body>
+</html>
