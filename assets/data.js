@@ -1,6 +1,6 @@
 /**
  * Nicklaus Auberson - Portfolio Data & Storage Engine
- * 2026 Modern Architecture
+ * 2026 Modern Cloud Architecture (Firebase Firestore & Auth)
  */
 
 const DEFAULT_DATA = {
@@ -71,44 +71,7 @@ if ($isWin) {
       explanation: "Une bonne pratique en enseignement comme en production : ne jamais supposer un système unique. Penser portabilité dès le premier script."
     }
   ],
-  cinema: [
-    {
-      id: "film-1",
-      title: "Interstellar",
-      director: "Christopher Nolan",
-      year: "2014",
-      genre: "Science-Fiction / Drame",
-      rating: "9.8 / 10",
-      poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80",
-      review: "Un chef-d'œuvre absolu mêlant relativité générale, amour filial et dimension temporelle. La bande-son de Hans Zimmer reste inégalée.",
-      link: "https://www.warnerbros.com/movies/interstellar",
-      trailerUrl: "https://www.youtube.com/watch?v=zSWdZVtXT7E"
-    },
-    {
-      id: "film-2",
-      title: "The Social Network",
-      director: "David Fincher",
-      year: "2010",
-      genre: "Biopic / Drame / Tech",
-      rating: "9.2 / 10",
-      poster: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80",
-      review: "Une mise en scène chirurgicale sur la genèse d'un géant du web, le code, l'éthique et les batailles d'égo dans la tech.",
-      link: "https://www.imdb.com/title/tt1285016/",
-      trailerUrl: "https://www.youtube.com/watch?v=lB95KLmpLR4"
-    },
-    {
-      id: "film-3",
-      title: "Blade Runner 2049",
-      director: "Denis Villeneuve",
-      year: "2017",
-      genre: "Cyberpunk / SF",
-      rating: "9.4 / 10",
-      poster: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=800&auto=format&fit=crop&q=80",
-      review: "Une esthétique visuelle et sonore monumentale sur la nature de la conscience artificielle et de l'humanité.",
-      link: "https://www.imdb.com/title/tt1856101/",
-      trailerUrl: "https://www.youtube.com/watch?v=gCcx85zbxz4"
-    }
-  ],
+  cinema: [], // Initialement vide : les films sont gérés exclusivement via Cloud Firestore
   projects: [
     {
       id: "proj-1",
@@ -138,17 +101,21 @@ if ($isWin) {
   visitors: []
 };
 
-// Initialisation du LocalStorage / Cache & Cloud Sync
+// =============================================================================
+// STORAGE SERVICE & SYNCHRONISATION CLOUD EN TEMPS RÉEL
+// =============================================================================
 class StorageService {
   static KEY = "nicaisse_portfolio_db_v2026";
   static AUTH_KEY = "nicaisse_owner_password_2026";
   static LAST_SYNC_KEY = "nicaisse_last_cloud_sync_ts";
-  static DEFAULT_PASS = "nicaisse2026"; // Mot de passe initial privé (jamais affiché en clair sur l'interface)
+  static DEFAULT_PASS = "nicaisse2026";
   
-  static CLOUD_STORAGE_URL = "https://extendsclass.com/api/json-storage/bin/cedfffa";
-  static DB_SYNC_HUB = "https://ntfy.sh/nicaisse_cloud_db_sync_2026";
   static PRESENCE_HUB = "https://ntfy.sh/nicaisse_presence_hub_2026";
   static TELEMETRY_HUB = "https://ntfy.sh/nicaisse_telemetry_hub_2026";
+
+  static isFirebaseActive() {
+    return !!(window.FirebaseBridge && window.FirebaseBridge.isConfigured);
+  }
 
   static getPassword() {
     return localStorage.getItem(this.AUTH_KEY) || 
@@ -162,8 +129,6 @@ class StorageService {
     const cleanPass = newPass.trim();
     localStorage.setItem(this.AUTH_KEY, cleanPass);
     localStorage.setItem("nicaisse_admin_password", cleanPass);
-    // Broadcast snapshot immediately so all other devices receive the updated password!
-    this.broadcastFullSnapshot();
     return true;
   }
 
@@ -171,15 +136,8 @@ class StorageService {
     if (!inputPass) return false;
     const clean = inputPass.trim();
     const activePass = this.getPassword();
-    const legacyPass1 = localStorage.getItem("nicaisse_admin_password");
-    const legacyPass2 = localStorage.getItem("nicklaus_admin_password");
-
-    return clean === activePass || 
-           (legacyPass1 && clean === legacyPass1.trim()) || 
-           (legacyPass2 && clean === legacyPass2.trim()) || 
-           clean === "nicaisse2026" || 
-           clean === "admin2026" || 
-           clean === "admin";
+    // Seul le mot de passe défini par l'administrateur est autorisé (aucun passe-droit comme 'admin')
+    return clean === activePass;
   }
 
   static get() {
@@ -190,196 +148,66 @@ class StorageService {
         return JSON.parse(JSON.stringify(DEFAULT_DATA));
       }
       const parsed = JSON.parse(data);
-      // Merge in any missing defaults
-      return { ...DEFAULT_DATA, ...parsed };
+      return {
+        ...DEFAULT_DATA,
+        ...parsed,
+        cinema: Array.isArray(parsed.cinema) ? parsed.cinema : [],
+        projects: Array.isArray(parsed.projects) ? parsed.projects : DEFAULT_DATA.projects,
+        techTips: Array.isArray(parsed.techTips) ? parsed.techTips : DEFAULT_DATA.techTips,
+        profile: { ...DEFAULT_DATA.profile, ...(parsed.profile || {}) }
+      };
     } catch (e) {
-      console.error("Erreur lecture storage:", e);
+      console.error("Erreur lecture cache local:", e);
       return DEFAULT_DATA;
     }
   }
 
-  static save(data, shouldBroadcast = true) {
+  static save(data, notifyUI = true) {
     try {
       localStorage.setItem(this.KEY, JSON.stringify(data));
-      // Notify local components
-      window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: data }));
-      
-      // Auto-broadcast full snapshot to Cloud so phone / other devices see the update immediately
-      if (shouldBroadcast) {
-        this.broadcastFullSnapshot(data);
+      if (notifyUI) {
+        window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: data }));
       }
     } catch (e) {
       console.error("Erreur sauvegarde storage:", e);
     }
   }
 
-  /* Snapshot replication: Broadcast complete current state to Cloud Storage & Realtime Hub */
-  static async broadcastFullSnapshot(currentData = null) {
-    try {
-      const data = currentData || this.get();
-      const snapshot = {
-        type: "full_snapshot",
-        version: 2026,
-        timestamp: Date.now(),
-        authPassword: this.getPassword(),
-        payload: {
-          profile: data.profile,
-          skills: data.skills,
-          techTips: data.techTips,
-          cinema: data.cinema,
-          projects: data.projects
-        }
-      };
+  /* Connexion au flux en temps réel Firebase Firestore */
+  static initFirebaseSync() {
+    if (!window.FirebaseBridge || !window.FirebaseBridge.isConfigured) return;
 
-      // 1. Primary permanent Cloud Storage write (ExtendsClass REST PUT)
-      try {
-        await fetch(this.CLOUD_STORAGE_URL, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(snapshot)
-        });
-        localStorage.setItem(this.LAST_SYNC_KEY, String(snapshot.timestamp));
-        console.log("Données sauvegardées sur le Cloud Storage:", snapshot.timestamp);
-      } catch (err) {
-        console.warn("Erreur écriture Cloud Storage:", err);
+    window.FirebaseBridge.initRealtimeSync((collectionName, items) => {
+      const current = StorageService.get();
+
+      if (collectionName === "cinema") {
+        current.cinema = Array.isArray(items) ? items : [];
+      } else if (collectionName === "projects") {
+        current.projects = Array.isArray(items) ? items : [];
+      } else if (collectionName === "techTips") {
+        current.techTips = Array.isArray(items) ? items : [];
+      } else if (collectionName === "profile") {
+        current.profile = { ...current.profile, ...items };
       }
 
-      // 2. Realtime Push Broadcast via ntfy.sh (Lightweight ping < 100 bytes so it NEVER becomes a temporary attachment)
-      try {
-        fetch(this.DB_SYNC_HUB, {
-          method: "POST",
-          headers: {
-            "Title": "Sync: Update Ping",
-            "Priority": "high"
-          },
-          body: JSON.stringify({ type: "cloud_sync_ping", timestamp: snapshot.timestamp })
-        }).catch(() => {});
-      } catch (e) {}
+      // Sauvegarde dans le cache local (mode offline transparent)
+      localStorage.setItem(StorageService.KEY, JSON.stringify(current));
+      localStorage.setItem(StorageService.LAST_SYNC_KEY, String(Date.now()));
 
-      return true;
-    } catch (e) {
-      console.warn("Erreur broadcast snapshot:", e);
-      return false;
-    }
+      // Notification en direct pour mettre à jour l'affichage sur la page
+      window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: current }));
+    });
+
+    // Optionnel : premier seed si la base est neuve
+    window.FirebaseBridge.seedInitialDataIfEmpty(DEFAULT_DATA);
   }
 
-  /* Cloud Synchronization: Fetch latest snapshot from Cloud Storage and apply */
+  /* Cloud Synchronization Trigger */
   static async syncCloudContent() {
-    try {
-      // 1. Fetch from persistent Cloud Storage with cache buster
-      const res = await fetch(`${this.CLOUD_STORAGE_URL}?ts=${Date.now()}`, {
-        cache: "no-store",
-        headers: { "Accept": "application/json" }
-      });
-
-      if (res.ok) {
-        const snapshot = await res.json();
-        if (snapshot && snapshot.timestamp && snapshot.payload) {
-          const lastLocalSync = parseInt(localStorage.getItem(this.LAST_SYNC_KEY) || "0", 10);
-          const hasLocalSync = !!localStorage.getItem(this.LAST_SYNC_KEY);
-          
-          // Apply if cloud snapshot is newer, OR if this is a first visit on this device!
-          if (!hasLocalSync || snapshot.timestamp > lastLocalSync) {
-            const localData = this.get();
-            const incoming = snapshot.payload;
-
-            if (incoming.profile) localData.profile = incoming.profile;
-            if (Array.isArray(incoming.skills)) localData.skills = incoming.skills;
-            if (Array.isArray(incoming.techTips)) localData.techTips = incoming.techTips;
-            if (Array.isArray(incoming.cinema)) localData.cinema = incoming.cinema;
-            if (Array.isArray(incoming.projects)) localData.projects = incoming.projects;
-
-            if (snapshot.authPassword) {
-              localStorage.setItem(this.AUTH_KEY, snapshot.authPassword);
-              localStorage.setItem("nicaisse_admin_password", snapshot.authPassword);
-            }
-
-            localStorage.setItem(this.KEY, JSON.stringify(localData));
-            localStorage.setItem(this.LAST_SYNC_KEY, String(snapshot.timestamp));
-
-            window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: localData }));
-            console.log("Cloud sync appliqué avec succès depuis Cloud Storage:", snapshot.timestamp);
-            return true;
-          }
-          return false;
-        }
-      }
-    } catch (err) {
-      console.warn("Tentative sync cloud via fallback ntfy.sh...", err);
+    if (this.isFirebaseActive()) {
+      return true;
     }
-
-    // Fallback: If primary Cloud Storage is unreachable, try reading from ntfy.sh
-    return this.syncCloudFromNtfyFallback();
-  }
-
-  /* Fallback sync from ntfy.sh (handles both direct JSON messages and attachments) */
-  static async syncCloudFromNtfyFallback() {
-    try {
-      const res = await fetch(`${this.DB_SYNC_HUB}/json?poll=1`, { cache: "no-store" });
-      if (!res.ok) return false;
-      const text = await res.text();
-      if (!text || !text.trim()) return false;
-
-      const lines = text.trim().split("\n");
-      let newestSnapshot = null;
-
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        try {
-          const envelope = JSON.parse(line);
-          if (envelope.event !== "message") continue;
-
-          let msg = null;
-          // If ntfy uploaded snapshot as an attachment
-          if (envelope.attachment && envelope.attachment.url) {
-            try {
-              const attachRes = await fetch(envelope.attachment.url);
-              if (attachRes.ok) {
-                msg = await attachRes.json();
-              }
-            } catch (e) {}
-          } else if (envelope.message && envelope.message.startsWith("{")) {
-            msg = JSON.parse(envelope.message);
-          }
-
-          if (msg && msg.type === "full_snapshot" && msg.timestamp && msg.payload) {
-            if (!newestSnapshot || msg.timestamp > newestSnapshot.timestamp) {
-              newestSnapshot = msg;
-            }
-          }
-        } catch (e) {}
-      }
-
-      if (!newestSnapshot) return false;
-
-      const lastLocalSync = parseInt(localStorage.getItem(this.LAST_SYNC_KEY) || "0", 10);
-      const hasLocalSync = !!localStorage.getItem(this.LAST_SYNC_KEY);
-
-      if (!hasLocalSync || newestSnapshot.timestamp > lastLocalSync) {
-        const localData = this.get();
-        const incoming = newestSnapshot.payload;
-
-        if (incoming.profile) localData.profile = incoming.profile;
-        if (Array.isArray(incoming.skills)) localData.skills = incoming.skills;
-        if (Array.isArray(incoming.techTips)) localData.techTips = incoming.techTips;
-        if (Array.isArray(incoming.cinema)) localData.cinema = incoming.cinema;
-        if (Array.isArray(incoming.projects)) localData.projects = incoming.projects;
-
-        if (newestSnapshot.authPassword) {
-          localStorage.setItem(this.AUTH_KEY, newestSnapshot.authPassword);
-          localStorage.setItem("nicaisse_admin_password", newestSnapshot.authPassword);
-        }
-
-        localStorage.setItem(this.KEY, JSON.stringify(localData));
-        localStorage.setItem(this.LAST_SYNC_KEY, String(newestSnapshot.timestamp));
-
-        window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: localData }));
-        return true;
-      }
-      return false;
-    } catch (e) {
-      return false;
-    }
+    return false;
   }
 
   /* Live Presence Engine: Send heartbeat ping */
@@ -434,7 +262,6 @@ class StorageService {
           if (msg.event === "leave") {
             sessionsMap.delete(msg.sessionId);
           } else if (msg.event === "ping") {
-            // Keep most recent ping for this session
             const existing = sessionsMap.get(msg.sessionId);
             if (!existing || msg.lastSeen > existing.lastSeen) {
               sessionsMap.set(msg.sessionId, msg);
@@ -443,7 +270,7 @@ class StorageService {
         } catch (e) {}
       }
 
-      // Filter: Only visitors whose last heartbeat was within the last 60 seconds
+      // Filtrer : visiteurs ayant envoyé un ping dans les 65 dernières secondes
       const active = [];
       for (const [id, session] of sessionsMap.entries()) {
         const ageSeconds = Math.round((now - session.lastSeen) / 1000);
@@ -455,7 +282,6 @@ class StorageService {
         }
       }
 
-      // Sort by most recently active
       active.sort((a, b) => b.lastSeen - a.lastSeen);
       return active;
     } catch (e) {
@@ -492,13 +318,12 @@ class StorageService {
       page: window.location.hash || "Accueil"
     };
 
-    // Prepend (most recent first), keep last 200 visits
     data.visitors.unshift(newEntry);
     if (data.visitors.length > 200) data.visitors = data.visitors.slice(0, 200);
 
     this.save(data, false);
 
-    // Synchronize to telemetry hub
+    // Synchronisation vers le hub télémétrie
     try {
       fetch(this.TELEMETRY_HUB, {
         method: "POST",
@@ -509,4 +334,13 @@ class StorageService {
 
     return newEntry;
   }
+}
+
+// Initialisation de la synchronisation dès que Firebase est prêt
+if (window.FirebaseBridge) {
+  StorageService.initFirebaseSync();
+} else {
+  window.addEventListener("firebase_bridge_ready", () => {
+    StorageService.initFirebaseSync();
+  });
 }

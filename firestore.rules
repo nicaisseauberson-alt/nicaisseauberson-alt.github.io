@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Règle par défaut : Lecture publique pour tous les visiteurs du portfolio
+    match /{document=**} {
+      allow read: if true;
+    }
+    
+    // 2. Collection Cinéma (Films & Séries) : Écriture réservée exclusivement à l'admin authentifié
+    match /cinema/{filmId} {
+      allow write: if request.auth != null;
+    }
+    
+    // 3. Collection Projets & Documents pédagogiques : Écriture réservée à l'admin authentifié
+    match /projects/{projectId} {
+      allow write: if request.auth != null;
+    }
+    
+    // 4. Collection Astuces & Conseils Informatiques : Écriture réservée à l'admin authentifié
+    match /techTips/{tipId} {
+      allow write: if request.auth != null;
+    }
+    
+    // 5. Paramètres & Profil (settings/profile) : Écriture réservée à l'admin authentifié
+    match /settings/{settingId} {
+      allow write: if request.auth != null;
+    }
+  }
+}

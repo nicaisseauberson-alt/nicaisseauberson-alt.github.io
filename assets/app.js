@@ -439,7 +439,19 @@ function renderCinema(films) {
   const container = document.getElementById("cinema-grid");
   if (!container) return;
 
-  container.innerHTML = (films || []).map(film => `
+  const validFilms = films || [];
+  if (validFilms.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
+        <div style="font-size: 2.5rem; margin-bottom: 12px;">🎬</div>
+        <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Catalogue Cinéma</h4>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun film affiché pour le moment. Vous pouvez en ajouter depuis l'espace administrateur.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = validFilms.map(film => `
     <div class="film-card">
       <div class="film-poster-wrap">
         <img src="${escapeHTML(film.poster)}" alt="${escapeHTML(film.title)}" class="film-poster" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800'">
