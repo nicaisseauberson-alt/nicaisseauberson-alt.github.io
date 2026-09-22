@@ -138,18 +138,40 @@ if ($isWin) {
   visitors: []
 };
 
-// Initialisation du LocalStorage / Cache
+// Initialisation du LocalStorage / Cache & Cloud Sync
 class StorageService {
   static KEY = "nicaisse_portfolio_db_v2026";
-  static ADMIN_PIN_KEY = "nicaisse_admin_token";
-  static CONTENT_HUB = "https://ntfy.sh/nicaisse_content_hub_2026";
+  static AUTH_KEY = "nicaisse_owner_password_2026";
+  static LAST_SYNC_KEY = "nicaisse_last_cloud_sync_ts";
+  static DEFAULT_PASS = "nicaisse2026"; // Mot de passe initial privé (jamais affiché en clair sur l'interface)
+  
+  static DB_SYNC_HUB = "https://ntfy.sh/nicaisse_cloud_db_sync_2026";
+  static PRESENCE_HUB = "https://ntfy.sh/nicaisse_presence_hub_2026";
   static TELEMETRY_HUB = "https://ntfy.sh/nicaisse_telemetry_hub_2026";
+
+  static getPassword() {
+    return localStorage.getItem(this.AUTH_KEY) || this.DEFAULT_PASS;
+  }
+
+  static setPassword(newPass) {
+    if (!newPass || newPass.trim().length < 4) return false;
+    const cleanPass = newPass.trim();
+    localStorage.setItem(this.AUTH_KEY, cleanPass);
+    // Broadcast snapshot immediately so all other devices receive the updated password!
+    this.broadcastFullSnapshot();
+    return true;
+  }
+
+  static checkPassword(inputPass) {
+    const activePass = this.getPassword();
+    return inputPass && inputPass.trim() === activePass;
+  }
 
   static get() {
     try {
       const data = localStorage.getItem(this.KEY);
       if (!data) {
-        this.save(DEFAULT_DATA);
+        this.save(DEFAULT_DATA, false);
         return JSON.parse(JSON.stringify(DEFAULT_DATA));
       }
       const parsed = JSON.parse(data);
@@ -161,44 +183,62 @@ class StorageService {
     }
   }
 
-  static save(data) {
+  static save(data, shouldBroadcast = true) {
     try {
       localStorage.setItem(this.KEY, JSON.stringify(data));
-      // Notify components
+      // Notify local components
       window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: data }));
+      
+      // Auto-broadcast full snapshot to Cloud so phone / other devices see the update immediately
+      if (shouldBroadcast) {
+        this.broadcastFullSnapshot(data);
+      }
     } catch (e) {
       console.error("Erreur sauvegarde storage:", e);
     }
   }
 
-  static broadcastContentChange(change) {
+  /* Snapshot replication: Broadcast complete current state to Cloud Hub */
+  static broadcastFullSnapshot(currentData = null) {
     try {
-      const payload = {
-        id: "sync-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4),
+      const data = currentData || this.get();
+      const snapshot = {
+        type: "full_snapshot",
+        version: 2026,
         timestamp: Date.now(),
-        ...change
+        authPassword: this.getPassword(),
+        payload: {
+          profile: data.profile,
+          skills: data.skills,
+          techTips: data.techTips,
+          cinema: data.cinema,
+          projects: data.projects
+        }
       };
-      fetch(this.CONTENT_HUB, {
+
+      fetch(this.DB_SYNC_HUB, {
         method: "POST",
-        headers: { 
-          "Title": "Update: " + (change.category || "Content"),
+        headers: {
+          "Title": "Sync: State Snapshot",
           "Priority": "high"
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(snapshot)
+      }).then(() => {
+        localStorage.setItem(this.LAST_SYNC_KEY, String(snapshot.timestamp));
       }).catch(() => {});
     } catch (e) {}
   }
 
+  /* Cloud Synchronization: Fetch latest snapshot and apply */
   static async syncCloudContent() {
     try {
-      const res = await fetch(`${this.CONTENT_HUB}/json?poll=1`, { cache: "no-store" });
+      const res = await fetch(`${this.DB_SYNC_HUB}/json?poll=1`, { cache: "no-store" });
       if (!res.ok) return false;
       const text = await res.text();
       if (!text || !text.trim()) return false;
 
       const lines = text.trim().split("\n");
-      const currentData = this.get();
-      let hasChanges = false;
+      let newestSnapshot = null;
 
       for (const line of lines) {
         if (!line.trim()) continue;
@@ -206,65 +246,130 @@ class StorageService {
           const envelope = JSON.parse(line);
           if (envelope.event !== "message" || !envelope.message) continue;
           const msg = JSON.parse(envelope.message);
-          if (!msg || !msg.category || !msg.action) continue;
-
-          if (msg.category === "cinema") {
-            if (!currentData.cinema) currentData.cinema = [];
-            if (msg.action === "add" && msg.item && msg.item.id) {
-              const exists = currentData.cinema.some(f => f.id === msg.item.id || f.title.toLowerCase() === msg.item.title.toLowerCase());
-              if (!exists) {
-                currentData.cinema.unshift(msg.item);
-                hasChanges = true;
-              }
-            } else if (msg.action === "delete" && msg.id) {
-              const prevLen = currentData.cinema.length;
-              currentData.cinema = currentData.cinema.filter(f => f.id !== msg.id);
-              if (currentData.cinema.length !== prevLen) hasChanges = true;
+          if (msg && msg.type === "full_snapshot" && msg.timestamp && msg.payload) {
+            if (!newestSnapshot || msg.timestamp > newestSnapshot.timestamp) {
+              newestSnapshot = msg;
             }
-          } else if (msg.category === "techTips") {
-            if (!currentData.techTips) currentData.techTips = [];
-            if (msg.action === "add" && msg.item && msg.item.id) {
-              const exists = currentData.techTips.some(t => t.id === msg.item.id || t.title.toLowerCase() === msg.item.title.toLowerCase());
-              if (!exists) {
-                currentData.techTips.unshift(msg.item);
-                hasChanges = true;
-              }
-            } else if (msg.action === "delete" && msg.id) {
-              const prevLen = currentData.techTips.length;
-              currentData.techTips = currentData.techTips.filter(t => t.id !== msg.id);
-              if (currentData.techTips.length !== prevLen) hasChanges = true;
-            }
-          } else if (msg.category === "projects") {
-            if (!currentData.projects) currentData.projects = [];
-            if (msg.action === "add" && msg.item && msg.item.id) {
-              const exists = currentData.projects.some(p => p.id === msg.item.id || p.title.toLowerCase() === msg.item.title.toLowerCase());
-              if (!exists) {
-                currentData.projects.unshift(msg.item);
-                hasChanges = true;
-              }
-            } else if (msg.action === "delete" && msg.id) {
-              const prevLen = currentData.projects.length;
-              currentData.projects = currentData.projects.filter(p => p.id !== msg.id);
-              if (currentData.projects.length !== prevLen) hasChanges = true;
-            }
-          } else if (msg.category === "profile" && msg.item) {
-            currentData.profile = { ...currentData.profile, ...msg.item };
-            hasChanges = true;
           }
         } catch (e) {}
       }
 
-      if (hasChanges) {
-        this.save(currentData);
+      if (!newestSnapshot) return false;
+
+      const lastLocalSync = parseInt(localStorage.getItem(this.LAST_SYNC_KEY) || "0", 10);
+      
+      // If cloud snapshot is newer than local last sync timestamp
+      if (newestSnapshot.timestamp > lastLocalSync) {
+        const localData = this.get();
+        const incoming = newestSnapshot.payload;
+
+        if (incoming.profile) localData.profile = incoming.profile;
+        if (Array.isArray(incoming.skills)) localData.skills = incoming.skills;
+        if (Array.isArray(incoming.techTips)) localData.techTips = incoming.techTips;
+        if (Array.isArray(incoming.cinema)) localData.cinema = incoming.cinema;
+        if (Array.isArray(incoming.projects)) localData.projects = incoming.projects;
+
+        // Synchronize updated password if present in snapshot
+        if (newestSnapshot.authPassword) {
+          localStorage.setItem(this.AUTH_KEY, newestSnapshot.authPassword);
+        }
+
+        localStorage.setItem(this.KEY, JSON.stringify(localData));
+        localStorage.setItem(this.LAST_SYNC_KEY, String(newestSnapshot.timestamp));
+
+        window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: localData }));
         return true;
       }
       return false;
     } catch (err) {
-      console.warn("Erreur synchronisation cloud content:", err);
+      console.warn("Erreur sync Cloud:", err);
       return false;
     }
   }
 
+  /* Live Presence Engine: Send heartbeat ping */
+  static sendPresencePing(sessionInfo, eventType = "ping") {
+    if (!sessionInfo || !sessionInfo.sessionId) return;
+    try {
+      const pingData = {
+        event: eventType, // 'ping' or 'leave'
+        sessionId: sessionInfo.sessionId,
+        device: sessionInfo.device || "Appareil",
+        deviceType: sessionInfo.deviceType || "Smartphone",
+        os: sessionInfo.os || "OS Inconnu",
+        browser: sessionInfo.browser || "Navigateur",
+        location: sessionInfo.location || "En cours...",
+        screen: sessionInfo.screen || "",
+        connectedAt: sessionInfo.connectedAt || "",
+        lastSeen: Date.now()
+      };
+
+      if (eventType === "leave" && navigator.sendBeacon) {
+        navigator.sendBeacon(this.PRESENCE_HUB, JSON.stringify(pingData));
+      } else {
+        fetch(this.PRESENCE_HUB, {
+          method: "POST",
+          headers: { "Title": "Presence: " + sessionInfo.device },
+          body: JSON.stringify(pingData)
+        }).catch(() => {});
+      }
+    } catch (e) {}
+  }
+
+  /* Fetch active live visitors (connected right now within last 60s) */
+  static async getActiveLiveVisitors() {
+    try {
+      const res = await fetch(`${this.PRESENCE_HUB}/json?poll=1`, { cache: "no-store" });
+      if (!res.ok) return [];
+      const text = await res.text();
+      if (!text || !text.trim()) return [];
+
+      const lines = text.trim().split("\n");
+      const sessionsMap = new Map();
+      const now = Date.now();
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const envelope = JSON.parse(line);
+          if (envelope.event !== "message" || !envelope.message) continue;
+          const msg = JSON.parse(envelope.message);
+          if (!msg || !msg.sessionId) continue;
+
+          if (msg.event === "leave") {
+            sessionsMap.delete(msg.sessionId);
+          } else if (msg.event === "ping") {
+            // Keep most recent ping for this session
+            const existing = sessionsMap.get(msg.sessionId);
+            if (!existing || msg.lastSeen > existing.lastSeen) {
+              sessionsMap.set(msg.sessionId, msg);
+            }
+          }
+        } catch (e) {}
+      }
+
+      // Filter: Only visitors whose last heartbeat was within the last 60 seconds
+      const active = [];
+      for (const [id, session] of sessionsMap.entries()) {
+        const ageSeconds = Math.round((now - session.lastSeen) / 1000);
+        if (ageSeconds <= 65) {
+          active.push({
+            ...session,
+            ageSeconds: Math.max(0, ageSeconds)
+          });
+        }
+      }
+
+      // Sort by most recently active
+      active.sort((a, b) => b.lastSeen - a.lastSeen);
+      return active;
+    } catch (e) {
+      console.warn("Erreur lecture présence en direct:", e);
+      return [];
+    }
+  }
+
+  /* Log visitor for historical record */
   static logVisitor(sessionInfo) {
     const data = this.get();
     if (!data.visitors) data.visitors = [];
@@ -288,7 +393,7 @@ class StorageService {
       browser: sessionInfo.browser || "Navigateur Inconnu",
       screen: sessionInfo.screen || `${window.innerWidth}x${window.innerHeight}`,
       language: navigator.language || "fr-FR",
-      location: sessionInfo.location || "En cours de détection...",
+      location: sessionInfo.location || "Détection...",
       page: window.location.hash || "Accueil"
     };
 
@@ -296,9 +401,9 @@ class StorageService {
     data.visitors.unshift(newEntry);
     if (data.visitors.length > 200) data.visitors = data.visitors.slice(0, 200);
 
-    this.save(data);
+    this.save(data, false);
 
-    // Synchronize to real-time cloud hub (ntfy.sh) so admin sees visits from any device
+    // Synchronize to telemetry hub
     try {
       fetch(this.TELEMETRY_HUB, {
         method: "POST",

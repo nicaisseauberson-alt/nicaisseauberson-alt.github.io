@@ -36,59 +36,98 @@ document.addEventListener("DOMContentLoaded", () => {
 async function initVisitorTelemetry() {
   const telemetry = await detectDeviceAndBrowser();
 
-  // Session info
+  // Unique session ID for persistent live heartbeat tracking
+  let sessionId = sessionStorage.getItem("nicaisse_visitor_session_id");
+  if (!sessionId) {
+    sessionId = "sess_" + Date.now().toString(36) + "_" + Math.random().toString(36).substring(2, 8);
+    sessionStorage.setItem("nicaisse_visitor_session_id", sessionId);
+  }
+
+  const now = new Date();
+  const connectedAtTime = now.toLocaleTimeString("fr-FR", { 
+    hour: "2-digit", 
+    minute: "2-digit", 
+    second: "2-digit" 
+  });
+
+  // Session info template
   const sessionInfo = {
+    sessionId: sessionId,
     device: telemetry.device,
     deviceType: telemetry.deviceType,
     os: telemetry.os,
     browser: telemetry.browser,
     screen: telemetry.screen,
-    location: "Détection réseau..."
+    location: "Détection réseau...",
+    connectedAt: connectedAtTime
   };
 
-  // Log immediately to local & cloud storage
+  // 1. Initial live presence ping
+  StorageService.sendPresencePing(sessionInfo, "ping");
+
+  // 2. Heartbeat every 20 seconds
+  const presenceTimer = setInterval(() => {
+    StorageService.sendPresencePing(sessionInfo, "ping");
+  }, 20000);
+
+  // 3. Send immediate "leave" beacon when user closes or leaves page
+  const handleLeave = () => {
+    StorageService.sendPresencePing(sessionInfo, "leave");
+  };
+  window.addEventListener("pagehide", handleLeave);
+  window.addEventListener("beforeunload", handleLeave);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      StorageService.sendPresencePing(sessionInfo, "ping");
+    }
+  });
+
+  // 4. Initial log entry in history
   const entry = StorageService.logVisitor(sessionInfo);
 
-  // Asynchronously enrich with country/city if network allows
+  // 5. Geolocation resolution via ipwho.is (fast, accurate, no key required)
   try {
-    fetch("https://ipapi.co/json/", { cache: "no-store" })
-      .then(r => r.json())
-      .then(geo => {
-        if (geo && (geo.country_name || geo.city)) {
-          const locStr = `${geo.city ? geo.city + ', ' : ''}${geo.country_name || ''}`;
-          const currentData = StorageService.get();
-          const target = currentData.visitors.find(v => v.id === entry.id);
-          if (target) {
-            target.location = locStr;
-            StorageService.save(currentData);
-            // Sync updated location to cloud
-            try {
-              fetch("https://ntfy.sh/nicaisse_telemetry_hub_2026", {
-                method: "POST",
-                headers: { "Title": "Visite: " + target.device + " (" + target.browser + ")" },
-                body: JSON.stringify(target)
-              }).catch(() => {});
-            } catch (e) {}
-          }
+    const res = await fetch("https://ipwho.is/", { cache: "no-store" });
+    if (res.ok) {
+      const geo = await res.json();
+      if (geo && geo.success) {
+        const flag = (geo.flag && geo.flag.emoji) ? geo.flag.emoji : "📍";
+        const city = geo.city ? (geo.city + ", ") : "";
+        const country = geo.country || "Inconnu";
+        const exactLocation = `${flag} ${city}${country}`.trim();
+
+        sessionInfo.location = exactLocation;
+        // Update live presence with exact location
+        StorageService.sendPresencePing(sessionInfo, "ping");
+
+        // Update local & cloud visitor history
+        const currentData = StorageService.get();
+        const target = currentData.visitors.find(v => v.id === entry.id);
+        if (target) {
+          target.location = exactLocation;
+          StorageService.save(currentData, false);
+          try {
+            fetch(StorageService.TELEMETRY_HUB, {
+              method: "POST",
+              headers: { "Title": "Visite: " + target.device + " (" + target.browser + ")" },
+              body: JSON.stringify(target)
+            }).catch(() => {});
+          } catch (e) {}
         }
-      })
-      .catch(() => {
-        fetch("https://api.country.is/")
-          .then(r => r.json())
-          .then(c => {
-            if (c && c.country) {
-              const currentData = StorageService.get();
-              const target = currentData.visitors.find(v => v.id === entry.id);
-              if (target) {
-                target.location = `Pays: ${c.country}`;
-                StorageService.save(currentData);
-              }
-            }
-          })
-          .catch(() => {});
-      });
-  } catch (e) {
-    // Ignore offline errors
+      }
+    }
+  } catch (err) {
+    // Fallback to secondary geo service
+    try {
+      const fb = await fetch("https://ipapi.co/json/", { cache: "no-store" });
+      const fbData = await fb.json();
+      if (fbData && fbData.country_name) {
+        const exactLoc = `📍 ${fbData.city ? fbData.city + ', ' : ''}${fbData.country_name}`;
+        sessionInfo.location = exactLoc;
+        StorageService.sendPresencePing(sessionInfo, "ping");
+      }
+    } catch (e) {}
   }
 }
 
@@ -118,7 +157,12 @@ async function detectDeviceAndBrowser() {
   if (isIPhone) {
     deviceType = "Smartphone";
     // Precise iPhone Model detection by CSS Points & DPR
-    if (minDim === 440 && maxDim === 956) {
+    // iPhone 11 strictly has 414x896 CSS points and DPR = 2 (Liquid Retina 828x1792)
+    if (minDim === 414 && maxDim === 896) {
+      deviceName = dpr >= 3 ? "iPhone 11 Pro Max" : "iPhone 11";
+    } else if (minDim === 375 && maxDim === 812) {
+      deviceName = "iPhone 11 Pro / X / 12 mini / 13 mini";
+    } else if (minDim === 440 && maxDim === 956) {
       deviceName = "iPhone 16 Pro Max";
     } else if (minDim === 402 && maxDim === 874) {
       deviceName = "iPhone 16 Pro";
@@ -130,12 +174,8 @@ async function detectDeviceAndBrowser() {
       deviceName = "iPhone 14 / 13 / 13 Pro / 12";
     } else if (minDim === 428 && maxDim === 926) {
       deviceName = "iPhone 14 Plus / 13 Pro Max / 12 Pro Max";
-    } else if (minDim === 375 && maxDim === 812) {
-      deviceName = "iPhone 13 mini / 12 mini / 11 Pro / X";
-    } else if (minDim === 414 && maxDim === 896) {
-      deviceName = dpr >= 3 ? "iPhone 11 Pro Max / XS Max" : "iPhone 11 / XR";
     } else if (minDim === 414 && maxDim === 736) {
-      deviceName = "iPhone 8 Plus / 7 Plus / 6s Plus";
+      deviceName = "iPhone 8 Plus / 7 Plus";
     } else if (minDim === 375 && maxDim === 667) {
       deviceName = "iPhone SE (2e/3e gén) / 8 / 7";
     } else if (minDim === 320 && maxDim === 568) {
@@ -144,23 +184,33 @@ async function detectDeviceAndBrowser() {
       deviceName = "Apple iPhone";
     }
 
-    // iOS Version
-    if (/OS (\d+[_.]\d+)/i.test(ua)) {
-      osName = "iOS " + RegExp.$1.replace(/_/g, '.');
+    // Exact iOS Version with patch number (e.g. iOS 17.5.1, iOS 18.0)
+    const iosMatch = ua.match(/(?:OS|Version)[ /_](\d+([_.]\d+)+)/i);
+    if (iosMatch) {
+      osName = "iOS " + iosMatch[1].replace(/_/g, ".");
     } else {
       osName = "iOS (Apple)";
     }
   } else if (isIPad) {
     deviceType = "Tablette";
     deviceName = "Apple iPad";
-    if (/OS (\d+[_.]\d+)/i.test(ua)) {
-      osName = "iPadOS " + RegExp.$1.replace(/_/g, '.');
+    const ipadMatch = ua.match(/(?:OS|Version)[ /_](\d+([_.]\d+)+)/i);
+    if (ipadMatch) {
+      osName = "iPadOS " + ipadMatch[1].replace(/_/g, ".");
     } else {
       osName = "iPadOS";
     }
   } else if (isAndroid) {
     deviceType = minDim >= 600 ? "Tablette" : "Smartphone";
     
+    // Exact Android OS Version (e.g. Android 13, Android 14, Android 12)
+    const androidVerMatch = ua.match(/Android\s*([0-9]+(?:\.[0-9]+)*)/i);
+    if (androidVerMatch) {
+      osName = "Android " + androidVerMatch[1];
+    } else {
+      osName = "Android";
+    }
+
     // Extract Android Phone Model
     let androidModel = "";
     if (navigator.userAgentData && typeof navigator.userAgentData.getHighEntropyValues === 'function') {
@@ -174,7 +224,7 @@ async function detectDeviceAndBrowser() {
       androidModel = RegExp.$1.trim();
     }
 
-    // Resolve Samsung Model Codes
+    // Resolve Samsung Model Codes & Major Android Phones
     if (/SM-S928/i.test(androidModel)) androidModel = "Samsung Galaxy S24 Ultra";
     else if (/SM-S926/i.test(androidModel)) androidModel = "Samsung Galaxy S24+";
     else if (/SM-S921/i.test(androidModel)) androidModel = "Samsung Galaxy S24";
@@ -186,18 +236,17 @@ async function detectDeviceAndBrowser() {
     else if (/SM-A546/i.test(androidModel)) androidModel = "Samsung Galaxy A54 5G";
     else if (/SM-A536/i.test(androidModel)) androidModel = "Samsung Galaxy A53 5G";
     else if (/SM-A528/i.test(androidModel)) androidModel = "Samsung Galaxy A52s 5G";
-    else if (/Pixel\s*(\d+[a-zA-Z\s]*)/i.test(ua)) androidModel = "Google Pixel " + RegExp.$1.trim();
-    else if (/Xiaomi|Redmi|POCO/i.test(ua)) androidModel = "Xiaomi / Redmi (" + (androidModel || "Android") + ")";
-    else if (/OnePlus/i.test(ua)) androidModel = "OnePlus (" + (androidModel || "Android") + ")";
+    else if (/SM-A346/i.test(androidModel)) androidModel = "Samsung Galaxy A34 5G";
+    else if (/SM-A145/i.test(androidModel)) androidModel = "Samsung Galaxy A14";
+    else if (/Pixel\s*([0-9a-zA-Z\s]+)/i.test(ua)) androidModel = "Google Pixel " + RegExp.$1.trim();
+    else if (/Redmi/i.test(ua) || /Redmi/i.test(androidModel)) androidModel = "Xiaomi Redmi " + (androidModel || "").replace(/Redmi/i, '').trim();
+    else if (/POCO/i.test(ua) || /POCO/i.test(androidModel)) androidModel = "Xiaomi POCO " + (androidModel || "").replace(/POCO/i, '').trim();
+    else if (/Xiaomi/i.test(ua) || /Xiaomi/i.test(androidModel)) androidModel = "Xiaomi (" + (androidModel || "Android") + ")";
+    else if (/OnePlus/i.test(ua) || /OnePlus/i.test(androidModel)) androidModel = "OnePlus (" + (androidModel || "Android") + ")";
     else if (/Huawei|Honor/i.test(ua)) androidModel = "Huawei (" + (androidModel || "Android") + ")";
+    else if (/Motorola|Moto/i.test(ua)) androidModel = "Motorola (" + (androidModel || "Android") + ")";
 
     deviceName = androidModel ? androidModel : (deviceType === "Tablette" ? "Tablette Android" : "Smartphone Android");
-
-    if (/Android\s*(\d+(\.\d+)?)/i.test(ua)) {
-      osName = "Android " + RegExp.$1;
-    } else {
-      osName = "Android";
-    }
   } else {
     // Desktop / Laptop
     deviceType = "Ordinateur";
@@ -247,7 +296,7 @@ async function detectDeviceAndBrowser() {
   } else if (/SamsungBrowser\//i.test(ua)) {
     browserName = "Samsung Internet";
   } else if (/DuckDuckGo\//i.test(ua)) {
-    browserName = "DuckDuckGo Privacy Browser";
+    browserName = "DuckDuckGo Browser";
   } else if (/CriOS\//i.test(ua)) {
     browserName = "Google Chrome (iOS)";
   } else if (/FxiOS\//i.test(ua)) {
@@ -256,7 +305,7 @@ async function detectDeviceAndBrowser() {
     browserName = "Google Chrome";
   } else if (/Firefox\//i.test(ua)) {
     browserName = "Mozilla Firefox";
-  } else if (/Safari\//i.test(ua) || isIOSPlatform) {
+  } else if (isIOSPlatform || /Safari\//i.test(ua)) {
     browserName = isIOSPlatform ? "Safari Mobile (iOS)" : "Apple Safari (macOS)";
   }
 

@@ -1,14 +1,13 @@
 /**
  * Nicaisse Auberson - Secure Administration & Content Management Engine
- * Protected Dashboard: Add Tech Tips, Movies, Projects, Downloadable Files & View Visitor Logs
+ * Protected Dashboard: Add Tech Tips, Movies, Projects, Downloadable Files & View Real-Time Visitor Logs
  */
-
-const ADMIN_DEFAULT_PASS = "admin2026";
 
 class AdminManager {
   constructor() {
     this.isAuthenticated = false;
-    this.activeTab = "analytics"; // analytics, tips, cinema, projects, profile
+    this.activeTab = "analytics"; // analytics, cinema, projects, tips, profile
+    this.analyticsPollTimer = null;
     this.init();
   }
 
@@ -32,22 +31,33 @@ class AdminManager {
     });
   }
 
-  openLoginOrDashboard() {
+  async openLoginOrDashboard() {
     const modal = document.getElementById("admin-modal");
     if (!modal) return;
+
+    modal.classList.add("active");
+
+    // Silently synchronize from cloud to ensure latest password & contents are applied
+    StorageService.syncCloudContent().then(updated => {
+      if (updated && this.isAuthenticated) {
+        this.renderActiveTabContent();
+      }
+    });
 
     if (!this.isAuthenticated) {
       this.showLoginForm();
     } else {
       this.showDashboard();
     }
-
-    modal.classList.add("active");
   }
 
   closeModal() {
     const modal = document.getElementById("admin-modal");
     if (modal) modal.classList.remove("active");
+    if (this.analyticsPollTimer) {
+      clearInterval(this.analyticsPollTimer);
+      this.analyticsPollTimer = null;
+    }
   }
 
   showLoginForm() {
@@ -55,24 +65,32 @@ class AdminManager {
     const headerTitle = document.getElementById("admin-modal-title");
     const tabsContainer = document.getElementById("admin-tabs");
     
-    headerTitle.textContent = "Accès Administrateur Sécurisé";
+    headerTitle.textContent = "Espace Privé de Nicaisse Auberson";
     tabsContainer.style.display = "none";
 
     body.innerHTML = `
-      <div style="max-width: 400px; margin: 40px auto; text-align: center;">
-        <div style="font-size: 3rem; margin-bottom: 16px;">🔐</div>
-        <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 8px;">Espace Nicaisse Auberson</h3>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
-          Entrez votre mot de passe administrateur pour gérer le contenu et consulter les statistiques de visite.
+      <div style="max-width: 440px; margin: 24px auto; text-align: center;">
+        <div style="font-size: 3rem; margin-bottom: 12px;">🛡️</div>
+        <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; color: #fff;">Espace Personnel Sécurisé</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 22px; line-height: 1.5;">
+          Accès réservé exclusivement à Nicaisse Auberson pour administrer le portfolio et superviser les connexions en direct.
         </p>
 
         <form id="admin-login-form" onsubmit="adminManager.handleLogin(event)">
-          <div class="form-group">
-            <input type="password" id="admin-pass-input" class="form-control" placeholder="Mot de passe (par défaut: admin2026)" autofocus required>
+          <div class="form-group" style="margin-bottom: 14px;">
+            <input type="password" id="admin-pass-input" class="form-control" placeholder="Entrez votre mot de passe secret" autofocus required style="text-align: center; font-size: 1rem; letter-spacing: 2px;">
           </div>
-          <button type="submit" class="btn btn-primary" style="width: 100%;">Déverrouiller l'Espace Admin</button>
+          <button type="submit" class="btn btn-primary" style="width: 100%; font-weight: 700; padding: 12px;">
+            🔓 Déverrouiller le Tableau de Bord
+          </button>
         </form>
-        <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 16px;">(Mot de passe initial : <code>admin2026</code>)</p>
+
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <span style="font-size: 0.78rem; color: var(--text-dim);">Mot de passe changé sur votre PC ?</span>
+          <button type="button" class="btn btn-outline btn-sm" onclick="adminManager.syncCloudContent(true)" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); font-size: 0.78rem;">
+            🔄 Synchroniser depuis le Cloud
+          </button>
+        </div>
       </div>
     `;
   }
@@ -82,8 +100,7 @@ class AdminManager {
     const input = document.getElementById("admin-pass-input");
     if (!input) return;
 
-    const savedPass = localStorage.getItem("nicaisse_admin_password") || localStorage.getItem("nicklaus_admin_password") || ADMIN_DEFAULT_PASS;
-    if (input.value === savedPass) {
+    if (StorageService.checkPassword(input.value)) {
       this.isAuthenticated = true;
       this.showDashboard();
     } else {
@@ -95,6 +112,10 @@ class AdminManager {
 
   logout() {
     this.isAuthenticated = false;
+    if (this.analyticsPollTimer) {
+      clearInterval(this.analyticsPollTimer);
+      this.analyticsPollTimer = null;
+    }
     this.showLoginForm();
   }
 
@@ -102,24 +123,24 @@ class AdminManager {
     const headerTitle = document.getElementById("admin-modal-title");
     const tabsContainer = document.getElementById("admin-tabs");
     
-    headerTitle.textContent = "Tableau de Bord Administrateur";
+    headerTitle.textContent = "Tableau de Bord — Nicaisse Auberson";
     tabsContainer.style.display = "flex";
 
     this.renderTabs();
     this.renderActiveTabContent();
 
-    // Silently fetch fresh telemetry and content from cloud hub on opening
+    // Silently fetch fresh telemetry and content from cloud hub
     this.fetchCloudVisitors(false);
     this.syncCloudContent(false);
   }
 
   renderTabs() {
     const tabs = [
-      { id: "analytics", label: "📊 Visiteurs & Logs" },
+      { id: "analytics", label: "🟢 En Direct" },
+      { id: "cinema", label: "🎬 Cinéma" },
+      { id: "projects", label: "📁 Projets" },
       { id: "tips", label: "💡 Astuces Tech" },
-      { id: "cinema", label: "🎬 Section Cinéma" },
-      { id: "projects", label: "📁 Projets & Fichiers" },
-      { id: "profile", label: "⚙️ Profil & Sauvegarde" }
+      { id: "profile", label: "🔑 Sécurité & Profil" }
     ];
 
     const tabsContainer = document.getElementById("admin-tabs");
@@ -128,17 +149,18 @@ class AdminManager {
         ${t.label}
       </button>
     `).join("") + `
-      <button class="admin-tab-btn" style="color: #38bdf8;" onclick="adminManager.syncCloudContent(true)" title="Synchroniser immédiatement tout le contenu avec le Cloud">
-        🔄 Synchro Cloud
-      </button>
       <button class="admin-tab-btn" style="margin-left: auto; color: #ef4444;" onclick="adminManager.logout()">
-        🚪 Déconnexion
+        🚪 Quitter
       </button>
     `;
   }
 
   switchTab(tabId) {
     this.activeTab = tabId;
+    if (tabId !== "analytics" && this.analyticsPollTimer) {
+      clearInterval(this.analyticsPollTimer);
+      this.analyticsPollTimer = null;
+    }
     this.renderTabs();
     this.renderActiveTabContent();
     if (tabId === "analytics") {
@@ -152,42 +174,90 @@ class AdminManager {
 
     if (this.activeTab === "analytics") {
       this.renderAnalyticsTab(body, data);
-    } else if (this.activeTab === "tips") {
-      this.renderTipsTab(body, data);
     } else if (this.activeTab === "cinema") {
       this.renderCinemaTab(body, data);
     } else if (this.activeTab === "projects") {
       this.renderProjectsTab(body, data);
+    } else if (this.activeTab === "tips") {
+      this.renderTipsTab(body, data);
     } else if (this.activeTab === "profile") {
       this.renderProfileTab(body, data);
     }
   }
 
-  /* 1. VISITOR ANALYTICS TAB ("Qui a accédé au site et quand") */
-  renderAnalyticsTab(body, data) {
+  /* 1. VISITOR ANALYTICS TAB: REAL-TIME PRESENCE & PAST LOGS */
+  async renderAnalyticsTab(body, data) {
+    const activeLive = await StorageService.getActiveLiveVisitors();
     const visitors = data.visitors || [];
     const totalVisits = visitors.length;
     const mobileVisits = visitors.filter(v => v.deviceType === "Smartphone" || /iPhone|Android|Pixel|Samsung|Galaxy|Xiaomi|Redmi|OnePlus|Huawei|Mobile/i.test(v.device)).length;
-    const tabletVisits = visitors.filter(v => v.deviceType === "Tablette" || /iPad|Tablet/i.test(v.device)).length;
-    const desktopVisits = totalVisits - mobileVisits - tabletVisits;
+    const desktopVisits = visitors.filter(v => v.deviceType === "Ordinateur" || /PC|Windows|Mac|Linux/i.test(v.device)).length;
 
     body.innerHTML = `
       <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Journal des Connexions & Télémétrie en Direct</h4>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Détection automatique du modèle exact de smartphone et du navigateur (synchronisé cloud)</p>
+            <h4 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+              <span class="live-indicator"><span class="live-dot"></span> EN DIRECT</span>
+              <span>Visiteurs Actifs & Télémétrie</span>
+            </h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">
+              Les visiteurs déconnectés disparaissent automatiquement de la liste en direct.
+            </p>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="btn btn-outline btn-sm" onclick="adminManager.fetchCloudVisitors(true)" title="Récupérer les connexions effectuées depuis vos smartphones">
-              🔄 Actualiser en direct
+            <button class="btn btn-outline btn-sm" onclick="adminManager.refreshAnalytics()" title="Rafraîchir les visiteurs en direct">
+              🔄 Actualiser
             </button>
             <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.clearVisitorLogs()" title="Effacer l'historique">
               🗑️ Vider l'historique
             </button>
           </div>
         </div>
-        
+
+        <!-- 1. LIVE CONNECTED VISITORS (RIGHT NOW) -->
+        <div style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+            <div style="font-weight: 700; font-size: 0.95rem; color: #34d399; display: flex; align-items: center; gap: 8px;">
+              <span class="live-dot"></span> Appareils connectés en ce moment (${activeLive.length})
+            </div>
+            <span style="font-size: 0.75rem; color: var(--text-tertiary);">Signal heartbeat actif &lt; 65s</span>
+          </div>
+
+          ${activeLive.length === 0 ? `
+            <div style="text-align: center; color: var(--text-dim); padding: 20px 12px; font-size: 0.88rem; background: rgba(255,255,255,0.01); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+              Aucun autre visiteur connecté en direct en ce moment.<br>
+              <span style="font-size: 0.78rem; color: var(--text-tertiary);">(Dès qu'un appareil quitte le site, il disparaît immédiatement d'ici)</span>
+            </div>
+          ` : `
+            <div class="visitor-cards-list">
+              ${activeLive.map(v => `
+                <div class="visitor-card-item" style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.06);">
+                  <div class="visitor-card-header">
+                    <span style="font-weight: 700; color: #34d399; display: flex; align-items: center; gap: 6px;">
+                      <span class="live-dot"></span> Connecté à ${escapeHTML(v.connectedAt || '')}
+                    </span>
+                    <span class="device-badge" style="border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                      ${this.getDeviceIcon(v.device, v.deviceType)} <strong>${escapeHTML(v.device || 'Inconnu')}</strong>
+                    </span>
+                  </div>
+                  <div class="visitor-card-details">
+                    <span>💻 Système: <strong>${escapeHTML(v.os || '')}</strong></span>
+                    <span>${this.getBrowserIcon(v.browser)} Navigateur: <strong>${escapeHTML(v.browser || '')}</strong></span>
+                    <span>📍 Localisation: <strong>${escapeHTML(v.location || 'Localisation...')}</strong></span>
+                    <span>⏱️ Signal: <strong>Il y a ${v.ageSeconds || 0}s</strong></span>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `}
+        </div>
+
+        <!-- 2. HISTORICAL STATS & ARCHIVES -->
+        <h5 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-secondary);">
+          📜 Historique Récent & Télémétrie Archivée (${totalVisits})
+        </h5>
+
         <div class="analytics-summary">
           <div class="stat-box">
             <div class="stat-value">${totalVisits}</div>
@@ -198,17 +268,12 @@ class AdminManager {
             <div class="stat-label">Smartphones (iPhone / Android)</div>
           </div>
           <div class="stat-box">
-            <div class="stat-value" style="color: #60a5fa">${desktopVisits >= 0 ? desktopVisits : 0}</div>
+            <div class="stat-value" style="color: #60a5fa">${desktopVisits}</div>
             <div class="stat-label">Ordinateurs (PC / Mac)</div>
           </div>
-          ${tabletVisits > 0 ? `
-          <div class="stat-box">
-            <div class="stat-value" style="color: #a78bfa">${tabletVisits}</div>
-            <div class="stat-label">Tablettes (iPad / Tab)</div>
-          </div>` : ''}
         </div>
 
-        <!-- Mobile Visitor Cards (< 768px) -->
+        <!-- Visitor Cards List for Mobile (< 768px) -->
         <div class="visitor-cards-list">
           ${visitors.length === 0 ? `
             <div style="text-align: center; color: var(--text-tertiary); padding: 24px;">Aucune visite enregistrée pour le moment.</div>
@@ -216,7 +281,9 @@ class AdminManager {
             <div class="visitor-card-item">
               <div class="visitor-card-header">
                 <span style="font-weight: 700; color: #fff;">${v.date} à ${v.time}</span>
-                <span class="device-badge" style="${/iPhone|Smartphone|Android/i.test(v.device || v.deviceType) ? 'border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); color: #34d399;' : ''}">${this.getDeviceIcon(v.device, v.deviceType)} ${escapeHTML(v.device || 'Inconnu')}</span>
+                <span class="device-badge" style="${/iPhone|Smartphone|Android/i.test(v.device || v.deviceType) ? 'border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); color: #34d399;' : ''}">
+                  ${this.getDeviceIcon(v.device, v.deviceType)} ${escapeHTML(v.device || 'Inconnu')}
+                </span>
               </div>
               <div class="visitor-card-details">
                 <span>💻 ${escapeHTML(v.os || '')}</span>
@@ -267,6 +334,34 @@ class AdminManager {
         </div>
       </div>
     `;
+
+    this.startAnalyticsPolling();
+  }
+
+  startAnalyticsPolling() {
+    if (this.analyticsPollTimer) clearInterval(this.analyticsPollTimer);
+    this.analyticsPollTimer = setInterval(async () => {
+      const modal = document.getElementById("admin-modal");
+      if (this.activeTab === "analytics" && modal && modal.classList.contains("active")) {
+        const body = document.getElementById("admin-modal-body");
+        if (body) {
+          const data = StorageService.get();
+          await this.renderAnalyticsTab(body, data);
+        }
+      } else {
+        clearInterval(this.analyticsPollTimer);
+        this.analyticsPollTimer = null;
+      }
+    }, 15000);
+  }
+
+  async refreshAnalytics() {
+    await this.fetchCloudVisitors(false);
+    const body = document.getElementById("admin-modal-body");
+    if (body) {
+      const data = StorageService.get();
+      await this.renderAnalyticsTab(body, data);
+    }
   }
 
   getDeviceIcon(device = "", type = "") {
@@ -328,7 +423,7 @@ class AdminManager {
         if (newCount > 0) {
           data.visitors.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
           if (data.visitors.length > 200) data.visitors = data.visitors.slice(0, 200);
-          StorageService.save(data);
+          StorageService.save(data, false);
 
           if (this.activeTab === "analytics") {
             const body = document.getElementById("admin-modal-body");
@@ -561,11 +656,8 @@ class AdminManager {
     let posterUrl = document.getElementById("new-film-poster").value;
     const fileInput = document.getElementById("new-film-poster-file");
     if (fileInput && fileInput.files && fileInput.files[0]) {
-      posterUrl = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => resolve(ev.target.result);
-        reader.readAsDataURL(fileInput.files[0]);
-      });
+      // Compress uploaded image for ultra-fast cloud broadcast across phones and laptops
+      posterUrl = await this.compressImage(fileInput.files[0], 1000, 1000, 0.75);
     }
 
     if (!posterUrl) {
@@ -587,7 +679,6 @@ class AdminManager {
 
     data.cinema.unshift(newFilm);
     StorageService.save(data);
-    StorageService.broadcastContentChange({ category: "cinema", action: "add", item: newFilm });
     this.renderCinemaTab(document.getElementById("admin-modal-body"), data);
   }
 
@@ -596,7 +687,6 @@ class AdminManager {
     const data = StorageService.get();
     data.cinema = data.cinema.filter(f => f.id !== id);
     StorageService.save(data);
-    StorageService.broadcastContentChange({ category: "cinema", action: "delete", id: id });
     this.renderCinemaTab(document.getElementById("admin-modal-body"), data);
   }
 
@@ -607,7 +697,7 @@ class AdminManager {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
           <div>
             <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Gérer les Projets & Téléchargements (${(data.projects || []).length})</h4>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Ajoutez une image en arrière-plan et des fichiers téléchargeables pour chaque projet.</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Ajoutez une image d'arrière-plan et des fichiers téléchargeables pour chaque projet.</p>
           </div>
           <button class="btn btn-primary btn-sm" onclick="adminManager.showAddProjectForm()">+ Ajouter un Projet</button>
         </div>
@@ -708,11 +798,8 @@ class AdminManager {
     let bgImageUrl = document.getElementById("new-proj-bg-url") ? document.getElementById("new-proj-bg-url").value : "";
     const bgFileInput = document.getElementById("new-proj-bg-file");
     if (bgFileInput && bgFileInput.files && bgFileInput.files[0]) {
-      bgImageUrl = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => resolve(ev.target.result);
-        reader.readAsDataURL(bgFileInput.files[0]);
-      });
+      // Compress project background image
+      bgImageUrl = await this.compressImage(bgFileInput.files[0], 1000, 1000, 0.75);
     }
 
     const tags = document.getElementById("new-proj-tags").value
@@ -734,7 +821,6 @@ class AdminManager {
 
     data.projects.unshift(newProj);
     StorageService.save(data);
-    StorageService.broadcastContentChange({ category: "projects", action: "add", item: newProj });
     this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
   }
 
@@ -743,7 +829,6 @@ class AdminManager {
     const data = StorageService.get();
     data.projects = data.projects.filter(p => p.id !== id);
     StorageService.save(data);
-    StorageService.broadcastContentChange({ category: "projects", action: "delete", id: id });
     this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
   }
 
@@ -752,7 +837,7 @@ class AdminManager {
     const prof = data.profile || {};
     body.innerHTML = `
       <div>
-        <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;">Informations Personnelles & Sauvegarde</h4>
+        <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;">Informations Personnelles & Sécurité</h4>
         
         <form onsubmit="adminManager.saveProfileInfo(event)" style="margin-bottom: 32px;">
           <div class="form-group form-row-2">
@@ -773,28 +858,28 @@ class AdminManager {
             <label class="form-label">Biographie</label>
             <textarea id="prof-bio" class="form-control" rows="3">${escapeHTML(prof.bio || '')}</textarea>
           </div>
-          <button type="submit" class="btn btn-primary btn-sm">Enregistrer les modifications</button>
+          <button type="submit" class="btn btn-primary btn-sm">Enregistrer le profil</button>
         </form>
 
         <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 32px 0;">
 
-        <h5 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px;">🔐 Sécurité du mot de passe</h5>
+        <h5 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px;">🔐 Sécurité & Synchronisation du Mot de Passe</h5>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-          Définissez votre mot de passe personnalisé pour que vous seul puissiez accéder au tableau de bord.
+          Définissez votre mot de passe privé. Dès modification, ce mot de passe devient immédiatement requis sur tous vos appareils (PC, iPhone, Android).
         </p>
         <form onsubmit="adminManager.changePassword(event)" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 32px;">
           <div style="flex: 1; min-width: 220px;">
-            <label class="form-label">Nouveau mot de passe</label>
-            <input type="password" id="new-admin-pass" class="form-control" required placeholder="Votre mot de passe secret">
+            <label class="form-label">Nouveau mot de passe personnel</label>
+            <input type="password" id="new-admin-pass" class="form-control" required placeholder="Votre nouveau mot de passe">
           </div>
-          <button type="submit" class="btn btn-primary btn-sm">Mettre à jour le mot de passe</button>
+          <button type="submit" class="btn btn-primary btn-sm">Mettre à jour partout</button>
         </form>
 
         <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 32px 0;">
 
-        <h5 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">Exporter / Sauvegarder toutes les données</h5>
+        <h5 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">Exporter / Sauvegarder les données</h5>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-          Téléchargez une copie intégrale de votre base de données (astuces, films, projets, visiteurs) en un clic.
+          Téléchargez une copie intégrale de votre base de données locale en JSON.
         </p>
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
           <button class="btn btn-outline btn-sm" onclick="adminManager.exportDatabase()">📥 Exporter la base (JSON)</button>
@@ -814,8 +899,9 @@ class AdminManager {
       alert("Le mot de passe doit contenir au moins 4 caractères.");
       return;
     }
-    localStorage.setItem("nicaisse_admin_password", newPass.trim());
-    alert("Mot de passe mis à jour avec succès ! Vous seul pouvez désormais vous connecter.");
+    const cleanPass = newPass.trim();
+    StorageService.setPassword(cleanPass);
+    alert("✅ Mot de passe mis à jour et synchronisé avec succès sur tous vos appareils (PC, iPhone, Android) !");
     document.getElementById("new-admin-pass").value = "";
   }
 
@@ -828,7 +914,6 @@ class AdminManager {
     data.profile.bio = document.getElementById("prof-bio").value;
 
     StorageService.save(data);
-    StorageService.broadcastContentChange({ category: "profile", action: "update", item: data.profile });
     alert("Profil mis à jour et synchronisé sur tous les appareils !");
   }
 
@@ -856,13 +941,57 @@ class AdminManager {
     }
   }
 
+  compressImage(file, maxWidth = 1000, maxHeight = 1000, quality = 0.75) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth || height > maxHeight) {
+            if (width > height) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = () => resolve(e.target.result);
+        img.src = e.target.result;
+      };
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+    });
+  }
+
   async syncCloudContent(isManual = false) {
+    const btn = document.querySelector(".btn-sync-cloud");
+    const statusLabel = document.getElementById("sync-status-label");
+    if (btn) btn.classList.add("spinning");
+    if (statusLabel) statusLabel.textContent = "Synchronisation...";
+
     const updated = await StorageService.syncCloudContent();
+    
+    setTimeout(() => {
+      if (btn) btn.classList.remove("spinning");
+      const timeStr = new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      if (statusLabel) statusLabel.textContent = "Cloud Synchronisé (" + timeStr + ")";
+    }, 600);
+
     if (updated) {
-      this.renderActiveTabContent();
-      if (isManual) alert("Contenu mis à jour et synchronisé avec succès depuis le Cloud !");
+      if (this.isAuthenticated) this.renderActiveTabContent();
+      if (isManual) alert("Contenu et mot de passe mis à jour et synchronisés avec succès depuis le Cloud !");
     } else if (isManual) {
-      alert("Votre contenu est déjà parfaitement synchronisé.");
+      alert("Votre appareil est déjà parfaitement synchronisé avec le Cloud.");
     }
   }
 

@@ -296,6 +296,15 @@
         <h3 id="admin-modal-title" style="font-weight: 700; font-size: 1.25rem;">Espace Administrateur</h3>
         <button class="modal-close" onclick="adminManager.closeModal()">&times;</button>
       </div>
+      <div class="admin-sync-bar" id="admin-sync-bar">
+        <div class="sync-status">
+          <span class="sync-pulse-dot"></span>
+          <span id="sync-status-label">Cloud Synchronisé</span>
+        </div>
+        <button class="btn-sync-cloud" onclick="adminManager.syncCloudContent(true)" title="Synchroniser immédiatement tout le contenu et le mot de passe avec le Cloud">
+          <span class="sync-spin-icon">🔄</span> Synchro Cloud
+        </button>
+      </div>
       <div class="admin-tabs" id="admin-tabs" style="display: none;">
         <!-- Tabs rendered by admin.js -->
       </div>
