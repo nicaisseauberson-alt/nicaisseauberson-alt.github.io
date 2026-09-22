@@ -749,8 +749,21 @@ class AdminManager {
         </div>
 
         <div class="form-group" style="border: 1px dashed var(--border-subtle); padding: 14px; border-radius: var(--radius-md); background: rgba(255,255,255,0.01);">
-          <label class="form-label">📄 Document / Fichier téléchargeable pour les visiteurs</label>
-          <input type="file" id="new-proj-file" class="form-control" style="background: transparent;">
+          <label class="form-label">📄 Document / Fichier téléchargeable (PDF, cours, etc.)</label>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <input type="file" id="new-proj-file" class="form-control" style="background: transparent;">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 0.82rem;">
+              <span>ou lien de partage (Google Drive, Dropbox, Web) :</span>
+              <input type="url" id="new-proj-file-url" class="form-control" placeholder="https://drive.google.com/file/d/... ou https://..." style="flex: 1;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 0.82rem; color: var(--text-dim);">Nom du document :</span>
+              <input type="text" id="new-proj-file-name" class="form-control" placeholder="programme_ETAP.pdf" style="flex: 1;">
+            </div>
+          </div>
+          <span style="display: block; margin-top: 6px; font-size: 0.78rem; color: var(--text-tertiary);">
+            💡 Pour les gros fichiers PDF (plus de 700 Ko), collez simplement un lien de partage Google Drive : 100% gratuit et sans limite de taille !
+          </span>
         </div>
 
         <div style="display: flex; gap: 12px;">
@@ -772,36 +785,31 @@ class AdminManager {
 
     try {
       const fileInput = document.getElementById("new-proj-file");
+      const urlInput = document.getElementById("new-proj-file-url");
+      const customNameInput = document.getElementById("new-proj-file-name");
+      
       let fileUrl = "";
       let fileName = "";
       let fileSize = "";
 
-      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+      if (urlInput && urlInput.value.trim()) {
+        fileUrl = urlInput.value.trim();
+        fileName = (customNameInput && customNameInput.value.trim()) || "document.pdf";
+        fileSize = "Document Cloud (Google Drive / Web)";
+      } else if (fileInput && fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
         fileName = file.name;
         fileSize = (file.size / 1024).toFixed(1) + " KB";
 
-        let uploadedViaStorage = false;
-        if (window.FirebaseBridge && window.FirebaseBridge.isConfigured && window.FirebaseBridge.storage) {
-          try {
-            if (submitBtn) submitBtn.textContent = `⏳ Envoi de ${fileName} (${fileSize}) vers le Cloud Storage...`;
-            fileUrl = await window.FirebaseBridge.uploadFile(file, "projects");
-            uploadedViaStorage = true;
-          } catch (storageErr) {
-            console.warn("⚠️ [Storage] Échec direct, vérification taille:", storageErr.message);
-          }
+        if (file.size > 750 * 1024) {
+          throw new Error(`Le fichier « ${fileName} » fait ${fileSize}, ce qui dépasse la limite maximale par document gratuit (750 Ko).\n\n💡 Solution simple et 100% gratuite :\nDéposez votre fichier sur votre Google Drive, copiez le lien de partage et collez-le dans le champ « lien de partage (Google Drive) » juste en dessous !`);
         }
 
-        if (!uploadedViaStorage) {
-          if (file.size > 750 * 1024) {
-            throw new Error(`Le document « ${fileName} » fait ${fileSize}, ce qui dépasse la limite maximale par document (750 Ko).\n\nPour héberger des fichiers sans limite de taille, activez "Storage" dans votre console Firebase (menu Databases & Storage > Storage > Commencer).`);
-          }
-          fileUrl = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (ev) => resolve(ev.target.result);
-            reader.readAsDataURL(file);
-          });
-        }
+        fileUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => resolve(ev.target.result);
+          reader.readAsDataURL(file);
+        });
       }
 
       let bgImageUrl = document.getElementById("new-proj-bg-url") ? document.getElementById("new-proj-bg-url").value.trim() : "";
