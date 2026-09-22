@@ -24,80 +24,9 @@ const DEFAULT_DATA = {
     { name: "Cybersécurité & Réseaux", level: "85%", icon: "shield" },
     { name: "Intelligence Artificielle & Outils 2026", level: "90%", icon: "sparkles" }
   ],
-  techTips: [
-    {
-      id: "tip-1",
-      title: "Optimiser les requêtes HTTP avec l'API Fetch Priority (2026)",
-      category: "Web Performance",
-      badge: "Performance",
-      date: "2026-09-18",
-      summary: "Comment booster le Largest Contentful Paint (LCP) de 40% sur mobile en priorisant les ressources critiques.",
-      code: `// Charger immédiatement l'image du Hero sans bloquer les scripts
-const heroImg = document.createElement('img');
-heroImg.src = '/assets/hero.webp';
-heroImg.fetchPriority = 'high'; // Priorité maximale pour le navigateur
-document.body.appendChild(heroImg);`,
-      explanation: "L'attribut fetchpriority='high' signale au moteur du navigateur (Chrome, Brave, Safari) de télécharger cet asset avant les scripts secondaires non bloquants."
-    },
-    {
-      id: "tip-2",
-      title: "Navigation privée & Respect de la vie privée sur Brave / Chromium",
-      category: "Cybersécurité",
-      badge: "Sécurité",
-      date: "2026-09-12",
-      summary: "Comprendre le blocage des trackers et les empreintes numériques de nouvelle génération (Canvas Fingerprinting).",
-      code: `// Tester si le navigateur isole les données tierces
-if (navigator.storage && navigator.storage.estimate) {
-  navigator.storage.estimate().then(({quota, usage}) => {
-    console.log(\`Stockage alloué: \${(quota / 1024 / 1024).toFixed(0)} MB\`);
-  });
-}`,
-      explanation: "Les navigateurs comme Brave intègrent des mécanismes de 'farbling' pour randomiser les canvas 2D/3D et empêcher le pistage publicitaire sans briser l'affichage."
-    },
-    {
-      id: "tip-3",
-      title: "Automatisation PowerShell & Linux : Scripts universels",
-      category: "Système",
-      badge: "DevOps",
-      date: "2026-09-05",
-      summary: "Écrire des pipelines de déploiement multiplateformes compatibles Windows Terminal et zsh/bash.",
-      code: `# Détection d'environnement et exécution conditionnelle
-$isWin = $env:OS -match "Windows"
-if ($isWin) {
-    Write-Host "Environnement Windows détecté" -ForegroundColor Cyan
-} else {
-    Write-Host "Système Unix/Linux détecté" -ForegroundColor Green
-}`,
-      explanation: "Une bonne pratique en enseignement comme en production : ne jamais supposer un système unique. Penser portabilité dès le premier script."
-    }
-  ],
-  cinema: [], // Initialement vide : les films sont gérés exclusivement via Cloud Firestore
-  projects: [
-    {
-      id: "proj-1",
-      title: "Plateforme Pédagogique Interactive",
-      category: "Enseignement",
-      description: "Plateforme web moderne d'apprentissage de l'algorithmique et du code pour étudiants du secondaire et supérieur.",
-      tags: ["JavaScript", "HTML5", "Pédagogie", "Bento UI"],
-      bgImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1000&auto=format&fit=crop&q=80",
-      link: "#",
-      fileUrl: "data:text/plain;charset=utf-8,Guide%20Pédagogique%20-%20Nicaisse%20Auberson%0A%0ACe%20document%20résume%20les%20bonnes%20pratiques%20d'apprentissage%20du%20code%20en%202026.",
-      fileName: "Guide_Pedagogique_Informatique_2026.txt",
-      fileSize: "18 KB"
-    },
-    {
-      id: "proj-2",
-      title: "Framework d'Audit de Sécurité Réseau",
-      category: "Informatique",
-      description: "Suite d'outils légers pour la sensibilisation des étudiants aux failles de sécurité courantes et à la protection des données.",
-      tags: ["Cybersécurité", "Python", "Réseau", "OpenSource"],
-      bgImage: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1000&auto=format&fit=crop&q=80",
-      link: "#",
-      fileUrl: "data:text/plain;charset=utf-8,Aide-Mémoire%20Sécurité%20Réseau%0A%0A1.%20Mots%20de%20passe%20robustes%20et%202FA%0A2.%20Chiffrement%20TLS%201.3%0A3.%20Protection%20DNS%20over%20HTTPS",
-      fileName: "Memo_Securite_Reseau_NicaisseAuberson.txt",
-      fileSize: "12 KB"
-    }
-  ],
+  techTips: [], // Géré exclusivement en temps réel via Cloud Firestore
+  cinema: [], // Géré exclusivement en temps réel via Cloud Firestore
+  projects: [], // Géré exclusivement en temps réel via Cloud Firestore
   visitors: []
 };
 
@@ -105,7 +34,7 @@ if ($isWin) {
 // STORAGE SERVICE & SYNCHRONISATION CLOUD EN TEMPS RÉEL
 // =============================================================================
 class StorageService {
-  static KEY = "nicaisse_portfolio_db_v2026";
+  static KEY = "nicaisse_portfolio_db_v2026_cloud";
   static AUTH_KEY = "nicaisse_owner_password_2026";
   static LAST_SYNC_KEY = "nicaisse_last_cloud_sync_ts";
   static DEFAULT_PASS = "nicaisse2026";
@@ -152,8 +81,8 @@ class StorageService {
         ...DEFAULT_DATA,
         ...parsed,
         cinema: Array.isArray(parsed.cinema) ? parsed.cinema : [],
-        projects: Array.isArray(parsed.projects) ? parsed.projects : DEFAULT_DATA.projects,
-        techTips: Array.isArray(parsed.techTips) ? parsed.techTips : DEFAULT_DATA.techTips,
+        projects: Array.isArray(parsed.projects) ? parsed.projects : [],
+        techTips: Array.isArray(parsed.techTips) ? parsed.techTips : [],
         profile: { ...DEFAULT_DATA.profile, ...(parsed.profile || {}) }
       };
     } catch (e) {

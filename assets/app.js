@@ -392,13 +392,25 @@ function renderTechTips(tips, searchTerm = "") {
   const container = document.getElementById("tips-grid");
   if (!container) return;
 
-  const filtered = (tips || []).filter(t => {
+  const validTips = tips || [];
+  if (validTips.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
+        <div style="font-size: 2.5rem; margin-bottom: 12px;">💡</div>
+        <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Astuces Tech & Code</h4>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune astuce publiée pour le moment. Vous pouvez en ajouter depuis l'espace administrateur.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const filtered = validTips.filter(t => {
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
-    return t.title.toLowerCase().includes(term) ||
-           t.category.toLowerCase().includes(term) ||
-           t.summary.toLowerCase().includes(term) ||
-           t.code.toLowerCase().includes(term);
+    return (t.title || "").toLowerCase().includes(term) ||
+           (t.category || "").toLowerCase().includes(term) ||
+           (t.summary || "").toLowerCase().includes(term) ||
+           (t.code || "").toLowerCase().includes(term);
   });
 
   if (filtered.length === 0) {
@@ -421,10 +433,10 @@ function renderTechTips(tips, searchTerm = "") {
       <div class="code-block-wrapper">
         <div class="code-block-header">
           <span class="code-lang-tag">💻 Astuce / Commande</span>
-          <button class="copy-btn" onclick="copyCode(this, \`${encodeURIComponent(tip.code)}\`)" aria-label="Copier le code">📋 Copier</button>
+          <button class="copy-btn" onclick="copyCode(this, \`${encodeURIComponent(tip.code || '')}\`)" aria-label="Copier le code">📋 Copier</button>
         </div>
         <div class="code-box">
-          <pre><code>${escapeHTML(tip.code)}</code></pre>
+          <pre><code>${escapeHTML(tip.code || '')}</code></pre>
         </div>
       </div>
       <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: auto;">💡 ${escapeHTML(tip.explanation || '')}</p>
@@ -479,7 +491,19 @@ function renderProjects(projects) {
   const container = document.getElementById("projects-grid");
   if (!container) return;
 
-  container.innerHTML = (projects || []).map(p => `
+  const validProjects = projects || [];
+  if (validProjects.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
+        <div style="font-size: 2.5rem; margin-bottom: 12px;">📁</div>
+        <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Projets & Documents</h4>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun projet affiché pour le moment. Vous pouvez en ajouter depuis l'espace administrateur.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = validProjects.map(p => `
     <div class="project-card ${p.bgImage ? 'has-bg' : ''}">
       ${p.bgImage ? `
         <div class="project-card-banner">

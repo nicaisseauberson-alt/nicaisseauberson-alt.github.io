@@ -693,25 +693,40 @@ class AdminManager {
             <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Gérer les Projets & Téléchargements (${projs.length})</h4>
             <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Ajoutez une image d'arrière-plan et des documents pédagogiques téléchargeables.</p>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="adminManager.showAddProjectForm()">+ Ajouter un Projet</button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddProjectForm()">+ Ajouter un Projet</button>
+            ${projs.length > 0 ? `
+              <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="adminManager.deleteAllProjects()" title="Supprimer tous les projets du catalogue">
+                🗑️ Tout effacer (${projs.length})
+              </button>
+            ` : ''}
+          </div>
         </div>
 
         <div id="proj-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
 
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          ${projs.map(p => `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); flex-wrap: wrap; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 16px;">
-                ${p.bgImage ? `<img src="${escapeHTML(p.bgImage)}" style="width: 50px; height: 38px; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'">` : ''}
-                <div>
-                  <strong>${escapeHTML(p.title)}</strong> (${escapeHTML(p.category)})
-                  ${p.fileName ? `<div style="font-size: 0.8rem; color: #10b981;">📄 Fichier téléchargeable: ${escapeHTML(p.fileName)}</div>` : ''}
+        ${projs.length === 0 ? `
+          <div style="text-align: center; color: var(--text-dim); padding: 40px 20px; background: rgba(255,255,255,0.01); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">📁</div>
+            <p style="margin-bottom: 12px;">Aucun projet dans le catalogue pour le moment.</p>
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddProjectForm()">+ Ajouter votre premier projet</button>
+          </div>
+        ` : `
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            ${projs.map(p => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                  ${p.bgImage ? `<img src="${escapeHTML(p.bgImage)}" style="width: 50px; height: 38px; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'">` : ''}
+                  <div>
+                    <strong>${escapeHTML(p.title)}</strong> (${escapeHTML(p.category)})
+                    ${p.fileName ? `<div style="font-size: 0.8rem; color: #10b981;">📄 Fichier téléchargeable: ${escapeHTML(p.fileName)}</div>` : ''}
+                  </div>
                 </div>
+                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteProject('${p.id}')">Supprimer</button>
               </div>
-              <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteProject('${p.id}')">Supprimer</button>
-            </div>
-          `).join("")}
-        </div>
+            `).join("")}
+          </div>
+        `}
       </div>
     `;
   }
@@ -864,15 +879,32 @@ class AdminManager {
     try {
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
         await window.FirebaseBridge.deleteProject(id);
-      } else {
-        const data = StorageService.get();
-        data.projects = (data.projects || []).filter(p => p.id !== id);
-        StorageService.save(data, true);
-        this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
       }
-      alert("✅ Projet supprimé avec succès !");
+      const data = StorageService.get();
+      data.projects = (data.projects || []).filter(p => p.id !== id);
+      StorageService.save(data, true);
+      this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Projet supprimé avec succès du Cloud et de tous vos appareils !");
     } catch (err) {
       alert("Erreur: " + err.message);
+    }
+  }
+
+  async deleteAllProjects() {
+    const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUS les projets et documents ?\nCette opération est irréversible et supprimera les projets sur tous vos appareils.");
+    if (!confirmPrompt) return;
+
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteAllProjects();
+      }
+      const data = StorageService.get();
+      data.projects = [];
+      StorageService.save(data, true);
+      this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Tous les projets ont été supprimés avec succès du Cloud et de tous vos appareils !");
+    } catch (err) {
+      alert("Erreur lors de la suppression: " + err.message);
     }
   }
 
@@ -883,24 +915,42 @@ class AdminManager {
     const tips = data.techTips || [];
     body.innerHTML = `
       <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h4 style="font-size: 1.1rem; font-weight: 700;">Gérer les Astuces Tech (${tips.length})</h4>
-          <button class="btn btn-primary btn-sm" onclick="adminManager.showAddTipForm()">+ Ajouter une Astuce</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Gérer les Astuces Tech & Code (${tips.length})</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Partagez vos tutoriels, scripts PowerShell/Linux et astuces informatiques.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddTipForm()">+ Ajouter une Astuce</button>
+            ${tips.length > 0 ? `
+              <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="adminManager.deleteAllTips()" title="Supprimer toutes les astuces tech">
+                🗑️ Tout effacer (${tips.length})
+              </button>
+            ` : ''}
+          </div>
         </div>
 
         <div id="tip-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
 
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          ${tips.map(t => `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); flex-wrap: wrap; gap: 10px;">
-              <div>
-                <span class="badge-tag" style="margin-right: 8px;">${escapeHTML(t.category)}</span>
-                <strong>${escapeHTML(t.title)}</strong>
+        ${tips.length === 0 ? `
+          <div style="text-align: center; color: var(--text-dim); padding: 40px 20px; background: rgba(255,255,255,0.01); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">💡</div>
+            <p style="margin-bottom: 12px;">Aucune astuce publiée pour le moment.</p>
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddTipForm()">+ Ajouter votre première astuce</button>
+          </div>
+        ` : `
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            ${tips.map(t => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <span class="badge-tag" style="margin-right: 8px;">${escapeHTML(t.category)}</span>
+                  <strong>${escapeHTML(t.title)}</strong>
+                </div>
+                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteTip('${t.id}')">Supprimer</button>
               </div>
-              <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteTip('${t.id}')">Supprimer</button>
-            </div>
-          `).join("")}
-        </div>
+            `).join("")}
+          </div>
+        `}
       </div>
     `;
   }
@@ -983,15 +1033,32 @@ class AdminManager {
     try {
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
         await window.FirebaseBridge.deleteTip(id);
-      } else {
-        const data = StorageService.get();
-        data.techTips = (data.techTips || []).filter(t => t.id !== id);
-        StorageService.save(data, true);
-        this.renderTipsTab(document.getElementById("admin-modal-body"), data);
       }
-      alert("✅ Astuce supprimée avec succès !");
+      const data = StorageService.get();
+      data.techTips = (data.techTips || []).filter(t => t.id !== id);
+      StorageService.save(data, true);
+      this.renderTipsTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Astuce supprimée avec succès du Cloud et de tous vos appareils !");
     } catch (err) {
       alert("Erreur: " + err.message);
+    }
+  }
+
+  async deleteAllTips() {
+    const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUTES les astuces tech & code ?\nCette opération est irréversible et supprimera les astuces sur tous vos appareils.");
+    if (!confirmPrompt) return;
+
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteAllTips();
+      }
+      const data = StorageService.get();
+      data.techTips = [];
+      StorageService.save(data, true);
+      this.renderTipsTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Toutes les astuces ont été supprimées avec succès du Cloud et de tous vos appareils !");
+    } catch (err) {
+      alert("Erreur lors de la suppression: " + err.message);
     }
   }
 

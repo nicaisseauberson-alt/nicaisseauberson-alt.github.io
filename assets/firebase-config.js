@@ -249,10 +249,12 @@ class FirebaseBridgeService {
         snapshot.forEach((docSnap) => {
           tips.push({ id: docSnap.id, ...docSnap.data() });
         });
-        if (tips.length > 0) {
-          tips.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
-          onDataUpdated("techTips", tips);
-        }
+        tips.sort((a, b) => {
+          const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
+          const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
+          return timeB - timeA;
+        });
+        onDataUpdated("techTips", tips);
       }, (error) => {
         console.warn("⚠️ [Firestore] Erreur listener techTips:", error.message);
       });
@@ -339,6 +341,17 @@ class FirebaseBridgeService {
     return await deleteDoc(doc(this.db, "projects", id));
   }
 
+  async deleteAllProjects() {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const snap = await getDocs(collection(this.db, "projects"));
+    const deletePromises = [];
+    snap.forEach((docSnap) => {
+      deletePromises.push(deleteDoc(doc(this.db, "projects", docSnap.id)));
+    });
+    await Promise.all(deletePromises);
+    return true;
+  }
+
   // --- CRUD ASTUCES TECH ---
   async addTip(tipData) {
     if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
@@ -362,6 +375,17 @@ class FirebaseBridgeService {
   async deleteTip(id) {
     if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
     return await deleteDoc(doc(this.db, "techTips", id));
+  }
+
+  async deleteAllTips() {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const snap = await getDocs(collection(this.db, "techTips"));
+    const deletePromises = [];
+    snap.forEach((docSnap) => {
+      deletePromises.push(deleteDoc(doc(this.db, "techTips", docSnap.id)));
+    });
+    await Promise.all(deletePromises);
+    return true;
   }
 
   // --- CRUD PROFIL ---
