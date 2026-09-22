@@ -780,11 +780,28 @@ class AdminManager {
         const file = fileInput.files[0];
         fileName = file.name;
         fileSize = (file.size / 1024).toFixed(1) + " KB";
-        fileUrl = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (ev) => resolve(ev.target.result);
-          reader.readAsDataURL(file);
-        });
+
+        let uploadedViaStorage = false;
+        if (window.FirebaseBridge && window.FirebaseBridge.isConfigured && window.FirebaseBridge.storage) {
+          try {
+            if (submitBtn) submitBtn.textContent = `⏳ Envoi de ${fileName} (${fileSize}) vers le Cloud Storage...`;
+            fileUrl = await window.FirebaseBridge.uploadFile(file, "projects");
+            uploadedViaStorage = true;
+          } catch (storageErr) {
+            console.warn("⚠️ [Storage] Échec direct, vérification taille:", storageErr.message);
+          }
+        }
+
+        if (!uploadedViaStorage) {
+          if (file.size > 750 * 1024) {
+            throw new Error(`Le document « ${fileName} » fait ${fileSize}, ce qui dépasse la limite maximale par document (750 Ko).\n\nPour héberger des fichiers sans limite de taille, activez "Storage" dans votre console Firebase (menu Databases & Storage > Storage > Commencer).`);
+          }
+          fileUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => resolve(ev.target.result);
+            reader.readAsDataURL(file);
+          });
+        }
       }
 
       let bgImageUrl = document.getElementById("new-proj-bg-url") ? document.getElementById("new-proj-bg-url").value.trim() : "";

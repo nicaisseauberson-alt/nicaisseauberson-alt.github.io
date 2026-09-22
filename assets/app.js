@@ -645,9 +645,14 @@ window.downloadProjectFile = function(projectId) {
     return;
   }
 
+  if (proj.fileUrl.startsWith("http")) {
+    window.open(proj.fileUrl, "_blank");
+    return;
+  }
+
   const link = document.createElement("a");
   link.href = proj.fileUrl;
-  link.download = proj.fileName || "fichier_nicaisse_auberson.txt";
+  link.download = proj.fileName || "fichier_nicaisse_auberson.pdf";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

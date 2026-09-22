@@ -30,6 +30,12 @@ import {
   getDocs,
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
 // =============================================================================
 // 1. CONFIGURATION DU PROJET FIREBASE
@@ -68,12 +74,18 @@ export const isConfigured = !!(
 let app = null;
 let auth = null;
 let db = null;
+let storage = null;
 
 if (isConfigured) {
   try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
+    try {
+      storage = getStorage(app);
+    } catch (sErr) {
+      console.warn("⚠️ [Firebase Storage] Initialisation reportée:", sErr.message);
+    }
 
     // Persistance locale pour rester connecté sur mobile et ordinateur
     setPersistence(auth, browserLocalPersistence).catch((err) => {
@@ -96,6 +108,7 @@ class FirebaseBridgeService {
     this.app = app;
     this.auth = auth;
     this.db = db;
+    this.storage = storage;
     this.isConfigured = isConfigured;
     this.currentUser = null;
     this.unsubscribers = [];
@@ -109,6 +122,18 @@ class FirebaseBridgeService {
         });
       });
     }
+  }
+
+  // --- CLOUD STORAGE : TÉLÉVERSEMENT DE DOCUMENTS SANS LIMITE DE TAILLE ---
+  async uploadFile(file, folder = "projects") {
+    if (!this.storage) {
+      throw new Error("Firebase Storage n'est pas encore activé dans votre console.");
+    }
+    const cleanName = (file.name || "document").replace(/[^a-zA-Z0-9._-]/g, "_");
+    const uniquePath = `${folder}/${Date.now()}_${cleanName}`;
+    const fileRef = ref(this.storage, uniquePath);
+    const snapshot = await uploadBytes(fileRef, file);
+    return await getDownloadURL(snapshot.ref);
   }
 
   // --- AUTHENTIFICATION ---
