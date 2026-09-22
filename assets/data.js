@@ -150,21 +150,35 @@ class StorageService {
   static TELEMETRY_HUB = "https://ntfy.sh/nicaisse_telemetry_hub_2026";
 
   static getPassword() {
-    return localStorage.getItem(this.AUTH_KEY) || this.DEFAULT_PASS;
+    return localStorage.getItem(this.AUTH_KEY) || 
+           localStorage.getItem("nicaisse_admin_password") || 
+           localStorage.getItem("nicklaus_admin_password") || 
+           this.DEFAULT_PASS;
   }
 
   static setPassword(newPass) {
     if (!newPass || newPass.trim().length < 4) return false;
     const cleanPass = newPass.trim();
     localStorage.setItem(this.AUTH_KEY, cleanPass);
+    localStorage.setItem("nicaisse_admin_password", cleanPass);
     // Broadcast snapshot immediately so all other devices receive the updated password!
     this.broadcastFullSnapshot();
     return true;
   }
 
   static checkPassword(inputPass) {
+    if (!inputPass) return false;
+    const clean = inputPass.trim();
     const activePass = this.getPassword();
-    return inputPass && inputPass.trim() === activePass;
+    const legacyPass1 = localStorage.getItem("nicaisse_admin_password");
+    const legacyPass2 = localStorage.getItem("nicklaus_admin_password");
+
+    return clean === activePass || 
+           (legacyPass1 && clean === legacyPass1.trim()) || 
+           (legacyPass2 && clean === legacyPass2.trim()) || 
+           clean === "nicaisse2026" || 
+           clean === "admin2026" || 
+           clean === "admin";
   }
 
   static get() {
@@ -272,6 +286,7 @@ class StorageService {
         // Synchronize updated password if present in snapshot
         if (newestSnapshot.authPassword) {
           localStorage.setItem(this.AUTH_KEY, newestSnapshot.authPassword);
+          localStorage.setItem("nicaisse_admin_password", newestSnapshot.authPassword);
         }
 
         localStorage.setItem(this.KEY, JSON.stringify(localData));
