@@ -9,17 +9,32 @@ document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
   setupNavbarScroll();
 
-  // Initial cloud content sync across devices
+  // Initial cloud content sync across devices (e.g. mobile or laptop first visit)
   StorageService.syncCloudContent().then(updated => {
     if (updated) renderApp();
   });
 
-  // Re-sync on tab focus (e.g. user added content on another device and switched back)
+  // Re-sync on tab focus or screen unlock
   window.addEventListener("focus", () => {
     StorageService.syncCloudContent().then(updated => {
       if (updated) renderApp();
     });
   });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      StorageService.syncCloudContent().then(updated => {
+        if (updated) renderApp();
+      });
+    }
+  });
+
+  // Background auto-refresh every 15s to keep devices live-synced
+  setInterval(() => {
+    StorageService.syncCloudContent().then(updated => {
+      if (updated) renderApp();
+    });
+  }, 15000);
 
   // Listen for real-time DB changes
   window.addEventListener("nicaisse_db_updated", () => {

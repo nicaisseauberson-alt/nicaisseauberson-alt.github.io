@@ -145,6 +145,7 @@ class StorageService {
   static LAST_SYNC_KEY = "nicaisse_last_cloud_sync_ts";
   static DEFAULT_PASS = "nicaisse2026"; // Mot de passe initial privé (jamais affiché en clair sur l'interface)
   
+  static CLOUD_STORAGE_URL = "https://extendsclass.com/api/json-storage/bin/cedfffa";
   static DB_SYNC_HUB = "https://ntfy.sh/nicaisse_cloud_db_sync_2026";
   static PRESENCE_HUB = "https://ntfy.sh/nicaisse_presence_hub_2026";
   static TELEMETRY_HUB = "https://ntfy.sh/nicaisse_telemetry_hub_2026";
@@ -212,8 +213,8 @@ class StorageService {
     }
   }
 
-  /* Snapshot replication: Broadcast complete current state to Cloud Hub */
-  static broadcastFullSnapshot(currentData = null) {
+  /* Snapshot replication: Broadcast complete current state to Cloud Storage & Realtime Hub */
+  static async broadcastFullSnapshot(currentData = null) {
     try {
       const data = currentData || this.get();
       const snapshot = {
@@ -230,21 +231,89 @@ class StorageService {
         }
       };
 
-      fetch(this.DB_SYNC_HUB, {
-        method: "POST",
-        headers: {
-          "Title": "Sync: State Snapshot",
-          "Priority": "high"
-        },
-        body: JSON.stringify(snapshot)
-      }).then(() => {
+      // 1. Primary permanent Cloud Storage write (ExtendsClass REST PUT)
+      try {
+        await fetch(this.CLOUD_STORAGE_URL, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(snapshot)
+        });
         localStorage.setItem(this.LAST_SYNC_KEY, String(snapshot.timestamp));
-      }).catch(() => {});
-    } catch (e) {}
+        console.log("Données sauvegardées sur le Cloud Storage:", snapshot.timestamp);
+      } catch (err) {
+        console.warn("Erreur écriture Cloud Storage:", err);
+      }
+
+      // 2. Realtime Push Broadcast via ntfy.sh (Lightweight ping < 100 bytes so it NEVER becomes a temporary attachment)
+      try {
+        fetch(this.DB_SYNC_HUB, {
+          method: "POST",
+          headers: {
+            "Title": "Sync: Update Ping",
+            "Priority": "high"
+          },
+          body: JSON.stringify({ type: "cloud_sync_ping", timestamp: snapshot.timestamp })
+        }).catch(() => {});
+      } catch (e) {}
+
+      return true;
+    } catch (e) {
+      console.warn("Erreur broadcast snapshot:", e);
+      return false;
+    }
   }
 
-  /* Cloud Synchronization: Fetch latest snapshot and apply */
+  /* Cloud Synchronization: Fetch latest snapshot from Cloud Storage and apply */
   static async syncCloudContent() {
+    try {
+      // 1. Fetch from persistent Cloud Storage with cache buster
+      const res = await fetch(`${this.CLOUD_STORAGE_URL}?ts=${Date.now()}`, {
+        cache: "no-store",
+        headers: { "Accept": "application/json" }
+      });
+
+      if (res.ok) {
+        const snapshot = await res.json();
+        if (snapshot && snapshot.timestamp && snapshot.payload) {
+          const lastLocalSync = parseInt(localStorage.getItem(this.LAST_SYNC_KEY) || "0", 10);
+          const hasLocalSync = !!localStorage.getItem(this.LAST_SYNC_KEY);
+          
+          // Apply if cloud snapshot is newer, OR if this is a first visit on this device!
+          if (!hasLocalSync || snapshot.timestamp > lastLocalSync) {
+            const localData = this.get();
+            const incoming = snapshot.payload;
+
+            if (incoming.profile) localData.profile = incoming.profile;
+            if (Array.isArray(incoming.skills)) localData.skills = incoming.skills;
+            if (Array.isArray(incoming.techTips)) localData.techTips = incoming.techTips;
+            if (Array.isArray(incoming.cinema)) localData.cinema = incoming.cinema;
+            if (Array.isArray(incoming.projects)) localData.projects = incoming.projects;
+
+            if (snapshot.authPassword) {
+              localStorage.setItem(this.AUTH_KEY, snapshot.authPassword);
+              localStorage.setItem("nicaisse_admin_password", snapshot.authPassword);
+            }
+
+            localStorage.setItem(this.KEY, JSON.stringify(localData));
+            localStorage.setItem(this.LAST_SYNC_KEY, String(snapshot.timestamp));
+
+            window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: localData }));
+            console.log("Cloud sync appliqué avec succès depuis Cloud Storage:", snapshot.timestamp);
+            return true;
+          }
+          return false;
+        }
+      }
+    } catch (err) {
+      console.warn("Tentative sync cloud via fallback ntfy.sh...", err);
+    }
+
+    // Fallback: If primary Cloud Storage is unreachable, try reading from ntfy.sh
+    return this.syncCloudFromNtfyFallback();
+  }
+
+  /* Fallback sync from ntfy.sh (handles both direct JSON messages and attachments) */
+  static async syncCloudFromNtfyFallback() {
     try {
       const res = await fetch(`${this.DB_SYNC_HUB}/json?poll=1`, { cache: "no-store" });
       if (!res.ok) return false;
@@ -258,8 +327,21 @@ class StorageService {
         if (!line.trim()) continue;
         try {
           const envelope = JSON.parse(line);
-          if (envelope.event !== "message" || !envelope.message) continue;
-          const msg = JSON.parse(envelope.message);
+          if (envelope.event !== "message") continue;
+
+          let msg = null;
+          // If ntfy uploaded snapshot as an attachment
+          if (envelope.attachment && envelope.attachment.url) {
+            try {
+              const attachRes = await fetch(envelope.attachment.url);
+              if (attachRes.ok) {
+                msg = await attachRes.json();
+              }
+            } catch (e) {}
+          } else if (envelope.message && envelope.message.startsWith("{")) {
+            msg = JSON.parse(envelope.message);
+          }
+
           if (msg && msg.type === "full_snapshot" && msg.timestamp && msg.payload) {
             if (!newestSnapshot || msg.timestamp > newestSnapshot.timestamp) {
               newestSnapshot = msg;
@@ -271,9 +353,9 @@ class StorageService {
       if (!newestSnapshot) return false;
 
       const lastLocalSync = parseInt(localStorage.getItem(this.LAST_SYNC_KEY) || "0", 10);
-      
-      // If cloud snapshot is newer than local last sync timestamp
-      if (newestSnapshot.timestamp > lastLocalSync) {
+      const hasLocalSync = !!localStorage.getItem(this.LAST_SYNC_KEY);
+
+      if (!hasLocalSync || newestSnapshot.timestamp > lastLocalSync) {
         const localData = this.get();
         const incoming = newestSnapshot.payload;
 
@@ -283,7 +365,6 @@ class StorageService {
         if (Array.isArray(incoming.cinema)) localData.cinema = incoming.cinema;
         if (Array.isArray(incoming.projects)) localData.projects = incoming.projects;
 
-        // Synchronize updated password if present in snapshot
         if (newestSnapshot.authPassword) {
           localStorage.setItem(this.AUTH_KEY, newestSnapshot.authPassword);
           localStorage.setItem("nicaisse_admin_password", newestSnapshot.authPassword);
@@ -296,8 +377,7 @@ class StorageService {
         return true;
       }
       return false;
-    } catch (err) {
-      console.warn("Erreur sync Cloud:", err);
+    } catch (e) {
       return false;
     }
   }

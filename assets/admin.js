@@ -650,44 +650,63 @@ class AdminManager {
 
   async saveNewFilm(e) {
     e.preventDefault();
-    const data = StorageService.get();
-    if (!data.cinema) data.cinema = [];
-
-    let posterUrl = document.getElementById("new-film-poster").value;
-    const fileInput = document.getElementById("new-film-poster-file");
-    if (fileInput && fileInput.files && fileInput.files[0]) {
-      // Compress uploaded image for ultra-fast cloud broadcast across phones and laptops
-      posterUrl = await this.compressImage(fileInput.files[0], 1000, 1000, 0.75);
+    const submitBtn = e.target.querySelector("button[type='submit']");
+    const originalText = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Enregistrement & Synchro Cloud...";
     }
 
-    if (!posterUrl) {
-      posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80";
+    try {
+      const data = StorageService.get();
+      if (!data.cinema) data.cinema = [];
+
+      let posterUrl = document.getElementById("new-film-poster").value;
+      const fileInput = document.getElementById("new-film-poster-file");
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        // Compress uploaded image for ultra-fast cloud broadcast across phones and laptops
+        posterUrl = await this.compressImage(fileInput.files[0], 640, 640, 0.65);
+      }
+
+      if (!posterUrl) {
+        posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80";
+      }
+
+      const newFilm = {
+        id: "film-" + Date.now(),
+        title: document.getElementById("new-film-title").value,
+        director: document.getElementById("new-film-director").value,
+        year: document.getElementById("new-film-year").value,
+        genre: document.getElementById("new-film-genre").value,
+        rating: document.getElementById("new-film-rating").value || "9.0 / 10",
+        poster: posterUrl,
+        review: document.getElementById("new-film-review").value,
+        link: document.getElementById("new-film-link").value,
+        trailerUrl: document.getElementById("new-film-trailer").value
+      };
+
+      data.cinema.unshift(newFilm);
+      StorageService.save(data, true);
+      this.renderCinemaTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Film enregistré et synchronisé sur le Cloud !\nIl apparaîtra automatiquement sur tous vos appareils.");
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de l'enregistrement: " + err.message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
     }
-
-    const newFilm = {
-      id: "film-" + Date.now(),
-      title: document.getElementById("new-film-title").value,
-      director: document.getElementById("new-film-director").value,
-      year: document.getElementById("new-film-year").value,
-      genre: document.getElementById("new-film-genre").value,
-      rating: document.getElementById("new-film-rating").value || "9.0 / 10",
-      poster: posterUrl,
-      review: document.getElementById("new-film-review").value,
-      link: document.getElementById("new-film-link").value,
-      trailerUrl: document.getElementById("new-film-trailer").value
-    };
-
-    data.cinema.unshift(newFilm);
-    StorageService.save(data);
-    this.renderCinemaTab(document.getElementById("admin-modal-body"), data);
   }
 
   deleteFilm(id) {
     if (!confirm("Supprimer ce film ?")) return;
     const data = StorageService.get();
     data.cinema = data.cinema.filter(f => f.id !== id);
-    StorageService.save(data);
+    StorageService.save(data, true);
     this.renderCinemaTab(document.getElementById("admin-modal-body"), data);
+    alert("✅ Film supprimé et synchronisé sur le Cloud !");
   }
 
   /* 4. PROJECTS & DOWNLOADABLE FILES TAB */
@@ -776,60 +795,79 @@ class AdminManager {
 
   async saveNewProject(e) {
     e.preventDefault();
-    const data = StorageService.get();
-    if (!data.projects) data.projects = [];
-
-    const fileInput = document.getElementById("new-proj-file");
-    let fileUrl = "";
-    let fileName = "";
-    let fileSize = "";
-
-    if (fileInput && fileInput.files && fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      fileName = file.name;
-      fileSize = (file.size / 1024).toFixed(1) + " KB";
-      fileUrl = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => resolve(ev.target.result);
-        reader.readAsDataURL(file);
-      });
+    const submitBtn = e.target.querySelector("button[type='submit']");
+    const originalText = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Publication & Synchro Cloud...";
     }
 
-    let bgImageUrl = document.getElementById("new-proj-bg-url") ? document.getElementById("new-proj-bg-url").value : "";
-    const bgFileInput = document.getElementById("new-proj-bg-file");
-    if (bgFileInput && bgFileInput.files && bgFileInput.files[0]) {
-      // Compress project background image
-      bgImageUrl = await this.compressImage(bgFileInput.files[0], 1000, 1000, 0.75);
+    try {
+      const data = StorageService.get();
+      if (!data.projects) data.projects = [];
+
+      const fileInput = document.getElementById("new-proj-file");
+      let fileUrl = "";
+      let fileName = "";
+      let fileSize = "";
+
+      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileName = file.name;
+        fileSize = (file.size / 1024).toFixed(1) + " KB";
+        fileUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => resolve(ev.target.result);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      let bgImageUrl = document.getElementById("new-proj-bg-url") ? document.getElementById("new-proj-bg-url").value : "";
+      const bgFileInput = document.getElementById("new-proj-bg-file");
+      if (bgFileInput && bgFileInput.files && bgFileInput.files[0]) {
+        // Compress project background image
+        bgImageUrl = await this.compressImage(bgFileInput.files[0], 640, 640, 0.65);
+      }
+
+      const tags = document.getElementById("new-proj-tags").value
+        .split(",")
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
+
+      const newProj = {
+        id: "proj-" + Date.now(),
+        title: document.getElementById("new-proj-title").value,
+        category: document.getElementById("new-proj-cat").value,
+        description: document.getElementById("new-proj-desc").value,
+        bgImage: bgImageUrl || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1000&auto=format&fit=crop&q=80",
+        tags: tags.length ? tags : ["Informatique"],
+        fileName,
+        fileSize,
+        fileUrl
+      };
+
+      data.projects.unshift(newProj);
+      StorageService.save(data, true);
+      this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Projet publié et synchronisé sur le Cloud !\nIl apparaîtra automatiquement sur tous vos appareils.");
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la publication: " + err.message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
     }
-
-    const tags = document.getElementById("new-proj-tags").value
-      .split(",")
-      .map(t => t.trim())
-      .filter(t => t.length > 0);
-
-    const newProj = {
-      id: "proj-" + Date.now(),
-      title: document.getElementById("new-proj-title").value,
-      category: document.getElementById("new-proj-cat").value,
-      description: document.getElementById("new-proj-desc").value,
-      bgImage: bgImageUrl || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1000&auto=format&fit=crop&q=80",
-      tags: tags.length ? tags : ["Informatique"],
-      fileName,
-      fileSize,
-      fileUrl
-    };
-
-    data.projects.unshift(newProj);
-    StorageService.save(data);
-    this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
   }
 
   deleteProject(id) {
     if (!confirm("Supprimer ce projet ?")) return;
     const data = StorageService.get();
     data.projects = data.projects.filter(p => p.id !== id);
-    StorageService.save(data);
+    StorageService.save(data, true);
     this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
+    alert("✅ Projet supprimé et synchronisé sur le Cloud !");
   }
 
   /* 5. PROFILE & BACKUP TAB */
@@ -941,7 +979,7 @@ class AdminManager {
     }
   }
 
-  compressImage(file, maxWidth = 1000, maxHeight = 1000, quality = 0.75) {
+  compressImage(file, maxWidth = 640, maxHeight = 640, quality = 0.65) {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -977,7 +1015,7 @@ class AdminManager {
     const btn = document.querySelector(".btn-sync-cloud");
     const statusLabel = document.getElementById("sync-status-label");
     if (btn) btn.classList.add("spinning");
-    if (statusLabel) statusLabel.textContent = "Synchronisation...";
+    if (statusLabel) statusLabel.textContent = "Synchronisation Cloud...";
 
     const updated = await StorageService.syncCloudContent();
     
@@ -989,9 +1027,9 @@ class AdminManager {
 
     if (updated) {
       if (this.isAuthenticated) this.renderActiveTabContent();
-      if (isManual) alert("Contenu et mot de passe mis à jour et synchronisés avec succès depuis le Cloud !");
+      if (isManual) alert("✅ Contenu et mot de passe mis à jour et synchronisés avec succès depuis le Cloud !");
     } else if (isManual) {
-      alert("Votre appareil est déjà parfaitement synchronisé avec le Cloud.");
+      alert("✅ Votre appareil est déjà parfaitement à jour avec le Cloud.");
     }
   }
 
