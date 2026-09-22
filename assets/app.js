@@ -187,9 +187,14 @@ function renderTechTips(tips, searchTerm = "") {
       </div>
       <h3 class="tip-title">${escapeHTML(tip.title)}</h3>
       <p class="tip-summary">${escapeHTML(tip.summary)}</p>
-      <div class="code-box">
-        <button class="copy-btn" onclick="copyCode(this, \`${encodeURIComponent(tip.code)}\`)">Copier</button>
-        <pre><code>${escapeHTML(tip.code)}</code></pre>
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-lang-tag">💻 Astuce / Commande</span>
+          <button class="copy-btn" onclick="copyCode(this, \`${encodeURIComponent(tip.code)}\`)" aria-label="Copier le code">📋 Copier</button>
+        </div>
+        <div class="code-box">
+          <pre><code>${escapeHTML(tip.code)}</code></pre>
+        </div>
       </div>
       <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: auto;">💡 ${escapeHTML(tip.explanation || '')}</p>
     </div>
@@ -269,6 +274,43 @@ function setupEventListeners() {
 
   // Mobile Drawer Navigation Setup
   setupMobileDrawer();
+
+  // Active Section Scroll Spy
+  setupScrollSpy();
+}
+
+function setupScrollSpy() {
+  const sections = document.querySelectorAll("section[id]");
+  const navLinks = document.querySelectorAll(".nav-links a");
+  const drawerLinks = document.querySelectorAll(".drawer-nav-link");
+
+  if (!('IntersectionObserver' in window) || sections.length === 0) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute("id");
+        navLinks.forEach(link => {
+          if (link.getAttribute("href") === `#${id}`) {
+            link.classList.add("active");
+          } else {
+            link.classList.remove("active");
+          }
+        });
+        drawerLinks.forEach(link => {
+          if (link.getAttribute("href") === `#${id}`) {
+            link.style.borderColor = "var(--accent-primary)";
+            link.style.background = "rgba(59, 130, 246, 0.1)";
+          } else {
+            link.style.borderColor = "transparent";
+            link.style.background = "rgba(255, 255, 255, 0.02)";
+          }
+        });
+      }
+    });
+  }, { rootMargin: "-20% 0px -60% 0px" });
+
+  sections.forEach(sec => observer.observe(sec));
 }
 
 function setupMobileDrawer() {
@@ -362,16 +404,19 @@ window.openTrailer = function(title, url) {
   modal.className = "modal-overlay active";
   modal.style.zIndex = "2000";
   modal.innerHTML = `
-    <div class="modal-container" style="max-width: 800px; height: 500px;">
-      <div class="modal-header">
-        <h3 style="font-weight: 700;">${escapeHTML(title)} - Bande-Annonce</h3>
+    <div class="modal-container" style="max-width: 760px; width: 100%; padding: 0; overflow: hidden; border-radius: var(--radius-xl);">
+      <div class="modal-header" style="padding: 14px 20px;">
+        <h3 style="font-weight: 700; font-size: 1.05rem;">🎬 ${escapeHTML(title)}</h3>
         <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
       </div>
-      <div style="flex-grow: 1; background: #000;">
-        <iframe src="${escapeHTML(embedUrl)}?autoplay=1" style="width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <div style="position: relative; width: 100%; padding-top: 56.25%; background: #000;">
+        <iframe src="${escapeHTML(embedUrl)}?autoplay=1" style="position: absolute; top:0; left:0; width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </div>
   `;
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.remove();
+  });
   document.body.appendChild(modal);
 };
 

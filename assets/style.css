@@ -734,19 +734,65 @@ main {
   margin-bottom: 14px;
 }
 
-.code-box {
+.code-block-wrapper {
   background: #030508;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 14px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.code-lang-tag {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+  letter-spacing: 0.03em;
+}
+
+.copy-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: var(--transition-smooth);
+}
+
+.copy-btn:active {
+  background: rgba(255, 255, 255, 0.16);
+  transform: scale(0.96);
+}
+
+.code-box {
+  background: transparent;
+  border: none;
+  border-radius: 0;
   padding: 12px;
-  position: relative;
   font-family: var(--font-mono);
   font-size: 0.8rem;
   overflow-x: auto;
   max-width: 100%;
   min-width: 0;
   color: #38bdf8;
-  margin-bottom: 14px;
+  margin-bottom: 0;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -755,20 +801,6 @@ main {
   white-space: pre;
   max-width: 100%;
   min-width: 0;
-}
-
-.copy-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  cursor: pointer;
-  min-height: 32px;
 }
 
 /* 9. CINEMA SECTION */
