@@ -35,12 +35,13 @@ import {
 // 1. CONFIGURATION DU PROJET FIREBASE
 // =============================================================================
 let defaultFirebaseConfig = {
-  apiKey: "AIzaSy_NICAISSE_REPLACE_WITH_YOUR_KEY",
-  authDomain: "nicaisse-portfolio.firebaseapp.com",
-  projectId: "nicaisse-portfolio",
-  storageBucket: "nicaisse-portfolio.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890"
+  apiKey: "AIzaSyBvs4W3Ml0_tbziypdsbHgZ6IWqhvJ024o",
+  authDomain: "auberson-26.firebaseapp.com",
+  projectId: "auberson-26",
+  storageBucket: "auberson-26.firebasestorage.app",
+  messagingSenderId: "343072072492",
+  appId: "1:343072072492:web:1769da27b09df1873f8289",
+  measurementId: "G-91C9PTJ2XJ"
 };
 
 // Permet également à l'administrateur de coller sa config depuis l'interface sans devoir recompiler
