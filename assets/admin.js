@@ -82,7 +82,7 @@ class AdminManager {
     const input = document.getElementById("admin-pass-input");
     if (!input) return;
 
-    const savedPass = localStorage.getItem("nicklaus_admin_password") || ADMIN_DEFAULT_PASS;
+    const savedPass = localStorage.getItem("nicaisse_admin_password") || localStorage.getItem("nicklaus_admin_password") || ADMIN_DEFAULT_PASS;
     if (input.value === savedPass) {
       this.isAuthenticated = true;
       this.showDashboard();
@@ -576,6 +576,20 @@ class AdminManager {
 
         <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 32px 0;">
 
+        <h5 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px;">🔐 Sécurité du mot de passe</h5>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+          Définissez votre mot de passe personnalisé pour que vous seul puissiez accéder au tableau de bord.
+        </p>
+        <form onsubmit="adminManager.changePassword(event)" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 32px;">
+          <div style="flex: 1; min-width: 220px;">
+            <label class="form-label">Nouveau mot de passe</label>
+            <input type="password" id="new-admin-pass" class="form-control" required placeholder="Votre mot de passe secret">
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Mettre à jour le mot de passe</button>
+        </form>
+
+        <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 32px 0;">
+
         <h5 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">Exporter / Sauvegarder toutes les données</h5>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
           Téléchargez une copie intégrale de votre base de données (astuces, films, projets, visiteurs) en un clic.
@@ -589,6 +603,18 @@ class AdminManager {
         </div>
       </div>
     `;
+  }
+
+  changePassword(e) {
+    e.preventDefault();
+    const newPass = document.getElementById("new-admin-pass").value;
+    if (!newPass || newPass.trim().length < 4) {
+      alert("Le mot de passe doit contenir au moins 4 caractères.");
+      return;
+    }
+    localStorage.setItem("nicaisse_admin_password", newPass.trim());
+    alert("Mot de passe mis à jour avec succès ! Vous seul pouvez désormais vous connecter.");
+    document.getElementById("new-admin-pass").value = "";
   }
 
   saveProfileInfo(e) {
