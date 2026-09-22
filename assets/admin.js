@@ -108,8 +108,9 @@ class AdminManager {
     this.renderTabs();
     this.renderActiveTabContent();
 
-    // Silently fetch fresh telemetry from cloud hub on opening
+    // Silently fetch fresh telemetry and content from cloud hub on opening
     this.fetchCloudVisitors(false);
+    this.syncCloudContent(false);
   }
 
   renderTabs() {
@@ -127,6 +128,9 @@ class AdminManager {
         ${t.label}
       </button>
     `).join("") + `
+      <button class="admin-tab-btn" style="color: #38bdf8;" onclick="adminManager.syncCloudContent(true)" title="Synchroniser immédiatement tout le contenu avec le Cloud">
+        🔄 Synchro Cloud
+      </button>
       <button class="admin-tab-btn" style="margin-left: auto; color: #ef4444;" onclick="adminManager.logout()">
         🚪 Déconnexion
       </button>
@@ -437,6 +441,7 @@ class AdminManager {
 
     data.techTips.unshift(newTip);
     StorageService.save(data);
+    StorageService.broadcastContentChange({ category: "techTips", action: "add", item: newTip });
     this.renderTipsTab(document.getElementById("admin-modal-body"), data);
   }
 
@@ -445,6 +450,7 @@ class AdminManager {
     const data = StorageService.get();
     data.techTips = data.techTips.filter(t => t.id !== id);
     StorageService.save(data);
+    StorageService.broadcastContentChange({ category: "techTips", action: "delete", id: id });
     this.renderTipsTab(document.getElementById("admin-modal-body"), data);
   }
 
@@ -452,9 +458,14 @@ class AdminManager {
   renderCinemaTab(body, data) {
     body.innerHTML = `
       <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h4 style="font-size: 1.1rem; font-weight: 700;">Gérer la Section Cinéma (${(data.cinema || []).length} films)</h4>
-          <button class="btn btn-primary btn-sm" onclick="adminManager.showAddFilmForm()">+ Ajouter un Film</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Gérer la Section Cinéma (${(data.cinema || []).length} films)</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Les modifications sont synchronisées en direct sur tous les téléphones et appareils.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddFilmForm()">+ Ajouter un Film</button>
+          </div>
         </div>
 
         <div id="film-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
@@ -463,7 +474,7 @@ class AdminManager {
           ${(data.cinema || []).map(f => `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
               <div style="display: flex; align-items: center; gap: 16px;">
-                <img src="${escapeHTML(f.poster)}" style="width: 40px; height: 50px; object-fit: cover; border-radius: 4px;" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800'">
+                <img src="${escapeHTML(f.poster)}" style="width: 44px; height: 56px; object-fit: cover; border-radius: 4px;" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800'">
                 <div>
                   <strong>${escapeHTML(f.title)}</strong> (${escapeHTML(f.year)}) - <span style="color: var(--text-dim);">${escapeHTML(f.director)}</span>
                   <div style="font-size: 0.8rem; color: #fbbf24;">★ ${escapeHTML(f.rating)}</div>
@@ -507,9 +518,18 @@ class AdminManager {
             <input type="text" id="new-film-rating" class="form-control" placeholder="Ex: 9.5 / 10">
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Image / Affiche (URL de l'image)</label>
-          <input type="url" id="new-film-poster" class="form-control" required placeholder="https://image-url...">
+        <div class="form-group" style="border: 1px dashed var(--border-subtle); padding: 14px; border-radius: var(--radius-md); background: rgba(255,255,255,0.01);">
+          <label class="form-label">🎬 Affiche / Image du Film (Photo depuis votre appareil ou lien web)</label>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <input type="file" id="new-film-poster-file" accept="image/*" class="form-control" style="background: transparent;" onchange="adminManager.previewImage(this, 'film-poster-preview')">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 0.8rem;">
+              <span>ou lien URL :</span>
+              <input type="url" id="new-film-poster" class="form-control" placeholder="https://image-url..." style="flex: 1;" oninput="adminManager.previewUrl(this.value, 'film-poster-preview')">
+            </div>
+          </div>
+          <div id="film-poster-preview" style="display: none; margin-top: 10px; max-height: 160px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-subtle); text-align: center;">
+            <img src="" style="max-height: 160px; object-fit: cover; display: inline-block;">
+          </div>
         </div>
         <div class="form-group form-row-2">
           <div>
@@ -533,10 +553,24 @@ class AdminManager {
     `;
   }
 
-  saveNewFilm(e) {
+  async saveNewFilm(e) {
     e.preventDefault();
     const data = StorageService.get();
     if (!data.cinema) data.cinema = [];
+
+    let posterUrl = document.getElementById("new-film-poster").value;
+    const fileInput = document.getElementById("new-film-poster-file");
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      posterUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => resolve(ev.target.result);
+        reader.readAsDataURL(fileInput.files[0]);
+      });
+    }
+
+    if (!posterUrl) {
+      posterUrl = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80";
+    }
 
     const newFilm = {
       id: "film-" + Date.now(),
@@ -545,7 +579,7 @@ class AdminManager {
       year: document.getElementById("new-film-year").value,
       genre: document.getElementById("new-film-genre").value,
       rating: document.getElementById("new-film-rating").value || "9.0 / 10",
-      poster: document.getElementById("new-film-poster").value,
+      poster: posterUrl,
       review: document.getElementById("new-film-review").value,
       link: document.getElementById("new-film-link").value,
       trailerUrl: document.getElementById("new-film-trailer").value
@@ -553,6 +587,7 @@ class AdminManager {
 
     data.cinema.unshift(newFilm);
     StorageService.save(data);
+    StorageService.broadcastContentChange({ category: "cinema", action: "add", item: newFilm });
     this.renderCinemaTab(document.getElementById("admin-modal-body"), data);
   }
 
@@ -561,6 +596,7 @@ class AdminManager {
     const data = StorageService.get();
     data.cinema = data.cinema.filter(f => f.id !== id);
     StorageService.save(data);
+    StorageService.broadcastContentChange({ category: "cinema", action: "delete", id: id });
     this.renderCinemaTab(document.getElementById("admin-modal-body"), data);
   }
 
@@ -568,8 +604,11 @@ class AdminManager {
   renderProjectsTab(body, data) {
     body.innerHTML = `
       <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h4 style="font-size: 1.1rem; font-weight: 700;">Gérer les Projets & Téléchargements (${(data.projects || []).length})</h4>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Gérer les Projets & Téléchargements (${(data.projects || []).length})</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Ajoutez une image en arrière-plan et des fichiers téléchargeables pour chaque projet.</p>
+          </div>
           <button class="btn btn-primary btn-sm" onclick="adminManager.showAddProjectForm()">+ Ajouter un Projet</button>
         </div>
 
@@ -578,9 +617,12 @@ class AdminManager {
         <div style="display: flex; flex-direction: column; gap: 12px;">
           ${(data.projects || []).map(p => `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-              <div>
-                <strong>${escapeHTML(p.title)}</strong> (${escapeHTML(p.category)})
-                ${p.fileName ? `<div style="font-size: 0.8rem; color: #10b981;">📄 Fichier téléchargeable: ${escapeHTML(p.fileName)}</div>` : ''}
+              <div style="display: flex; align-items: center; gap: 16px;">
+                ${p.bgImage ? `<img src="${escapeHTML(p.bgImage)}" style="width: 50px; height: 38px; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'">` : ''}
+                <div>
+                  <strong>${escapeHTML(p.title)}</strong> (${escapeHTML(p.category)})
+                  ${p.fileName ? `<div style="font-size: 0.8rem; color: #10b981;">📄 Fichier téléchargeable: ${escapeHTML(p.fileName)}</div>` : ''}
+                </div>
               </div>
               <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteProject('${p.id}')">Supprimer</button>
             </div>
@@ -609,6 +651,19 @@ class AdminManager {
         <div class="form-group">
           <label class="form-label">Description</label>
           <textarea id="new-proj-desc" class="form-control" required placeholder="Détails du projet..."></textarea>
+        </div>
+        <div class="form-group" style="border: 1px dashed var(--border-subtle); padding: 14px; border-radius: var(--radius-md); background: rgba(255,255,255,0.01);">
+          <label class="form-label">🖼️ Image / Arrière-plan du Projet (Photo depuis votre appareil ou lien web)</label>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <input type="file" id="new-proj-bg-file" accept="image/*" class="form-control" style="background: transparent;" onchange="adminManager.previewImage(this, 'proj-bg-preview')">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 0.8rem;">
+              <span>ou lien URL :</span>
+              <input type="url" id="new-proj-bg-url" class="form-control" placeholder="https://images.unsplash.com/..." style="flex: 1;" oninput="adminManager.previewUrl(this.value, 'proj-bg-preview')">
+            </div>
+          </div>
+          <div id="proj-bg-preview" style="display: none; margin-top: 10px; max-height: 140px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-subtle);">
+            <img src="" style="width: 100%; height: 140px; object-fit: cover;">
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Tags (séparés par des virgules)</label>
@@ -639,7 +694,7 @@ class AdminManager {
     let fileName = "";
     let fileSize = "";
 
-    if (fileInput.files.length > 0) {
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
       const file = fileInput.files[0];
       fileName = file.name;
       fileSize = (file.size / 1024).toFixed(1) + " KB";
@@ -647,6 +702,16 @@ class AdminManager {
         const reader = new FileReader();
         reader.onload = (ev) => resolve(ev.target.result);
         reader.readAsDataURL(file);
+      });
+    }
+
+    let bgImageUrl = document.getElementById("new-proj-bg-url") ? document.getElementById("new-proj-bg-url").value : "";
+    const bgFileInput = document.getElementById("new-proj-bg-file");
+    if (bgFileInput && bgFileInput.files && bgFileInput.files[0]) {
+      bgImageUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => resolve(ev.target.result);
+        reader.readAsDataURL(bgFileInput.files[0]);
       });
     }
 
@@ -660,6 +725,7 @@ class AdminManager {
       title: document.getElementById("new-proj-title").value,
       category: document.getElementById("new-proj-cat").value,
       description: document.getElementById("new-proj-desc").value,
+      bgImage: bgImageUrl || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1000&auto=format&fit=crop&q=80",
       tags: tags.length ? tags : ["Informatique"],
       fileName,
       fileSize,
@@ -668,6 +734,7 @@ class AdminManager {
 
     data.projects.unshift(newProj);
     StorageService.save(data);
+    StorageService.broadcastContentChange({ category: "projects", action: "add", item: newProj });
     this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
   }
 
@@ -676,6 +743,7 @@ class AdminManager {
     const data = StorageService.get();
     data.projects = data.projects.filter(p => p.id !== id);
     StorageService.save(data);
+    StorageService.broadcastContentChange({ category: "projects", action: "delete", id: id });
     this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
   }
 
@@ -760,7 +828,42 @@ class AdminManager {
     data.profile.bio = document.getElementById("prof-bio").value;
 
     StorageService.save(data);
-    alert("Profil mis à jour avec succès !");
+    StorageService.broadcastContentChange({ category: "profile", action: "update", item: data.profile });
+    alert("Profil mis à jour et synchronisé sur tous les appareils !");
+  }
+
+  previewImage(input, previewId) {
+    const container = document.getElementById(previewId);
+    if (!container) return;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = container.querySelector("img");
+        if (img) img.src = e.target.result;
+        container.style.display = "block";
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  previewUrl(url, previewId) {
+    const container = document.getElementById(previewId);
+    if (!container) return;
+    if (url && url.trim().startsWith("http")) {
+      const img = container.querySelector("img");
+      if (img) img.src = url.trim();
+      container.style.display = "block";
+    }
+  }
+
+  async syncCloudContent(isManual = false) {
+    const updated = await StorageService.syncCloudContent();
+    if (updated) {
+      this.renderActiveTabContent();
+      if (isManual) alert("Contenu mis à jour et synchronisé avec succès depuis le Cloud !");
+    } else if (isManual) {
+      alert("Votre contenu est déjà parfaitement synchronisé.");
+    }
   }
 
   exportDatabase() {

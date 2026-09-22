@@ -116,6 +116,7 @@ if ($isWin) {
       category: "Enseignement",
       description: "Plateforme web moderne d'apprentissage de l'algorithmique et du code pour étudiants du secondaire et supérieur.",
       tags: ["JavaScript", "HTML5", "Pédagogie", "Bento UI"],
+      bgImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1000&auto=format&fit=crop&q=80",
       link: "#",
       fileUrl: "data:text/plain;charset=utf-8,Guide%20Pédagogique%20-%20Nicaisse%20Auberson%0A%0ACe%20document%20résume%20les%20bonnes%20pratiques%20d'apprentissage%20du%20code%20en%202026.",
       fileName: "Guide_Pedagogique_Informatique_2026.txt",
@@ -127,6 +128,7 @@ if ($isWin) {
       category: "Informatique",
       description: "Suite d'outils légers pour la sensibilisation des étudiants aux failles de sécurité courantes et à la protection des données.",
       tags: ["Cybersécurité", "Python", "Réseau", "OpenSource"],
+      bgImage: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1000&auto=format&fit=crop&q=80",
       link: "#",
       fileUrl: "data:text/plain;charset=utf-8,Aide-Mémoire%20Sécurité%20Réseau%0A%0A1.%20Mots%20de%20passe%20robustes%20et%202FA%0A2.%20Chiffrement%20TLS%201.3%0A3.%20Protection%20DNS%20over%20HTTPS",
       fileName: "Memo_Securite_Reseau_NicaisseAuberson.txt",
@@ -140,6 +142,8 @@ if ($isWin) {
 class StorageService {
   static KEY = "nicaisse_portfolio_db_v2026";
   static ADMIN_PIN_KEY = "nicaisse_admin_token";
+  static CONTENT_HUB = "https://ntfy.sh/nicaisse_content_hub_2026";
+  static TELEMETRY_HUB = "https://ntfy.sh/nicaisse_telemetry_hub_2026";
 
   static get() {
     try {
@@ -164,6 +168,100 @@ class StorageService {
       window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: data }));
     } catch (e) {
       console.error("Erreur sauvegarde storage:", e);
+    }
+  }
+
+  static broadcastContentChange(change) {
+    try {
+      const payload = {
+        id: "sync-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4),
+        timestamp: Date.now(),
+        ...change
+      };
+      fetch(this.CONTENT_HUB, {
+        method: "POST",
+        headers: { 
+          "Title": "Update: " + (change.category || "Content"),
+          "Priority": "high"
+        },
+        body: JSON.stringify(payload)
+      }).catch(() => {});
+    } catch (e) {}
+  }
+
+  static async syncCloudContent() {
+    try {
+      const res = await fetch(`${this.CONTENT_HUB}/json?poll=1`, { cache: "no-store" });
+      if (!res.ok) return false;
+      const text = await res.text();
+      if (!text || !text.trim()) return false;
+
+      const lines = text.trim().split("\n");
+      const currentData = this.get();
+      let hasChanges = false;
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const envelope = JSON.parse(line);
+          if (envelope.event !== "message" || !envelope.message) continue;
+          const msg = JSON.parse(envelope.message);
+          if (!msg || !msg.category || !msg.action) continue;
+
+          if (msg.category === "cinema") {
+            if (!currentData.cinema) currentData.cinema = [];
+            if (msg.action === "add" && msg.item && msg.item.id) {
+              const exists = currentData.cinema.some(f => f.id === msg.item.id || f.title.toLowerCase() === msg.item.title.toLowerCase());
+              if (!exists) {
+                currentData.cinema.unshift(msg.item);
+                hasChanges = true;
+              }
+            } else if (msg.action === "delete" && msg.id) {
+              const prevLen = currentData.cinema.length;
+              currentData.cinema = currentData.cinema.filter(f => f.id !== msg.id);
+              if (currentData.cinema.length !== prevLen) hasChanges = true;
+            }
+          } else if (msg.category === "techTips") {
+            if (!currentData.techTips) currentData.techTips = [];
+            if (msg.action === "add" && msg.item && msg.item.id) {
+              const exists = currentData.techTips.some(t => t.id === msg.item.id || t.title.toLowerCase() === msg.item.title.toLowerCase());
+              if (!exists) {
+                currentData.techTips.unshift(msg.item);
+                hasChanges = true;
+              }
+            } else if (msg.action === "delete" && msg.id) {
+              const prevLen = currentData.techTips.length;
+              currentData.techTips = currentData.techTips.filter(t => t.id !== msg.id);
+              if (currentData.techTips.length !== prevLen) hasChanges = true;
+            }
+          } else if (msg.category === "projects") {
+            if (!currentData.projects) currentData.projects = [];
+            if (msg.action === "add" && msg.item && msg.item.id) {
+              const exists = currentData.projects.some(p => p.id === msg.item.id || p.title.toLowerCase() === msg.item.title.toLowerCase());
+              if (!exists) {
+                currentData.projects.unshift(msg.item);
+                hasChanges = true;
+              }
+            } else if (msg.action === "delete" && msg.id) {
+              const prevLen = currentData.projects.length;
+              currentData.projects = currentData.projects.filter(p => p.id !== msg.id);
+              if (currentData.projects.length !== prevLen) hasChanges = true;
+            }
+          } else if (msg.category === "profile" && msg.item) {
+            currentData.profile = { ...currentData.profile, ...msg.item };
+            hasChanges = true;
+          }
+        } catch (e) {}
+      }
+
+      if (hasChanges) {
+        this.save(currentData);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.warn("Erreur synchronisation cloud content:", err);
+      return false;
     }
   }
 
@@ -202,7 +300,7 @@ class StorageService {
 
     // Synchronize to real-time cloud hub (ntfy.sh) so admin sees visits from any device
     try {
-      fetch("https://ntfy.sh/nicaisse_telemetry_hub_2026", {
+      fetch(this.TELEMETRY_HUB, {
         method: "POST",
         headers: { "Title": "Visiteur: " + newEntry.device + " (" + newEntry.browser + ")" },
         body: JSON.stringify(newEntry)

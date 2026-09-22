@@ -7,6 +7,19 @@ document.addEventListener("DOMContentLoaded", () => {
   initVisitorTelemetry();
   renderApp();
   setupEventListeners();
+  setupNavbarScroll();
+
+  // Initial cloud content sync across devices
+  StorageService.syncCloudContent().then(updated => {
+    if (updated) renderApp();
+  });
+
+  // Re-sync on tab focus (e.g. user added content on another device and switched back)
+  window.addEventListener("focus", () => {
+    StorageService.syncCloudContent().then(updated => {
+      if (updated) renderApp();
+    });
+  });
 
   // Listen for real-time DB changes
   window.addEventListener("nicaisse_db_updated", () => {
@@ -391,25 +404,31 @@ function renderProjects(projects) {
   if (!container) return;
 
   container.innerHTML = (projects || []).map(p => `
-    <div class="project-card">
-      <div>
+    <div class="project-card ${p.bgImage ? 'has-bg' : ''}">
+      ${p.bgImage ? `
+        <div class="project-card-banner">
+          <img src="${escapeHTML(p.bgImage)}" alt="${escapeHTML(p.title)}" loading="lazy" class="project-card-bg-img" onerror="this.style.display='none'">
+          <div class="project-card-banner-overlay"></div>
+        </div>
+      ` : ''}
+      <div class="project-card-body">
         <span class="badge-tag">${escapeHTML(p.category)}</span>
-        <h3 style="font-size: 1.3rem; font-weight: 700; margin: 12px 0 8px;">${escapeHTML(p.title)}</h3>
-        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6;">${escapeHTML(p.description)}</p>
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin: 10px 0 8px;">${escapeHTML(p.title)}</h3>
+        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 12px;">${escapeHTML(p.description)}</p>
         <div class="project-tags">
           ${(p.tags || []).map(t => `<span class="tag">${escapeHTML(t)}</span>`).join("")}
         </div>
-      </div>
 
-      ${p.fileName ? `
-        <div class="download-box">
-          <div class="download-info">
-            <span class="download-name">📄 ${escapeHTML(p.fileName)}</span>
-            <span class="download-size">${escapeHTML(p.fileSize || 'Téléchargement disponible')}</span>
+        ${p.fileName ? `
+          <div class="download-box">
+            <div class="download-info">
+              <span class="download-name">📄 ${escapeHTML(p.fileName)}</span>
+              <span class="download-size">${escapeHTML(p.fileSize || 'Téléchargement disponible')}</span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="downloadProjectFile('${escapeHTML(p.id)}')">Télécharger</button>
           </div>
-          <button class="btn btn-outline btn-sm" onclick="downloadProjectFile('${escapeHTML(p.id)}')">Télécharger</button>
-        </div>
-      ` : ''}
+        ` : ''}
+      </div>
     </div>
   `).join("");
 }
@@ -417,6 +436,19 @@ function renderProjects(projects) {
 /* -------------------------------------------------------------
  * EVENT HANDLERS & HELPERS
  * ----------------------------------------------------------- */
+function setupNavbarScroll() {
+  const navbar = document.querySelector(".navbar");
+  if (!navbar) return;
+  const updateNavbar = () => {
+    if (window.scrollY > 15) {
+      navbar.classList.add("scrolled");
+    } else {
+      navbar.classList.remove("scrolled");
+    }
+  };
+  window.addEventListener("scroll", updateNavbar, { passive: true });
+  updateNavbar();
+}
 function setupEventListeners() {
   const searchInput = document.getElementById("tips-search");
   if (searchInput) {
