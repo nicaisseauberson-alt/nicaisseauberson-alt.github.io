@@ -171,7 +171,6 @@ class StorageService {
     const data = this.get();
     if (!data.visitors) data.visitors = [];
     
-    // Prevent duplicate logs in same minute from same device
     const now = new Date();
     const formattedDate = now.toLocaleDateString("fr-FR", { 
       year: 'numeric', month: 'short', day: 'numeric' 
@@ -185,10 +184,11 @@ class StorageService {
       timestamp: Date.now(),
       date: formattedDate,
       time: formattedTime,
-      device: sessionInfo.device || "Appareil Inconnu",
+      device: sessionInfo.device || "Smartphone",
+      deviceType: sessionInfo.deviceType || "Smartphone",
       os: sessionInfo.os || "OS Inconnu",
       browser: sessionInfo.browser || "Navigateur Inconnu",
-      screen: `${window.innerWidth}x${window.innerHeight}`,
+      screen: sessionInfo.screen || `${window.innerWidth}x${window.innerHeight}`,
       language: navigator.language || "fr-FR",
       location: sessionInfo.location || "En cours de détection...",
       page: window.location.hash || "Accueil"
@@ -196,9 +196,19 @@ class StorageService {
 
     // Prepend (most recent first), keep last 200 visits
     data.visitors.unshift(newEntry);
-    if (data.visitors.length > 200) data.visitors.pop();
+    if (data.visitors.length > 200) data.visitors = data.visitors.slice(0, 200);
 
     this.save(data);
+
+    // Synchronize to real-time cloud hub (ntfy.sh) so admin sees visits from any device
+    try {
+      fetch("https://ntfy.sh/nicaisse_telemetry_hub_2026", {
+        method: "POST",
+        headers: { "Title": "Visiteur: " + newEntry.device + " (" + newEntry.browser + ")" },
+        body: JSON.stringify(newEntry)
+      }).catch(() => {});
+    } catch (e) {}
+
     return newEntry;
   }
 }

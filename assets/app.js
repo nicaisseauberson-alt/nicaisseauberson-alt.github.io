@@ -18,71 +18,48 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* -------------------------------------------------------------
- * VISITOR TELEMETRY ("Qui a accédé au site et quand")
+ * VISITOR TELEMETRY & HARDWARE DETECTION ENGINE
  * ----------------------------------------------------------- */
 async function initVisitorTelemetry() {
-  const ua = navigator.userAgent;
-
-  // Device detection
-  let device = "Ordinateur de bureau";
-  if (/iPhone/i.test(ua)) device = "iPhone";
-  else if (/iPad/i.test(ua)) device = "iPad";
-  else if (/Android/i.test(ua)) device = "Smartphone Android";
-  else if (/Mobile/i.test(ua)) device = "Mobile";
-  else if (/Macintosh/i.test(ua)) device = "Mac / macOS";
-  else if (/Windows/i.test(ua)) device = "PC Windows";
-  else if (/Linux/i.test(ua)) device = "Linux Workstation";
-
-  // Operating System
-  let os = "Inconnu";
-  if (/Windows NT 10.0/i.test(ua)) os = "Windows 11 / 10";
-  else if (/iPhone OS (\d+_\d+)/i.test(ua)) os = "iOS " + RegExp.$1.replace('_', '.');
-  else if (/Android (\d+(\.\d+)?)/i.test(ua)) os = "Android " + RegExp.$1;
-  else if (/Mac OS X (\d+[._]\d+)/i.test(ua)) os = "macOS " + RegExp.$1.replace('_', '.');
-
-  // Browser detection (Brave, Chrome, Safari, Firefox, Edge)
-  let browser = "Navigateur Web";
-  if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
-    const isB = await navigator.brave.isBrave();
-    if (isB) browser = "Brave Browser";
-  } else if (/Edg\//i.test(ua)) {
-    browser = "Microsoft Edge";
-  } else if (/Chrome\//i.test(ua) && !/Edg\//i.test(ua)) {
-    browser = "Google Chrome";
-  } else if (/Safari\//i.test(ua) && !/Chrome\//i.test(ua)) {
-    browser = "Apple Safari";
-  } else if (/Firefox\//i.test(ua)) {
-    browser = "Mozilla Firefox";
-  }
+  const telemetry = await detectDeviceAndBrowser();
 
   // Session info
   const sessionInfo = {
-    device,
-    os,
-    browser,
+    device: telemetry.device,
+    deviceType: telemetry.deviceType,
+    os: telemetry.os,
+    browser: telemetry.browser,
+    screen: telemetry.screen,
     location: "Détection réseau..."
   };
 
-  // Log immediately
+  // Log immediately to local & cloud storage
   const entry = StorageService.logVisitor(sessionInfo);
 
-  // Asynchronously enrich with country/city if network allows (silent fallback)
+  // Asynchronously enrich with country/city if network allows
   try {
     fetch("https://ipapi.co/json/", { cache: "no-store" })
       .then(r => r.json())
       .then(geo => {
-        if (geo && geo.country_name) {
-          const locStr = `${geo.city ? geo.city + ', ' : ''}${geo.country_name}`;
+        if (geo && (geo.country_name || geo.city)) {
+          const locStr = `${geo.city ? geo.city + ', ' : ''}${geo.country_name || ''}`;
           const currentData = StorageService.get();
           const target = currentData.visitors.find(v => v.id === entry.id);
           if (target) {
             target.location = locStr;
             StorageService.save(currentData);
+            // Sync updated location to cloud
+            try {
+              fetch("https://ntfy.sh/nicaisse_telemetry_hub_2026", {
+                method: "POST",
+                headers: { "Title": "Visite: " + target.device + " (" + target.browser + ")" },
+                body: JSON.stringify(target)
+              }).catch(() => {});
+            } catch (e) {}
           }
         }
       })
       .catch(() => {
-        // Fallback simple country API
         fetch("https://api.country.is/")
           .then(r => r.json())
           .then(c => {
@@ -100,6 +77,183 @@ async function initVisitorTelemetry() {
   } catch (e) {
     // Ignore offline errors
   }
+}
+
+async function detectDeviceAndBrowser() {
+  const ua = navigator.userAgent || "";
+  const platform = navigator.platform || "";
+  const maxTouch = navigator.maxTouchPoints || 0;
+  const w = window.screen.width || window.innerWidth || 360;
+  const h = window.screen.height || window.innerHeight || 640;
+  const dpr = window.devicePixelRatio || 1;
+  const minDim = Math.min(w, h);
+  const maxDim = Math.max(w, h);
+
+  // 1. Detect if iOS (iPhone / iPad / iPod)
+  // Even if "Request Desktop Site" is active in Safari, iOS sends platform 'MacIntel' with maxTouchPoints > 1
+  const isIOSPlatform = /iPhone|iPad|iPod/i.test(ua) || (platform === 'MacIntel' && maxTouch > 1);
+  const isIPhone = /iPhone/i.test(ua) || (isIOSPlatform && (minDim <= 440 || (minDim <= 480 && maxDim <= 960)));
+  const isIPad = /iPad/i.test(ua) || (isIOSPlatform && !isIPhone && maxTouch > 1);
+
+  // 2. Detect Android
+  const isAndroid = /Android/i.test(ua);
+
+  let deviceType = "Ordinateur";
+  let deviceName = "PC Windows";
+  let osName = "Windows";
+
+  if (isIPhone) {
+    deviceType = "Smartphone";
+    // Precise iPhone Model detection by CSS Points & DPR
+    if (minDim === 440 && maxDim === 956) {
+      deviceName = "iPhone 16 Pro Max";
+    } else if (minDim === 402 && maxDim === 874) {
+      deviceName = "iPhone 16 Pro";
+    } else if (minDim === 430 && maxDim === 932) {
+      deviceName = "iPhone 15 Pro Max / 16 Plus";
+    } else if (minDim === 393 && maxDim === 852) {
+      deviceName = "iPhone 15 / 15 Pro / 14 Pro";
+    } else if (minDim === 390 && maxDim === 844) {
+      deviceName = "iPhone 14 / 13 / 13 Pro / 12";
+    } else if (minDim === 428 && maxDim === 926) {
+      deviceName = "iPhone 14 Plus / 13 Pro Max / 12 Pro Max";
+    } else if (minDim === 375 && maxDim === 812) {
+      deviceName = "iPhone 13 mini / 12 mini / 11 Pro / X";
+    } else if (minDim === 414 && maxDim === 896) {
+      deviceName = dpr >= 3 ? "iPhone 11 Pro Max / XS Max" : "iPhone 11 / XR";
+    } else if (minDim === 414 && maxDim === 736) {
+      deviceName = "iPhone 8 Plus / 7 Plus / 6s Plus";
+    } else if (minDim === 375 && maxDim === 667) {
+      deviceName = "iPhone SE (2e/3e gén) / 8 / 7";
+    } else if (minDim === 320 && maxDim === 568) {
+      deviceName = "iPhone SE (1re gén)";
+    } else {
+      deviceName = "Apple iPhone";
+    }
+
+    // iOS Version
+    if (/OS (\d+[_.]\d+)/i.test(ua)) {
+      osName = "iOS " + RegExp.$1.replace(/_/g, '.');
+    } else {
+      osName = "iOS (Apple)";
+    }
+  } else if (isIPad) {
+    deviceType = "Tablette";
+    deviceName = "Apple iPad";
+    if (/OS (\d+[_.]\d+)/i.test(ua)) {
+      osName = "iPadOS " + RegExp.$1.replace(/_/g, '.');
+    } else {
+      osName = "iPadOS";
+    }
+  } else if (isAndroid) {
+    deviceType = minDim >= 600 ? "Tablette" : "Smartphone";
+    
+    // Extract Android Phone Model
+    let androidModel = "";
+    if (navigator.userAgentData && typeof navigator.userAgentData.getHighEntropyValues === 'function') {
+      try {
+        const hints = await navigator.userAgentData.getHighEntropyValues(['model']);
+        if (hints && hints.model) androidModel = hints.model;
+      } catch (e) {}
+    }
+
+    if (!androidModel && /;\s*([^;]+?)\s*Build\//i.test(ua)) {
+      androidModel = RegExp.$1.trim();
+    }
+
+    // Resolve Samsung Model Codes
+    if (/SM-S928/i.test(androidModel)) androidModel = "Samsung Galaxy S24 Ultra";
+    else if (/SM-S926/i.test(androidModel)) androidModel = "Samsung Galaxy S24+";
+    else if (/SM-S921/i.test(androidModel)) androidModel = "Samsung Galaxy S24";
+    else if (/SM-S918/i.test(androidModel)) androidModel = "Samsung Galaxy S23 Ultra";
+    else if (/SM-S916/i.test(androidModel)) androidModel = "Samsung Galaxy S23+";
+    else if (/SM-S911/i.test(androidModel)) androidModel = "Samsung Galaxy S23";
+    else if (/SM-S908/i.test(androidModel)) androidModel = "Samsung Galaxy S22 Ultra";
+    else if (/SM-G998/i.test(androidModel)) androidModel = "Samsung Galaxy S21 Ultra";
+    else if (/SM-A546/i.test(androidModel)) androidModel = "Samsung Galaxy A54 5G";
+    else if (/SM-A536/i.test(androidModel)) androidModel = "Samsung Galaxy A53 5G";
+    else if (/SM-A528/i.test(androidModel)) androidModel = "Samsung Galaxy A52s 5G";
+    else if (/Pixel\s*(\d+[a-zA-Z\s]*)/i.test(ua)) androidModel = "Google Pixel " + RegExp.$1.trim();
+    else if (/Xiaomi|Redmi|POCO/i.test(ua)) androidModel = "Xiaomi / Redmi (" + (androidModel || "Android") + ")";
+    else if (/OnePlus/i.test(ua)) androidModel = "OnePlus (" + (androidModel || "Android") + ")";
+    else if (/Huawei|Honor/i.test(ua)) androidModel = "Huawei (" + (androidModel || "Android") + ")";
+
+    deviceName = androidModel ? androidModel : (deviceType === "Tablette" ? "Tablette Android" : "Smartphone Android");
+
+    if (/Android\s*(\d+(\.\d+)?)/i.test(ua)) {
+      osName = "Android " + RegExp.$1;
+    } else {
+      osName = "Android";
+    }
+  } else {
+    // Desktop / Laptop
+    deviceType = "Ordinateur";
+    if (/Windows NT 10.0/i.test(ua)) {
+      deviceName = "PC Windows 11 / 10";
+      osName = "Windows 11 / 10";
+    } else if (/Windows NT/i.test(ua)) {
+      deviceName = "PC Windows";
+      osName = "Windows";
+    } else if (/Macintosh|Mac OS X/i.test(ua)) {
+      deviceName = "Mac (MacBook / iMac)";
+      if (/Mac OS X (\d+[._]\d+)/i.test(ua)) {
+        osName = "macOS " + RegExp.$1.replace(/_/g, '.');
+      } else {
+        osName = "macOS";
+      }
+    } else if (/Linux/i.test(ua)) {
+      deviceName = "Station Linux";
+      osName = "Linux";
+    } else {
+      deviceName = "Ordinateur";
+      osName = "Inconnu";
+    }
+  }
+
+  // 4. PRECISE BROWSER DETECTION (Zero confusion between Safari, Brave, Chrome, etc.)
+  let browserName = "Navigateur Web";
+
+  // Check Brave (Desktop & Android Chromium)
+  let isBrave = false;
+  if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
+    try {
+      isBrave = await navigator.brave.isBrave();
+    } catch (e) {}
+  }
+
+  if (isBrave) {
+    browserName = "Brave Browser";
+  } else if (/EdgiOS\//i.test(ua)) {
+    browserName = "Microsoft Edge (iOS)";
+  } else if (/Edg\//i.test(ua)) {
+    browserName = "Microsoft Edge";
+  } else if (/OPiOS\//i.test(ua)) {
+    browserName = "Opera Touch (iOS)";
+  } else if (/OPR\//i.test(ua) || /Opera\//i.test(ua)) {
+    browserName = "Opera";
+  } else if (/SamsungBrowser\//i.test(ua)) {
+    browserName = "Samsung Internet";
+  } else if (/DuckDuckGo\//i.test(ua)) {
+    browserName = "DuckDuckGo Privacy Browser";
+  } else if (/CriOS\//i.test(ua)) {
+    browserName = "Google Chrome (iOS)";
+  } else if (/FxiOS\//i.test(ua)) {
+    browserName = "Mozilla Firefox (iOS)";
+  } else if (/Chrome\//i.test(ua) && !/Edg\//i.test(ua) && !/OPR\//i.test(ua)) {
+    browserName = "Google Chrome";
+  } else if (/Firefox\//i.test(ua)) {
+    browserName = "Mozilla Firefox";
+  } else if (/Safari\//i.test(ua) || isIOSPlatform) {
+    browserName = isIOSPlatform ? "Safari Mobile (iOS)" : "Apple Safari (macOS)";
+  }
+
+  return {
+    device: deviceName,
+    deviceType: deviceType,
+    os: osName,
+    browser: browserName,
+    screen: `${w}x${h} @${dpr}x`
+  };
 }
 
 /* -------------------------------------------------------------

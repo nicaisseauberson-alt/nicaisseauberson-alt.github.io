@@ -107,6 +107,9 @@ class AdminManager {
 
     this.renderTabs();
     this.renderActiveTabContent();
+
+    // Silently fetch fresh telemetry from cloud hub on opening
+    this.fetchCloudVisitors(false);
   }
 
   renderTabs() {
@@ -134,6 +137,9 @@ class AdminManager {
     this.activeTab = tabId;
     this.renderTabs();
     this.renderActiveTabContent();
+    if (tabId === "analytics") {
+      this.fetchCloudVisitors(false);
+    }
   }
 
   renderActiveTabContent() {
@@ -157,12 +163,26 @@ class AdminManager {
   renderAnalyticsTab(body, data) {
     const visitors = data.visitors || [];
     const totalVisits = visitors.length;
-    const mobileVisits = visitors.filter(v => /iPhone|Android|Mobile/i.test(v.device)).length;
-    const desktopVisits = totalVisits - mobileVisits;
+    const mobileVisits = visitors.filter(v => v.deviceType === "Smartphone" || /iPhone|Android|Pixel|Samsung|Galaxy|Xiaomi|Redmi|OnePlus|Huawei|Mobile/i.test(v.device)).length;
+    const tabletVisits = visitors.filter(v => v.deviceType === "Tablette" || /iPad|Tablet/i.test(v.device)).length;
+    const desktopVisits = totalVisits - mobileVisits - tabletVisits;
 
     body.innerHTML = `
       <div>
-        <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;">Journal des Connexions & Visiteurs en Temps Réel</h4>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Journal des Connexions & Télémétrie en Direct</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Détection automatique du modèle exact de smartphone et du navigateur (synchronisé cloud)</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-outline btn-sm" onclick="adminManager.fetchCloudVisitors(true)" title="Récupérer les connexions effectuées depuis vos smartphones">
+              🔄 Actualiser en direct
+            </button>
+            <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.clearVisitorLogs()" title="Effacer l'historique">
+              🗑️ Vider l'historique
+            </button>
+          </div>
+        </div>
         
         <div class="analytics-summary">
           <div class="stat-box">
@@ -171,12 +191,17 @@ class AdminManager {
           </div>
           <div class="stat-box">
             <div class="stat-value" style="color: #10b981">${mobileVisits}</div>
-            <div class="stat-label">Smartphones (iPhone/Android)</div>
+            <div class="stat-label">Smartphones (iPhone / Android)</div>
           </div>
           <div class="stat-box">
-            <div class="stat-value" style="color: #60a5fa">${desktopVisits}</div>
+            <div class="stat-value" style="color: #60a5fa">${desktopVisits >= 0 ? desktopVisits : 0}</div>
             <div class="stat-label">Ordinateurs (PC / Mac)</div>
           </div>
+          ${tabletVisits > 0 ? `
+          <div class="stat-box">
+            <div class="stat-value" style="color: #a78bfa">${tabletVisits}</div>
+            <div class="stat-label">Tablettes (iPad / Tab)</div>
+          </div>` : ''}
         </div>
 
         <!-- Mobile Visitor Cards (< 768px) -->
@@ -187,13 +212,13 @@ class AdminManager {
             <div class="visitor-card-item">
               <div class="visitor-card-header">
                 <span style="font-weight: 700; color: #fff;">${v.date} à ${v.time}</span>
-                <span class="device-badge">${this.getDeviceIcon(v.device)} ${escapeHTML(v.device)}</span>
+                <span class="device-badge" style="${/iPhone|Smartphone|Android/i.test(v.device || v.deviceType) ? 'border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); color: #34d399;' : ''}">${this.getDeviceIcon(v.device, v.deviceType)} ${escapeHTML(v.device || 'Inconnu')}</span>
               </div>
               <div class="visitor-card-details">
-                <span>💻 ${escapeHTML(v.os)}</span>
-                <span>🌐 ${escapeHTML(v.browser)}</span>
-                <span>📍 ${escapeHTML(v.location)}</span>
-                <span>📐 ${escapeHTML(v.screen)}</span>
+                <span>💻 ${escapeHTML(v.os || '')}</span>
+                <span>${this.getBrowserIcon(v.browser)} <strong>${escapeHTML(v.browser || '')}</strong></span>
+                <span>📍 ${escapeHTML(v.location || 'Localisation...')}</span>
+                <span>📐 ${escapeHTML(v.screen || '')}</span>
               </div>
             </div>
           `).join("")}
@@ -205,7 +230,7 @@ class AdminManager {
             <thead>
               <tr>
                 <th>Date & Heure</th>
-                <th>Appareil</th>
+                <th>Modèle Appareil</th>
                 <th>Système (OS)</th>
                 <th>Navigateur</th>
                 <th>Localisation</th>
@@ -218,11 +243,19 @@ class AdminManager {
               ` : visitors.map(v => `
                 <tr>
                   <td style="font-weight: 600; color: #fff;">${v.date} à ${v.time}</td>
-                  <td><span class="device-badge">${this.getDeviceIcon(v.device)} ${escapeHTML(v.device)}</span></td>
-                  <td>${escapeHTML(v.os)}</td>
-                  <td>${escapeHTML(v.browser)}</td>
-                  <td>📍 ${escapeHTML(v.location)}</td>
-                  <td style="color: var(--text-tertiary); font-size: 0.78rem;">${escapeHTML(v.screen)}</td>
+                  <td>
+                    <span class="device-badge" style="${/iPhone|Smartphone|Android/i.test(v.device || v.deviceType) ? 'border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); color: #34d399;' : ''}">
+                      ${this.getDeviceIcon(v.device, v.deviceType)} <strong>${escapeHTML(v.device || 'Inconnu')}</strong>
+                    </span>
+                  </td>
+                  <td>${escapeHTML(v.os || '')}</td>
+                  <td>
+                    <span style="display: inline-flex; align-items: center; gap: 4px;">
+                      ${this.getBrowserIcon(v.browser)} <strong>${escapeHTML(v.browser || '')}</strong>
+                    </span>
+                  </td>
+                  <td>📍 ${escapeHTML(v.location || '')}</td>
+                  <td style="color: var(--text-tertiary); font-size: 0.78rem;">${escapeHTML(v.screen || '')}</td>
                 </tr>
               `).join("")}
             </tbody>
@@ -232,12 +265,92 @@ class AdminManager {
     `;
   }
 
-  getDeviceIcon(device) {
+  getDeviceIcon(device = "", type = "") {
     if (/iPhone/i.test(device)) return "📱";
-    if (/Android/i.test(device)) return "🤖";
+    if (/iPad/i.test(device)) return "📟";
+    if (/Pixel|Samsung|Galaxy|Xiaomi|Redmi|OnePlus|Huawei|Oppo|Vivo|Realme|Motorola|Sony|LG|Honor|Android/i.test(device)) return "🤖";
+    if (type === "Smartphone") return "📱";
+    if (type === "Tablette") return "📟";
     if (/Mac/i.test(device)) return "🍏";
-    if (/Windows/i.test(device)) return "💻";
+    if (/Windows/i.test(device)) return "🪟";
+    if (/Linux/i.test(device)) return "🐧";
+    return "💻";
+  }
+
+  getBrowserIcon(browser = "") {
+    if (/Safari/i.test(browser)) return "🧭";
+    if (/Chrome/i.test(browser)) return "🌐";
+    if (/Brave/i.test(browser)) return "🦁";
+    if (/Firefox/i.test(browser)) return "🦊";
+    if (/Edge/i.test(browser)) return "🌊";
+    if (/Opera/i.test(browser)) return "🔴";
+    if (/Samsung/i.test(browser)) return "📱";
     return "🌐";
+  }
+
+  async fetchCloudVisitors(isManual = false) {
+    try {
+      const res = await fetch("https://ntfy.sh/nicaisse_telemetry_hub_2026/json?poll=1");
+      if (!res.ok) return;
+      const text = await res.text();
+      const lines = text.trim().split("\n");
+      const cloudVisitors = [];
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const item = JSON.parse(line);
+          if (item.event === "message" && item.message) {
+            const vis = JSON.parse(item.message);
+            if (vis && (vis.device || vis.id)) {
+              cloudVisitors.push(vis);
+            }
+          }
+        } catch (err) {}
+      }
+
+      if (cloudVisitors.length > 0) {
+        const data = StorageService.get();
+        if (!data.visitors) data.visitors = [];
+        let newCount = 0;
+
+        for (const cv of cloudVisitors) {
+          const exists = data.visitors.some(v => v.id === cv.id || (v.timestamp && v.timestamp === cv.timestamp));
+          if (!exists) {
+            data.visitors.push(cv);
+            newCount++;
+          }
+        }
+
+        if (newCount > 0) {
+          data.visitors.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+          if (data.visitors.length > 200) data.visitors = data.visitors.slice(0, 200);
+          StorageService.save(data);
+
+          if (this.activeTab === "analytics") {
+            const body = document.getElementById("admin-modal-body");
+            if (body) this.renderAnalyticsTab(body, data);
+          }
+        }
+
+        if (isManual) {
+          alert(newCount > 0 ? `${newCount} nouvelle(s) visite(s) synchronisée(s) depuis le cloud !` : "Historique à jour (aucune nouvelle visite distante).");
+        }
+      } else if (isManual) {
+        alert("Historique à jour (aucun nouveau log dans le cloud).");
+      }
+    } catch (e) {
+      console.warn("Sync cloud impossible:", e);
+      if (isManual) alert("Impossible de joindre le serveur cloud.");
+    }
+  }
+
+  clearVisitorLogs() {
+    if (!confirm("Voulez-vous vraiment effacer tout l'historique des connexions ?")) return;
+    const data = StorageService.get();
+    data.visitors = [];
+    StorageService.save(data);
+    const body = document.getElementById("admin-modal-body");
+    if (body) this.renderAnalyticsTab(body, data);
   }
 
   /* 2. TECH TIPS TAB */
