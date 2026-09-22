@@ -266,6 +266,56 @@ function setupEventListeners() {
       renderTechTips(data.techTips, e.target.value);
     });
   }
+
+  // Mobile Drawer Navigation Setup
+  setupMobileDrawer();
+}
+
+function setupMobileDrawer() {
+  const menuBtn = document.getElementById("mobile-menu-btn");
+  const closeBtn = document.getElementById("drawer-close-btn");
+  const backdrop = document.getElementById("drawer-backdrop");
+  const sheet = document.getElementById("drawer-sheet");
+  const navLinks = document.querySelectorAll(".drawer-nav-link");
+
+  function openDrawer() {
+    if (!sheet || !backdrop) return;
+    backdrop.classList.add("open");
+    sheet.classList.add("open");
+    backdrop.setAttribute("aria-hidden", "false");
+    sheet.setAttribute("aria-hidden", "false");
+    if (menuBtn) menuBtn.setAttribute("aria-expanded", "true");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeDrawer() {
+    if (!sheet || !backdrop) return;
+    backdrop.classList.remove("open");
+    sheet.classList.remove("open");
+    backdrop.setAttribute("aria-hidden", "true");
+    sheet.setAttribute("aria-hidden", "true");
+    if (menuBtn) menuBtn.setAttribute("aria-expanded", "false");
+    document.body.style.overflow = "";
+  }
+
+  window.openMobileDrawer = openDrawer;
+  window.closeMobileDrawer = closeDrawer;
+
+  if (menuBtn) menuBtn.addEventListener("click", openDrawer);
+  if (closeBtn) closeBtn.addEventListener("click", closeDrawer);
+  if (backdrop) backdrop.addEventListener("click", closeDrawer);
+
+  navLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      closeDrawer();
+    });
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && sheet && sheet.classList.contains("open")) {
+      closeDrawer();
+    }
+  });
 }
 
 // Copy Code

@@ -179,6 +179,27 @@ class AdminManager {
           </div>
         </div>
 
+        <!-- Mobile Visitor Cards (< 768px) -->
+        <div class="visitor-cards-list">
+          ${visitors.length === 0 ? `
+            <div style="text-align: center; color: var(--text-tertiary); padding: 24px;">Aucune visite enregistrée pour le moment.</div>
+          ` : visitors.map(v => `
+            <div class="visitor-card-item">
+              <div class="visitor-card-header">
+                <span style="font-weight: 700; color: #fff;">${v.date} à ${v.time}</span>
+                <span class="device-badge">${this.getDeviceIcon(v.device)} ${escapeHTML(v.device)}</span>
+              </div>
+              <div class="visitor-card-details">
+                <span>💻 ${escapeHTML(v.os)}</span>
+                <span>🌐 ${escapeHTML(v.browser)}</span>
+                <span>📍 ${escapeHTML(v.location)}</span>
+                <span>📐 ${escapeHTML(v.screen)}</span>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+
+        <!-- Desktop Visitor Table (>= 768px) -->
         <div class="visitor-table-wrap">
           <table class="visitor-table">
             <thead>
@@ -193,7 +214,7 @@ class AdminManager {
             </thead>
             <tbody>
               ${visitors.length === 0 ? `
-                <tr><td colspan="6" style="text-align: center; color: var(--text-dim); padding: 24px;">Aucune visite enregistrée pour le moment.</td></tr>
+                <tr><td colspan="6" style="text-align: center; color: var(--text-tertiary); padding: 24px;">Aucune visite enregistrée pour le moment.</td></tr>
               ` : visitors.map(v => `
                 <tr>
                   <td style="font-weight: 600; color: #fff;">${v.date} à ${v.time}</td>
@@ -201,7 +222,7 @@ class AdminManager {
                   <td>${escapeHTML(v.os)}</td>
                   <td>${escapeHTML(v.browser)}</td>
                   <td>📍 ${escapeHTML(v.location)}</td>
-                  <td style="color: var(--text-dim); font-size: 0.78rem;">${escapeHTML(v.screen)}</td>
+                  <td style="color: var(--text-tertiary); font-size: 0.78rem;">${escapeHTML(v.screen)}</td>
                 </tr>
               `).join("")}
             </tbody>
@@ -255,7 +276,7 @@ class AdminManager {
           <label class="form-label">Titre de l'astuce</label>
           <input type="text" id="new-tip-title" class="form-control" required placeholder="Ex: Optimiser les transferts de fichiers en ligne de commande">
         </div>
-        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group form-row-2">
           <div>
             <label class="form-label">Catégorie</label>
             <input type="text" id="new-tip-cat" class="form-control" required placeholder="Ex: DevOps, Web, Linux">
@@ -349,7 +370,7 @@ class AdminManager {
     c.innerHTML = `
       <h5 style="margin-bottom: 16px; font-weight: 700;">Ajouter un Film ou Série</h5>
       <form onsubmit="adminManager.saveNewFilm(event)">
-        <div class="form-group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+        <div class="form-group form-row-2 split-2-1">
           <div>
             <label class="form-label">Titre du film</label>
             <input type="text" id="new-film-title" class="form-control" required placeholder="Ex: Oppenheimer">
@@ -359,7 +380,7 @@ class AdminManager {
             <input type="text" id="new-film-year" class="form-control" required placeholder="Ex: 2023">
           </div>
         </div>
-        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+        <div class="form-group form-row-3">
           <div>
             <label class="form-label">Réalisateur</label>
             <input type="text" id="new-film-director" class="form-control" required placeholder="Ex: Christopher Nolan">
@@ -377,7 +398,7 @@ class AdminManager {
           <label class="form-label">Image / Affiche (URL de l'image)</label>
           <input type="url" id="new-film-poster" class="form-control" required placeholder="https://image-url...">
         </div>
-        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group form-row-2">
           <div>
             <label class="form-label">Lien du site officiel / fiche</label>
             <input type="url" id="new-film-link" class="form-control" placeholder="https://...">
@@ -462,7 +483,7 @@ class AdminManager {
     c.innerHTML = `
       <h5 style="margin-bottom: 16px; font-weight: 700;">Nouveau Projet & Fichier Téléchargeable</h5>
       <form onsubmit="adminManager.saveNewProject(event)">
-        <div class="form-group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+        <div class="form-group form-row-2 split-2-1">
           <div>
             <label class="form-label">Nom du projet</label>
             <input type="text" id="new-proj-title" class="form-control" required placeholder="Ex: Cours d'Architecture Système 2026">
@@ -553,7 +574,7 @@ class AdminManager {
         <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;">Informations Personnelles & Sauvegarde</h4>
         
         <form onsubmit="adminManager.saveProfileInfo(event)" style="margin-bottom: 32px;">
-          <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group form-row-2">
             <div>
               <label class="form-label">Nom affiché</label>
               <input type="text" id="prof-name" class="form-control" value="${escapeHTML(prof.name || 'Nicaisse Auberson')}">

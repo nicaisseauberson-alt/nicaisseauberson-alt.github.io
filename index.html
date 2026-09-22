@@ -2,7 +2,7 @@
 <html lang="fr" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Nicaisse Auberson — Informaticien & Enseignant | Portfolio 2026</title>
   
   <meta name="description" content="Portfolio officiel de Nicaisse Auberson — Informaticien et Enseignant. Astuces tech, projets numériques, recommandations cinéma et architectures logicielles modernes.">
@@ -52,12 +52,46 @@
       </nav>
 
       <div class="nav-actions">
-        <button class="btn btn-outline btn-sm" onclick="adminManager.openLoginOrDashboard()">
+        <button class="btn btn-outline btn-sm nav-admin-btn" onclick="adminManager.openLoginOrDashboard()">
           <span>🔐</span> Espace Admin
+        </button>
+        <button class="mobile-menu-toggle" id="mobile-menu-btn" aria-label="Ouvrir le menu de navigation" aria-expanded="false" aria-controls="drawer-sheet">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
         </button>
       </div>
     </div>
   </header>
+
+  <!-- MOBILE DRAWER / SHEET -->
+  <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+  <aside class="drawer-sheet" id="drawer-sheet" aria-label="Menu de navigation mobile" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="assets/logo.jpg" alt="Logo Nicaisse Auberson">
+        </div>
+        <span class="profile-name">Nicaisse Auberson</span>
+      </div>
+      <button class="drawer-close" id="drawer-close-btn" aria-label="Fermer le menu">&times;</button>
+    </div>
+
+    <ul class="drawer-nav-list">
+      <li><a href="#hero" class="drawer-nav-link"><span>🏠</span> Accueil</a></li>
+      <li><a href="#presentation" class="drawer-nav-link"><span>👤</span> Profil & Présentation</a></li>
+      <li><a href="#astuces" class="drawer-nav-link"><span>💡</span> Astuces Tech</a></li>
+      <li><a href="#cinema" class="drawer-nav-link"><span>🎬</span> Cinéma & Recommandations</a></li>
+      <li><a href="#projets" class="drawer-nav-link"><span>📁</span> Projets & Fichiers</a></li>
+      <li><a href="#contact" class="drawer-nav-link"><span>✉️</span> Contact direct</a></li>
+    </ul>
+
+    <div class="drawer-footer">
+      <button class="btn btn-primary btn-block-mobile" onclick="adminManager.openLoginOrDashboard(); if(window.closeMobileDrawer) window.closeMobileDrawer();">
+        <span>🔐</span> Espace Admin (Nicaisse)
+      </button>
+    </div>
+  </aside>
 
   <main class="wrapper">
 
@@ -249,7 +283,7 @@
           © 2026 <strong class="profile-name">Nicaisse Auberson</strong> — Informaticien & Enseignant. Tous droits réservés.
         </div>
         <div style="display: flex; align-items: center; gap: 16px;">
-          <button class="admin-lock-btn" id="admin-open-btn">
+          <button class="admin-lock-btn" id="admin-open-btn" onclick="adminManager.openLoginOrDashboard()">
             <span>🔒</span> Espace Admin (Nicaisse)
           </button>
         </div>

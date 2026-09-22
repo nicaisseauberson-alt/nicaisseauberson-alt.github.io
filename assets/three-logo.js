@@ -45,6 +45,7 @@ class LogoScene3D {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.2;
+    this.renderer.domElement.style.touchAction = 'pan-y';
     this.container.appendChild(this.renderer.domElement);
 
     // 4. Lighting
