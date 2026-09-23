@@ -42,13 +42,13 @@ import {
 // 1. CONFIGURATION DU PROJET FIREBASE
 // =============================================================================
 let defaultFirebaseConfig = {
-  apiKey: "AIzaSyBvs4W3Ml0_tbziypdsbHgZ6IWqhvJ024o",
-  authDomain: "auberson-26.firebaseapp.com",
-  projectId: "auberson-26",
-  storageBucket: "auberson-26.firebasestorage.app",
-  messagingSenderId: "343072072492",
-  appId: "1:343072072492:web:1769da27b09df1873f8289",
-  measurementId: "G-91C9PTJ2XJ"
+  apiKey: "AIzaSyAPtktFUBSV40nPOWFqq7cZ3DvxLwDq6tw",
+  authDomain: "outlook-studio.firebaseapp.com",
+  projectId: "outlook-studio",
+  storageBucket: "outlook-studio.firebasestorage.app",
+  messagingSenderId: "158901788592",
+  appId: "1:158901788592:web:50cb0bebdf6811297ec075",
+  measurementId: "G-LMSRCVNBMR"
 };
 
 // Permet également à l'administrateur de coller sa config depuis l'interface sans devoir recompiler
@@ -56,7 +56,9 @@ try {
   const savedCustomConfig = localStorage.getItem("nicaisse_custom_firebase_config");
   if (savedCustomConfig) {
     const parsed = JSON.parse(savedCustomConfig);
-    if (parsed && parsed.apiKey && !parsed.apiKey.includes("REPLACE_WITH_YOUR_KEY")) {
+    if (parsed && (parsed.projectId === "auberson-26" || !parsed.apiKey || parsed.apiKey.includes("REPLACE_WITH_YOUR_KEY"))) {
+      localStorage.removeItem("nicaisse_custom_firebase_config");
+    } else if (parsed && parsed.apiKey) {
       defaultFirebaseConfig = { ...defaultFirebaseConfig, ...parsed };
     }
   }
