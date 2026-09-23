@@ -2411,6 +2411,7 @@ class AdminManager {
   renderDocumentsTab(body, data) {
     const docs = data.documents || [];
     const isCloudinary = window.CloudinaryService && window.CloudinaryService.isConfigured();
+    const isFirebaseStorage = window.FirebaseBridge && window.FirebaseBridge.isConfigured && !!window.FirebaseBridge.storage;
 
     body.innerHTML = `
       <div>
@@ -2418,17 +2419,21 @@ class AdminManager {
           <div>
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
               <h4 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Bibliothèque de Documents & Ressources (${docs.length})</h4>
-              ${isCloudinary ? `
+              ${isFirebaseStorage ? `
                 <span style="font-size: 0.72rem; padding: 3px 8px; border-radius: 999px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); font-weight: 600;">
+                  🔥 Firebase Storage Actif
+                </span>
+              ` : isCloudinary ? `
+                <span style="font-size: 0.72rem; padding: 3px 8px; border-radius: 999px; background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); font-weight: 600;">
                   ☁️ Cloudinary Actif
                 </span>
               ` : `
-                <button class="btn btn-outline btn-sm" style="font-size: 0.72rem; padding: 3px 8px; color: #fbbf24; border-color: rgba(245,158,11,0.4);" onclick="adminManager.switchTab('profile')">
-                  ⚠️ Configurer Cloudinary
-                </button>
+                <span style="font-size: 0.72rem; padding: 3px 8px; border-radius: 999px; background: rgba(14,165,233,0.15); color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); font-weight: 600;">
+                  📁 Téléchargement Direct Actif
+                </span>
               `}
             </div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Hébergement haute vitesse sur Cloudinary CDN et téléchargement direct instantané sans aucun compte requis.</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Téléversement direct ou lien Google Drive converti automatiquement en téléchargement instantané sans compte.</p>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button class="btn btn-primary btn-sm" onclick="adminManager.showAddDocumentForm()">+ Déposer un Document</button>
@@ -2493,12 +2498,15 @@ class AdminManager {
         <button type="button" style="background: none; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer;" onclick="document.getElementById('doc-form-container').style.display='none'">✕</button>
       </div>
 
-      ${!isCloudinary ? `
-        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 16px; font-size: 0.82rem; color: #fde68a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-          <span>⚠️ Cloudinary n'est pas encore configuré. Les fichiers doivent être hébergés sur Cloudinary pour un téléchargement direct sans limite.</span>
-          <button type="button" class="btn btn-outline btn-sm" style="color: #fde68a; border-color: #fde68a;" onclick="adminManager.switchTab('profile')">Configurer maintenant</button>
+      <div style="background: rgba(14, 165, 233, 0.06); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px; font-size: 0.82rem; color: #bae6fd;">
+        <div style="font-weight: 700; margin-bottom: 6px; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+          <span>✨</span> Stockage & Téléchargement Direct sans compte :
         </div>
-      ` : ''}
+        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; line-height: 1.4;">
+          <span>• <strong>Glisser-déposer ci-dessous :</strong> Envoi direct sur votre Cloud (Firebase Storage ou Cloudinary).</span>
+          <span>• <strong>Lien Google Drive :</strong> Collez votre lien de partage, le site le convertit automatiquement en téléchargement immédiat sans compte Google pour vos visiteurs !</span>
+        </div>
+      </div>
 
       <form onsubmit="adminManager.saveNewDocument(event)">
         <div class="form-group form-row-2 split-2-1">
@@ -2523,9 +2531,9 @@ class AdminManager {
           <textarea id="new-doc-desc" class="form-control" rows="3" required placeholder="Présentation synthétique du document, public visé et prérequis..."></textarea>
         </div>
 
-        <!-- ZONE DE TÉLÉVERSEMENT CLOUDINARY -->
+        <!-- ZONE DE TÉLÉVERSEMENT -->
         <div class="form-group">
-          <label class="form-label">📄 Fichier à téléverser (Stockage Cloudinary & Téléchargement direct)</label>
+          <label class="form-label">📄 Fichier à téléverser (Glissez-déposez ou parcourez)</label>
           
           <div id="doc-dropzone" class="cloudinary-dropzone" 
                onclick="document.getElementById('new-doc-file-input').click()"
@@ -2559,7 +2567,7 @@ class AdminManager {
           <!-- BARRE DE PROGRESSION EN DIRECT -->
           <div id="doc-upload-progress" style="display: none; margin-top: 12px;">
             <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 5px;">
-              <span id="doc-upload-status-text" style="color: #38bdf8; font-weight: 500;">Envoi vers Cloudinary...</span>
+              <span id="doc-upload-status-text" style="color: #38bdf8; font-weight: 500;">Envoi vers le Cloud...</span>
               <span id="doc-upload-percent" style="font-weight: 700; color: #fff;">0%</span>
             </div>
             <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden;">
@@ -2567,16 +2575,19 @@ class AdminManager {
             </div>
           </div>
 
-          <!-- OPTION LIEN URL EXTERNE -->
-          <details style="margin-top: 10px; background: rgba(0,0,0,0.15); border-radius: var(--radius-md); padding: 8px 12px; border: 1px solid var(--border-subtle);">
-            <summary style="font-size: 0.78rem; color: var(--text-dim); cursor: pointer;">
-              ou renseigner une URL externe de document (facultatif)
-            </summary>
-            <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
-              <input type="url" id="new-doc-file-url" class="form-control" placeholder="https://...">
-              <input type="text" id="new-doc-file-name" class="form-control" placeholder="Nom de fichier affiché (ex: cours.pdf)">
+          <!-- OPTION LIEN GOOGLE DRIVE OU URL WEB -->
+          <div style="margin-top: 14px; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); padding: 12px 14px; border: 1px solid var(--border-subtle);">
+            <label class="form-label" style="font-size: 0.82rem; margin-bottom: 6px; color: #93c5fd; display: flex; align-items: center; gap: 6px;">
+              <span>📁</span> Ou coller un lien Google Drive (Converti en téléchargement direct sans compte) :
+            </label>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <input type="url" id="new-doc-file-url" class="form-control" placeholder="https://drive.google.com/file/d/... ou https://...">
+              <input type="text" id="new-doc-file-name" class="form-control" placeholder="Nom du document (ex: Guide_Complet_2026.pdf)">
             </div>
-          </details>
+            <span style="display: block; margin-top: 6px; font-size: 0.76rem; color: #34d399;">
+              ✓ Compatible à 100% avec Google Drive : vos visiteurs téléchargeront directement le fichier sans avoir besoin de compte Google !
+            </span>
+          </div>
         </div>
 
         <div class="form-group">
