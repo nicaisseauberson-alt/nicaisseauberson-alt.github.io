@@ -71,6 +71,11 @@ const DEFAULT_DATA = {
   techTips: [],
   cinema: [],
   projects: [],
+  gaming: [],
+  documents: [],
+  code: [],
+  portfolio: [],
+  customCategories: [],
   visitors: []
 };
 
@@ -131,6 +136,11 @@ class StorageService {
         cinema: Array.isArray(parsed.cinema) ? parsed.cinema : [],
         projects: Array.isArray(parsed.projects) ? parsed.projects : [],
         techTips: Array.isArray(parsed.techTips) ? parsed.techTips : [],
+        gaming: Array.isArray(parsed.gaming) ? parsed.gaming : [],
+        documents: Array.isArray(parsed.documents) ? parsed.documents : [],
+        code: Array.isArray(parsed.code) ? parsed.code : [],
+        portfolio: Array.isArray(parsed.portfolio) ? parsed.portfolio : [],
+        customCategories: Array.isArray(parsed.customCategories) ? parsed.customCategories : [],
         profile: { ...DEFAULT_DATA.profile, ...(parsed.profile || {}) }
       };
     } catch (e) {
@@ -165,6 +175,16 @@ class StorageService {
         current.techTips = Array.isArray(items) ? items : [];
       } else if (collectionName === "news") {
         current.news = Array.isArray(items) ? items : [];
+      } else if (collectionName === "gaming") {
+        current.gaming = Array.isArray(items) ? items : [];
+      } else if (collectionName === "documents") {
+        current.documents = Array.isArray(items) ? items : [];
+      } else if (collectionName === "codeSnippets" || collectionName === "code") {
+        current.code = Array.isArray(items) ? items : [];
+      } else if (collectionName === "portfolioItems" || collectionName === "portfolio") {
+        current.portfolio = Array.isArray(items) ? items : [];
+      } else if (collectionName === "customCategories") {
+        current.customCategories = Array.isArray(items) ? items : [];
       } else if (collectionName === "categories") {
         current.categories = Array.isArray(items) && items.length > 0 ? items : DEFAULT_DATA.categories;
       } else if (collectionName === "theme") {

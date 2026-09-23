@@ -35,5 +35,25 @@ service cloud.firestore {
     match /customCategories/{catId} {
       allow write: if request.auth != null;
     }
+
+    // 8. Collection Gaming & Moteurs 3D : Écriture réservée à l'admin authentifié
+    match /gaming/{gameId} {
+      allow write: if request.auth != null;
+    }
+
+    // 9. Collection Documents & Ressources : Écriture réservée à l'admin authentifié
+    match /documents/{docId} {
+      allow write: if request.auth != null;
+    }
+
+    // 10. Collection Snippets de Code & Scripts : Écriture réservée à l'admin authentifié
+    match /codeSnippets/{snippetId} {
+      allow write: if request.auth != null;
+    }
+
+    // 11. Collection Réalisations Portfolio : Écriture réservée à l'admin authentifié
+    match /portfolioItems/{itemId} {
+      allow write: if request.auth != null;
+    }
   }
 }

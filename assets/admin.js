@@ -275,6 +275,10 @@ class AdminManager {
       { id: "cinema", label: "🎬 Cinéma" },
       { id: "projects", label: "📁 Projets" },
       { id: "tips", label: "💡 Astuces Tech" },
+      { id: "code", label: "💻 Code & Scripts" },
+      { id: "gaming", label: "🎮 Gaming & 3D" },
+      { id: "documents", label: "📚 Documents" },
+      { id: "portfolio", label: "💼 Portfolio" },
       { id: "categories", label: "🏷️ Catégories" },
       { id: "profile", label: "🔑 Paramètres & Profil" }
     ];
@@ -320,6 +324,14 @@ class AdminManager {
       this.renderProjectsTab(body, data);
     } else if (this.activeTab === "tips") {
       this.renderTipsTab(body, data);
+    } else if (this.activeTab === "code") {
+      this.renderCodeTab(body, data);
+    } else if (this.activeTab === "gaming") {
+      this.renderGamingTab(body, data);
+    } else if (this.activeTab === "documents") {
+      this.renderDocumentsTab(body, data);
+    } else if (this.activeTab === "portfolio") {
+      this.renderPortfolioTabContent(body, data);
     } else if (this.activeTab === "categories") {
       this.renderCategoriesTab(body, data);
     } else if (this.activeTab === "profile") {
@@ -1904,6 +1916,820 @@ class AdminManager {
         this.renderCategoriesTab(document.getElementById("admin-modal-body"), data);
       }
       alert("✅ Catégorie supprimée !");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  /* -------------------------------------------------------------
+   * 9. CODE SNIPPETS & SCRIPTS CMS TAB
+   * ----------------------------------------------------------- */
+  renderCodeTab(body, data) {
+    const snippets = data.code || [];
+    body.innerHTML = `
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Gestion des Scripts & Snippets (${snippets.length})</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Ajoutez des scripts, commandes PowerShell, Bash, Python ou snippets web avec coloration et bouton de copie.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddCodeForm()">+ Ajouter un Script</button>
+            ${snippets.length > 0 ? `
+              <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="adminManager.deleteAllCode()" title="Supprimer tous les snippets">
+                🗑️ Tout effacer (${snippets.length})
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div id="code-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
+
+        ${snippets.length === 0 ? `
+          <div style="text-align: center; color: var(--text-dim); padding: 40px 20px; background: rgba(255,255,255,0.01); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">💻</div>
+            <p style="margin-bottom: 12px;">Aucun snippet de code publié pour le moment.</p>
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddCodeForm()">+ Ajouter votre premier script</button>
+          </div>
+        ` : `
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            ${snippets.map(s => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="font-family: monospace; font-size: 0.75rem; background: rgba(0, 210, 255, 0.12); color: var(--neon-primary, #00d2ff); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(0, 210, 255, 0.25);">
+                    ${escapeHTML(s.language || 'Code')}
+                  </span>
+                  <div>
+                    <strong>${escapeHTML(s.title)}</strong>
+                    <div style="font-size: 0.78rem; color: var(--text-dim);">${escapeHTML(s.category || 'Général')} • ${(s.code || '').split('\n').length} lignes</div>
+                  </div>
+                </div>
+                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteCode('${s.id}')">Supprimer</button>
+              </div>
+            `).join("")}
+          </div>
+        `}
+      </div>
+    `;
+  }
+
+  showAddCodeForm() {
+    const c = document.getElementById("code-form-container");
+    if (!c) return;
+    c.style.display = "block";
+    c.innerHTML = `
+      <h5 style="margin-bottom: 16px; font-weight: 700;">Ajouter un Snippet de Code / Script</h5>
+      <form onsubmit="adminManager.saveNewCode(event)">
+        <div class="form-group form-row-3">
+          <div>
+            <label class="form-label">Titre du script</label>
+            <input type="text" id="new-code-title" class="form-control" required placeholder="Ex: Backup automatique PostgreSQL vers S3">
+          </div>
+          <div>
+            <label class="form-label">Langage</label>
+            <select id="new-code-lang" class="form-control">
+              <option value="Bash / Shell" selected>Bash / Shell</option>
+              <option value="PowerShell">PowerShell</option>
+              <option value="Python">Python</option>
+              <option value="JavaScript / Node">JavaScript / Node</option>
+              <option value="TypeScript">TypeScript</option>
+              <option value="HTML / CSS">HTML / CSS</option>
+              <option value="SQL">SQL</option>
+              <option value="Docker / Compose">Docker / Compose</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Catégorie</label>
+            <input type="text" id="new-code-cat" class="form-control" placeholder="DevOps, Cloud, Scripting, Web" value="DevOps">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description / Contexte d'utilisation</label>
+          <input type="text" id="new-code-desc" class="form-control" required placeholder="Ce que fait ce script et comment l'exécuter...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Code source / Commandes</label>
+          <textarea id="new-code-content" class="form-control" rows="8" required style="font-family: monospace; font-size: 0.85rem; line-height: 1.4; tab-size: 2;" placeholder="#!/bin/bash&#10;# Entrez le code ici..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags / Mots-clés (séparés par virgules)</label>
+          <input type="text" id="new-code-tags" class="form-control" placeholder="Automation, Cloud, Backup, Shell">
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button type="submit" id="save-code-submit-btn" class="btn btn-primary btn-sm">Publier le Script</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="this.closest('#code-form-container').style.display='none'">Annuler</button>
+        </div>
+      </form>
+    `;
+  }
+
+  async saveNewCode(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById("save-code-submit-btn");
+    const originalText = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Publication Cloud...";
+    }
+
+    try {
+      const tags = (document.getElementById("new-code-tags").value || "")
+        .split(",")
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
+
+      const snippet = {
+        title: document.getElementById("new-code-title").value.trim(),
+        language: document.getElementById("new-code-lang").value,
+        category: document.getElementById("new-code-cat").value.trim() || "DevOps",
+        description: document.getElementById("new-code-desc").value.trim(),
+        code: document.getElementById("new-code-content").value,
+        tags: tags.length ? tags : ["Code"]
+      };
+
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.addCodeSnippet(snippet);
+      } else {
+        const data = StorageService.get();
+        if (!data.code) data.code = [];
+        snippet.id = "code-" + Date.now();
+        data.code.unshift(snippet);
+        StorageService.save(data, true);
+        this.renderCodeTab(document.getElementById("admin-modal-body"), data);
+      }
+
+      alert("✅ Script de code publié avec succès sur le Cloud !");
+      const c = document.getElementById("code-form-container");
+      if (c) c.style.display = "none";
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
+  }
+
+  async deleteCode(id) {
+    if (!confirm("Supprimer ce snippet du Cloud ?")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteCodeSnippet(id);
+      } else {
+        const data = StorageService.get();
+        data.code = (data.code || []).filter(s => s.id !== id);
+        StorageService.save(data, true);
+        this.renderCodeTab(document.getElementById("admin-modal-body"), data);
+      }
+      alert("✅ Script supprimé avec succès !");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  async deleteAllCode() {
+    if (!confirm("⚠️ Supprimer TOUS les snippets de code ? Cette action est irréversible.")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteAllCodeSnippets();
+      }
+      const data = StorageService.get();
+      data.code = [];
+      StorageService.save(data, true);
+      this.renderCodeTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Tous les snippets de code ont été supprimés.");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  /* -------------------------------------------------------------
+   * 10. GAMING & 3D CMS TAB
+   * ----------------------------------------------------------- */
+  renderGamingTab(body, data) {
+    const games = data.gaming || [];
+    body.innerHTML = `
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Gestion Gaming, 3D & Tech Vidéoludique (${games.length})</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Ajoutez des jeux, analyses graphiques, moteurs 3D (Unreal/Unity) et tests matériels.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddGamingForm()">+ Ajouter un Titre / Démo</button>
+            ${games.length > 0 ? `
+              <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="adminManager.deleteAllGaming()" title="Supprimer tous les éléments gaming">
+                🗑️ Tout effacer (${games.length})
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div id="gaming-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
+
+        ${games.length === 0 ? `
+          <div style="text-align: center; color: var(--text-dim); padding: 40px 20px; background: rgba(255,255,200,0.01); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">🎮</div>
+            <p style="margin-bottom: 12px;">Aucun élément gaming publié pour le moment.</p>
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddGamingForm()">+ Ajouter un premier titre</button>
+          </div>
+        ` : `
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            ${games.map(g => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <img src="${escapeHTML(g.image || '')}" style="width: 50px; height: 38px; object-fit: cover; border-radius: 4px;" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800'">
+                  <div>
+                    <strong>${escapeHTML(g.title)}</strong> <span style="font-size: 0.8rem; color: #a855f7;">[${escapeHTML(g.category || 'Gaming')}]</span>
+                    <div style="font-size: 0.78rem; color: var(--text-dim);">${escapeHTML(g.platform || 'PC')} • <span style="color: #fbbf24;">★ ${escapeHTML(g.rating || '9/10')}</span></div>
+                  </div>
+                </div>
+                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteGaming('${g.id}')">Supprimer</button>
+              </div>
+            `).join("")}
+          </div>
+        `}
+      </div>
+    `;
+  }
+
+  showAddGamingForm() {
+    const c = document.getElementById("gaming-form-container");
+    if (!c) return;
+    c.style.display = "block";
+    c.innerHTML = `
+      <h5 style="margin-bottom: 16px; font-weight: 700;">Ajouter un Jeu, Moteur 3D ou Projet Graphique</h5>
+      <form onsubmit="adminManager.saveNewGaming(event)">
+        <div class="form-group form-row-3">
+          <div>
+            <label class="form-label">Titre</label>
+            <input type="text" id="new-game-title" class="form-control" required placeholder="Ex: Black Myth: Wukong (Analyse UE5)">
+          </div>
+          <div>
+            <label class="form-label">Genre / Domaine</label>
+            <select id="new-game-cat" class="form-control">
+              <option value="Action / RPG" selected>Action / RPG</option>
+              <option value="Moteur 3D (Unreal/Unity)">Moteur 3D (Unreal / Unity)</option>
+              <option value="Simulation / Stratégie">Simulation / Stratégie</option>
+              <option value="VR & Graphismes Avancés">VR & Graphismes Avancés</option>
+              <option value="Hardware & Benchmarks">Hardware & Benchmarks</option>
+              <option value="Rétrogaming & Emulation">Rétrogaming & Émulation</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Plateforme</label>
+            <input type="text" id="new-game-platform" class="form-control" value="PC / Steam, PS5" placeholder="PC, PS5, Xbox, WebGL">
+          </div>
+        </div>
+        <div class="form-group form-row-2">
+          <div>
+            <label class="form-label">Note / Appréciation</label>
+            <input type="text" id="new-game-rating" class="form-control" value="9.5 / 10" placeholder="Ex: 9.5 / 10 ou Chef d'oeuvre">
+          </div>
+          <div>
+            <label class="form-label">Lien Bande-Annonce / Vidéo (YouTube)</label>
+            <input type="url" id="new-game-trailer" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Résumé / Analyse technique</label>
+          <textarea id="new-game-summary" class="form-control" rows="3" required placeholder="Présentation, benchmarks de performance, avis technique..."></textarea>
+        </div>
+        <div class="form-group" style="border: 1px dashed var(--border-subtle); padding: 14px; border-radius: var(--radius-md); background: rgba(255,255,255,0.01);">
+          <label class="form-label">🖼️ Image ou Affiche (Photo ou lien URL)</label>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <input type="file" id="new-game-img-file" accept="image/*" class="form-control" style="background: transparent;" onchange="adminManager.previewImage(this, 'game-img-preview')">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 0.8rem;">
+              <span>ou lien URL :</span>
+              <input type="url" id="new-game-img-url" class="form-control" placeholder="https://..." style="flex: 1;" oninput="adminManager.previewUrl(this.value, 'game-img-preview')">
+            </div>
+          </div>
+          <div id="game-img-preview" style="display: none; margin-top: 10px; max-height: 160px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-subtle); text-align: center;">
+            <img src="" style="max-height: 160px; object-fit: cover; display: inline-block;">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags / Mots-clés (séparés par virgules)</label>
+          <input type="text" id="new-game-tags" class="form-control" placeholder="Ray Tracing, UE5, DLSS 3.5, 4K">
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button type="submit" id="save-game-submit-btn" class="btn btn-primary btn-sm">Publier le Titre</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="this.closest('#gaming-form-container').style.display='none'">Annuler</button>
+        </div>
+      </form>
+    `;
+  }
+
+  async saveNewGaming(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById("save-game-submit-btn");
+    const originalText = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Publication Cloud...";
+    }
+
+    try {
+      let imgUrl = document.getElementById("new-game-img-url") ? document.getElementById("new-game-img-url").value.trim() : "";
+      const imgFileInput = document.getElementById("new-game-img-file");
+      if (imgFileInput && imgFileInput.files && imgFileInput.files[0]) {
+        imgUrl = await this.compressImage(imgFileInput.files[0], 720, 720, 0.7);
+      }
+      if (!imgUrl) {
+        imgUrl = "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80";
+      }
+
+      const tags = (document.getElementById("new-game-tags").value || "")
+        .split(",")
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
+
+      const gameItem = {
+        title: document.getElementById("new-game-title").value.trim(),
+        category: document.getElementById("new-game-cat").value,
+        platform: document.getElementById("new-game-platform").value.trim(),
+        rating: document.getElementById("new-game-rating").value.trim(),
+        trailerUrl: document.getElementById("new-game-trailer").value.trim(),
+        summary: document.getElementById("new-game-summary").value.trim(),
+        image: imgUrl,
+        tags: tags.length ? tags : ["Gaming"]
+      };
+
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.addGaming(gameItem);
+      } else {
+        const data = StorageService.get();
+        if (!data.gaming) data.gaming = [];
+        gameItem.id = "game-" + Date.now();
+        data.gaming.unshift(gameItem);
+        StorageService.save(data, true);
+        this.renderGamingTab(document.getElementById("admin-modal-body"), data);
+      }
+
+      alert("✅ Titre Gaming publié avec succès sur le Cloud !");
+      const c = document.getElementById("gaming-form-container");
+      if (c) c.style.display = "none";
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
+  }
+
+  async deleteGaming(id) {
+    if (!confirm("Supprimer cet élément Gaming ?")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteGaming(id);
+      } else {
+        const data = StorageService.get();
+        data.gaming = (data.gaming || []).filter(g => g.id !== id);
+        StorageService.save(data, true);
+        this.renderGamingTab(document.getElementById("admin-modal-body"), data);
+      }
+      alert("✅ Élément supprimé !");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  async deleteAllGaming() {
+    if (!confirm("⚠️ Supprimer TOUS les éléments Gaming ? Cette action est irréversible.")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteAllGaming();
+      }
+      const data = StorageService.get();
+      data.gaming = [];
+      StorageService.save(data, true);
+      this.renderGamingTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Tous les éléments Gaming ont été supprimés.");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  /* -------------------------------------------------------------
+   * 11. DOCUMENTS & RESSOURCES CMS TAB
+   * ----------------------------------------------------------- */
+  renderDocumentsTab(body, data) {
+    const docs = data.documents || [];
+    body.innerHTML = `
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Bibliothèque de Documents & Ressources (${docs.length})</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Partagez des guides complets, livres blancs, manuels pédagogiques et cours avec téléchargement direct ou lien Google Drive.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddDocumentForm()">+ Déposer un Document</button>
+            ${docs.length > 0 ? `
+              <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="adminManager.deleteAllDocuments()" title="Supprimer tous les documents">
+                🗑️ Tout effacer (${docs.length})
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div id="doc-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
+
+        ${docs.length === 0 ? `
+          <div style="text-align: center; color: var(--text-dim); padding: 40px 20px; background: rgba(255,255,255,0.01); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">📚</div>
+            <p style="margin-bottom: 12px;">Aucun document dans la bibliothèque pour le moment.</p>
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddDocumentForm()">+ Ajouter un premier document</button>
+          </div>
+        ` : `
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            ${docs.map(d => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <span style="font-size: 1.8rem;">📕</span>
+                  <div>
+                    <strong>${escapeHTML(d.title)}</strong> <span style="font-size: 0.8rem; color: #10b981;">[${escapeHTML(d.category || 'Documentation')}]</span>
+                    <div style="font-size: 0.78rem; color: var(--text-dim);">${escapeHTML(d.fileName || 'Fichier')} • ${escapeHTML(d.fileSize || 'PDF')}</div>
+                  </div>
+                </div>
+                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteDocument('${d.id}')">Supprimer</button>
+              </div>
+            `).join("")}
+          </div>
+        `}
+      </div>
+    `;
+  }
+
+  showAddDocumentForm() {
+    const c = document.getElementById("doc-form-container");
+    if (!c) return;
+    c.style.display = "block";
+    c.innerHTML = `
+      <h5 style="margin-bottom: 16px; font-weight: 700;">Ajouter un Document ou Guide Téléchargeable</h5>
+      <form onsubmit="adminManager.saveNewDocument(event)">
+        <div class="form-group form-row-2 split-2-1">
+          <div>
+            <label class="form-label">Titre du document</label>
+            <input type="text" id="new-doc-title" class="form-control" required placeholder="Ex: Manuel Complet Administration Windows Server 2026">
+          </div>
+          <div>
+            <label class="form-label">Catégorie</label>
+            <select id="new-doc-cat" class="form-control">
+              <option value="Guide Pédagogique" selected>Guide Pédagogique</option>
+              <option value="Manuel Technique">Manuel Technique</option>
+              <option value="Livre Blanc">Livre Blanc</option>
+              <option value="Fiche Pratique & Synthèse">Fiche Pratique & Synthèse</option>
+              <option value="Cours & Support">Cours & Support</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description du contenu</label>
+          <textarea id="new-doc-desc" class="form-control" rows="3" required placeholder="Présentation synthétique du document, public visé et prérequis..."></textarea>
+        </div>
+        <div class="form-group" style="border: 1px dashed var(--border-subtle); padding: 14px; border-radius: var(--radius-md); background: rgba(255,255,255,0.01);">
+          <label class="form-label">📄 Fichier du Document (Upload direct ou lien Google Drive / Cloud)</label>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <input type="file" id="new-doc-file-input" class="form-control" style="background: transparent;">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 0.82rem;">
+              <span>ou lien de partage (Google Drive / Web) :</span>
+              <input type="url" id="new-doc-file-url" class="form-control" placeholder="https://drive.google.com/file/d/... ou https://..." style="flex: 1;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 0.82rem; color: var(--text-dim);">Nom du document :</span>
+              <input type="text" id="new-doc-file-name" class="form-control" placeholder="guide_server_2026.pdf" style="flex: 1;">
+            </div>
+          </div>
+          <span style="display: block; margin-top: 6px; font-size: 0.78rem; color: var(--text-tertiary);">
+            💡 Pour les volumineux PDF, préférez le lien Google Drive : 100% gratuit et sans limitation de taille de stockage !
+          </span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags / Mots-clés (séparés par virgules)</label>
+          <input type="text" id="new-doc-tags" class="form-control" placeholder="PDF, Linux, Serveur, Éducation">
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button type="submit" id="save-doc-submit-btn" class="btn btn-primary btn-sm">Publier le Document</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="this.closest('#doc-form-container').style.display='none'">Annuler</button>
+        </div>
+      </form>
+    `;
+  }
+
+  async saveNewDocument(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById("save-doc-submit-btn");
+    const originalText = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Publication Cloud...";
+    }
+
+    try {
+      const fileInput = document.getElementById("new-doc-file-input");
+      const urlInput = document.getElementById("new-doc-file-url");
+      const customNameInput = document.getElementById("new-doc-file-name");
+
+      let fileUrl = "";
+      let fileName = "";
+      let fileSize = "";
+
+      if (urlInput && urlInput.value.trim()) {
+        fileUrl = urlInput.value.trim();
+        fileName = (customNameInput && customNameInput.value.trim()) || "document.pdf";
+        fileSize = "Document Cloud (Google Drive / Web)";
+      } else if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileName = file.name;
+        fileSize = (file.size / 1024).toFixed(1) + " KB";
+
+        if (file.size > 750 * 1024) {
+          throw new Error(`Le fichier « ${fileName} » fait ${fileSize}, ce qui dépasse la limite maximale par document gratuit (750 Ko).\n\n💡 Solution simple et 100% gratuite :\nDéposez votre fichier sur Google Drive, copiez le lien de partage et collez-le dans le champ « lien de partage (Google Drive) » !`);
+        }
+
+        fileUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => resolve(ev.target.result);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const tags = (document.getElementById("new-doc-tags").value || "")
+        .split(",")
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
+
+      const docItem = {
+        title: document.getElementById("new-doc-title").value.trim(),
+        category: document.getElementById("new-doc-cat").value,
+        description: document.getElementById("new-doc-desc").value.trim(),
+        fileName: fileName || "document.pdf",
+        fileSize: fileSize || "PDF",
+        fileUrl: fileUrl || "#",
+        tags: tags.length ? tags : ["Ressource"]
+      };
+
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.addDocument(docItem);
+      } else {
+        const data = StorageService.get();
+        if (!data.documents) data.documents = [];
+        docItem.id = "doc-" + Date.now();
+        data.documents.unshift(docItem);
+        StorageService.save(data, true);
+        this.renderDocumentsTab(document.getElementById("admin-modal-body"), data);
+      }
+
+      alert("✅ Document ajouté avec succès sur le Cloud !");
+      const c = document.getElementById("doc-form-container");
+      if (c) c.style.display = "none";
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
+  }
+
+  async deleteDocument(id) {
+    if (!confirm("Supprimer ce document du Cloud ?")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteDocument(id);
+      } else {
+        const data = StorageService.get();
+        data.documents = (data.documents || []).filter(d => d.id !== id);
+        StorageService.save(data, true);
+        this.renderDocumentsTab(document.getElementById("admin-modal-body"), data);
+      }
+      alert("✅ Document supprimé avec succès !");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  async deleteAllDocuments() {
+    if (!confirm("⚠️ Supprimer TOUS les documents de la bibliothèque ?")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteAllDocuments();
+      }
+      const data = StorageService.get();
+      data.documents = [];
+      StorageService.save(data, true);
+      this.renderDocumentsTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Tous les documents ont été supprimés.");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  /* -------------------------------------------------------------
+   * 12. PORTFOLIO CMS TAB
+   * ----------------------------------------------------------- */
+  renderPortfolioTabContent(body, data) {
+    const portfolio = data.portfolio || [];
+    body.innerHTML = `
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Gestion des Réalisations du Portfolio (${portfolio.length})</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Ajoutez vos créations, logiciels, architectures d'infrastructure et réalisations personnelles.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddPortfolioForm()">+ Ajouter une Réalisation</button>
+            ${portfolio.length > 0 ? `
+              <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="adminManager.deleteAllPortfolioItems()" title="Supprimer tout le portfolio">
+                🗑️ Tout effacer (${portfolio.length})
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div id="portfolio-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
+
+        ${portfolio.length === 0 ? `
+          <div style="text-align: center; color: var(--text-dim); padding: 40px 20px; background: rgba(255,255,255,0.01); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">💼</div>
+            <p style="margin-bottom: 12px;">Aucun élément de portfolio publié pour le moment.</p>
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddPortfolioForm()">+ Ajouter une première réalisation</button>
+          </div>
+        ` : `
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            ${portfolio.map(p => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <img src="${escapeHTML(p.image || '')}" style="width: 50px; height: 38px; object-fit: cover; border-radius: 4px;" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
+                  <div>
+                    <strong>${escapeHTML(p.title)}</strong> <span style="font-size: 0.8rem; color: var(--neon-primary, #00d2ff);">[${escapeHTML(p.category || 'Tech')}]</span>
+                    <div style="font-size: 0.78rem; color: var(--text-dim);">${escapeHTML(p.role || 'Créateur')} • ${escapeHTML(p.technologies || '')}</div>
+                  </div>
+                </div>
+                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deletePortfolioItem('${p.id}')">Supprimer</button>
+              </div>
+            `).join("")}
+          </div>
+        `}
+      </div>
+    `;
+  }
+
+  showAddPortfolioForm() {
+    const c = document.getElementById("portfolio-form-container");
+    if (!c) return;
+    c.style.display = "block";
+    c.innerHTML = `
+      <h5 style="margin-bottom: 16px; font-weight: 700;">Ajouter une Réalisation au Portfolio</h5>
+      <form onsubmit="adminManager.saveNewPortfolioItem(event)">
+        <div class="form-group form-row-2 split-2-1">
+          <div>
+            <label class="form-label">Titre du projet / Réalisation</label>
+            <input type="text" id="new-port-title" class="form-control" required placeholder="Ex: Plateforme Cloud Outlook Studio">
+          </div>
+          <div>
+            <label class="form-label">Catégorie</label>
+            <select id="new-port-cat" class="form-control">
+              <option value="Développement Web & Cloud" selected>Développement Web & Cloud</option>
+              <option value="Architecture Réseau & Systèmes">Architecture Réseau & Systèmes</option>
+              <option value="Scripting & Automatisation">Scripting & Automatisation</option>
+              <option value="Intelligence Artificielle">Intelligence Artificielle</option>
+              <option value="Design & UX">Design & UX</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group form-row-2">
+          <div>
+            <label class="form-label">Votre rôle</label>
+            <input type="text" id="new-port-role" class="form-control" value="Concepteur & Développeur" placeholder="Ex: Architecte Cloud, Développeur Lead">
+          </div>
+          <div>
+            <label class="form-label">Technologies utilisées</label>
+            <input type="text" id="new-port-techs" class="form-control" placeholder="Ex: Firebase, JavaScript, HTML5, CSS Grid">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description du projet</label>
+          <textarea id="new-port-desc" class="form-control" rows="3" required placeholder="Contexte, défis techniques surmontés et valeur ajoutée..."></textarea>
+        </div>
+        <div class="form-group" style="border: 1px dashed var(--border-subtle); padding: 14px; border-radius: var(--radius-md); background: rgba(255,255,255,0.01);">
+          <label class="form-label">🖼️ Image ou Capture d'écran (Photo ou lien URL)</label>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <input type="file" id="new-port-img-file" accept="image/*" class="form-control" style="background: transparent;" onchange="adminManager.previewImage(this, 'port-img-preview')">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 0.8rem;">
+              <span>ou lien URL :</span>
+              <input type="url" id="new-port-img-url" class="form-control" placeholder="https://..." style="flex: 1;" oninput="adminManager.previewUrl(this.value, 'port-img-preview')">
+            </div>
+          </div>
+          <div id="port-img-preview" style="display: none; margin-top: 10px; max-height: 160px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-subtle); text-align: center;">
+            <img src="" style="max-height: 160px; object-fit: cover; display: inline-block;">
+          </div>
+        </div>
+        <div class="form-group form-row-2">
+          <div>
+            <label class="form-label">Lien Démo / En direct (optionnel)</label>
+            <input type="url" id="new-port-demo" class="form-control" placeholder="https://...">
+          </div>
+          <div>
+            <label class="form-label">Lien Dépôt GitHub (optionnel)</label>
+            <input type="url" id="new-port-repo" class="form-control" placeholder="https://github.com/...">
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button type="submit" id="save-port-submit-btn" class="btn btn-primary btn-sm">Ajouter au Portfolio</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="this.closest('#portfolio-form-container').style.display='none'">Annuler</button>
+        </div>
+      </form>
+    `;
+  }
+
+  async saveNewPortfolioItem(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById("save-port-submit-btn");
+    const originalText = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Publication Cloud...";
+    }
+
+    try {
+      let imgUrl = document.getElementById("new-port-img-url") ? document.getElementById("new-port-img-url").value.trim() : "";
+      const imgFileInput = document.getElementById("new-port-img-file");
+      if (imgFileInput && imgFileInput.files && imgFileInput.files[0]) {
+        imgUrl = await this.compressImage(imgFileInput.files[0], 720, 720, 0.7);
+      }
+      if (!imgUrl) {
+        imgUrl = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80";
+      }
+
+      const item = {
+        title: document.getElementById("new-port-title").value.trim(),
+        category: document.getElementById("new-port-cat").value,
+        role: document.getElementById("new-port-role").value.trim(),
+        technologies: document.getElementById("new-port-techs").value.trim(),
+        description: document.getElementById("new-port-desc").value.trim(),
+        image: imgUrl,
+        demoUrl: document.getElementById("new-port-demo").value.trim(),
+        repoUrl: document.getElementById("new-port-repo").value.trim()
+      };
+
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.addPortfolioItem(item);
+      } else {
+        const data = StorageService.get();
+        if (!data.portfolio) data.portfolio = [];
+        item.id = "port-" + Date.now();
+        data.portfolio.unshift(item);
+        StorageService.save(data, true);
+        this.renderPortfolioTabContent(document.getElementById("admin-modal-body"), data);
+      }
+
+      alert("✅ Réalisation ajoutée avec succès au Portfolio Cloud !");
+      const c = document.getElementById("portfolio-form-container");
+      if (c) c.style.display = "none";
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
+  }
+
+  async deletePortfolioItem(id) {
+    if (!confirm("Supprimer cette réalisation ?")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deletePortfolioItem(id);
+      } else {
+        const data = StorageService.get();
+        data.portfolio = (data.portfolio || []).filter(p => p.id !== id);
+        StorageService.save(data, true);
+        this.renderPortfolioTabContent(document.getElementById("admin-modal-body"), data);
+      }
+      alert("✅ Réalisation supprimée avec succès !");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  async deleteAllPortfolioItems() {
+    if (!confirm("⚠️ Supprimer TOUT le portfolio ? Cette action est irréversible.")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteAllPortfolioItems();
+      }
+      const data = StorageService.get();
+      data.portfolio = [];
+      StorageService.save(data, true);
+      this.renderPortfolioTabContent(document.getElementById("admin-modal-body"), data);
+      alert("✅ Toutes les réalisations du portfolio ont été supprimées.");
     } catch (err) {
       alert("Erreur: " + err.message);
     }

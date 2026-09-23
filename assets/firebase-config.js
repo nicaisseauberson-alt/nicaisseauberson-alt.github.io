@@ -361,6 +361,94 @@ class FirebaseBridgeService {
     } catch (e) {
       console.warn("⚠️ [Firestore] Erreur setup platform listener:", e);
     }
+
+    // 10. Écouteur sur la collection Gaming & Moteurs 3D
+    try {
+      const gamingCol = collection(this.db, "gaming");
+      const unsubGaming = onSnapshot(gamingCol, (snapshot) => {
+        const items = [];
+        snapshot.forEach((docSnap) => {
+          items.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        items.sort((a, b) => {
+          const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
+          const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
+          return timeB - timeA;
+        });
+        onDataUpdated("gaming", items);
+      }, (error) => {
+        console.warn("⚠️ [Firestore] Erreur listener gaming:", error.message);
+      });
+      this.unsubscribers.push(unsubGaming);
+    } catch (e) {
+      console.warn("⚠️ [Firestore] Erreur setup gaming listener:", e);
+    }
+
+    // 11. Écouteur sur la collection Documents & Ressources
+    try {
+      const docsCol = collection(this.db, "documents");
+      const unsubDocs = onSnapshot(docsCol, (snapshot) => {
+        const items = [];
+        snapshot.forEach((docSnap) => {
+          items.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        items.sort((a, b) => {
+          const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
+          const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
+          return timeB - timeA;
+        });
+        onDataUpdated("documents", items);
+      }, (error) => {
+        console.warn("⚠️ [Firestore] Erreur listener documents:", error.message);
+      });
+      this.unsubscribers.push(unsubDocs);
+    } catch (e) {
+      console.warn("⚠️ [Firestore] Erreur setup documents listener:", e);
+    }
+
+    // 12. Écouteur sur la collection Snippets de Code & Scripts
+    try {
+      const codeCol = collection(this.db, "codeSnippets");
+      const unsubCode = onSnapshot(codeCol, (snapshot) => {
+        const items = [];
+        snapshot.forEach((docSnap) => {
+          items.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        items.sort((a, b) => {
+          const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
+          const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
+          return timeB - timeA;
+        });
+        onDataUpdated("codeSnippets", items);
+      }, (error) => {
+        console.warn("⚠️ [Firestore] Erreur listener codeSnippets:", error.message);
+      });
+      this.unsubscribers.push(unsubCode);
+    } catch (e) {
+      console.warn("⚠️ [Firestore] Erreur setup codeSnippets listener:", e);
+    }
+
+    // 13. Écouteur sur la collection Portfolio d'Auberson
+    try {
+      const portCol = collection(this.db, "portfolioItems");
+      const unsubPort = onSnapshot(portCol, (snapshot) => {
+        const items = [];
+        snapshot.forEach((docSnap) => {
+          items.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        items.sort((a, b) => {
+          const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
+          const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
+          return timeB - timeA;
+        });
+        onDataUpdated("portfolioItems", items);
+      }, (error) => {
+        console.warn("⚠️ [Firestore] Erreur listener portfolioItems:", error.message);
+      });
+      this.unsubscribers.push(unsubPort);
+    } catch (e) {
+      console.warn("⚠️ [Firestore] Erreur setup portfolioItems listener:", e);
+    }
   }
 
   // --- CRUD CINÉMA ---
@@ -561,6 +649,123 @@ class FirebaseBridgeService {
   async deleteCategory(id) {
     if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
     return await deleteDoc(doc(this.db, "customCategories", id));
+  }
+
+  // --- CRUD GAMING & 3D ---
+  async addGaming(gamingData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const cleanData = {
+      ...gamingData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    return await addDoc(collection(this.db, "gaming"), cleanData);
+  }
+
+  async updateGaming(id, gamingData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const docRef = doc(this.db, "gaming", id);
+    return await updateDoc(docRef, {
+      ...gamingData,
+      updatedAt: serverTimestamp()
+    });
+  }
+
+  async deleteGaming(id) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    return await deleteDoc(doc(this.db, "gaming", id));
+  }
+
+  async deleteAllGaming() {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const snap = await getDocs(collection(this.db, "gaming"));
+    const deletePromises = [];
+    snap.forEach((docSnap) => {
+      deletePromises.push(deleteDoc(doc(this.db, "gaming", docSnap.id)));
+    });
+    await Promise.all(deletePromises);
+    return true;
+  }
+
+  // --- CRUD DOCUMENTS ---
+  async addDocument(docData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const cleanData = {
+      ...docData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    return await addDoc(collection(this.db, "documents"), cleanData);
+  }
+
+  async deleteDocument(id) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    return await deleteDoc(doc(this.db, "documents", id));
+  }
+
+  async deleteAllDocuments() {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const snap = await getDocs(collection(this.db, "documents"));
+    const deletePromises = [];
+    snap.forEach((docSnap) => {
+      deletePromises.push(deleteDoc(doc(this.db, "documents", docSnap.id)));
+    });
+    await Promise.all(deletePromises);
+    return true;
+  }
+
+  // --- CRUD CODE SNIPPETS & SCRIPTS ---
+  async addCodeSnippet(codeData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const cleanData = {
+      ...codeData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    return await addDoc(collection(this.db, "codeSnippets"), cleanData);
+  }
+
+  async deleteCodeSnippet(id) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    return await deleteDoc(doc(this.db, "codeSnippets", id));
+  }
+
+  async deleteAllCodeSnippets() {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const snap = await getDocs(collection(this.db, "codeSnippets"));
+    const deletePromises = [];
+    snap.forEach((docSnap) => {
+      deletePromises.push(deleteDoc(doc(this.db, "codeSnippets", docSnap.id)));
+    });
+    await Promise.all(deletePromises);
+    return true;
+  }
+
+  // --- CRUD PORTFOLIO ITEMS ---
+  async addPortfolioItem(itemData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const cleanData = {
+      ...itemData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    return await addDoc(collection(this.db, "portfolioItems"), cleanData);
+  }
+
+  async deletePortfolioItem(id) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    return await deleteDoc(doc(this.db, "portfolioItems", id));
+  }
+
+  async deleteAllPortfolioItems() {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const snap = await getDocs(collection(this.db, "portfolioItems"));
+    const deletePromises = [];
+    snap.forEach((docSnap) => {
+      deletePromises.push(deleteDoc(doc(this.db, "portfolioItems", docSnap.id)));
+    });
+    await Promise.all(deletePromises);
+    return true;
   }
 
   // --- SEED INITIAL SÉCURISÉ (UNE SEULE FOIS, JAMAIS SI DÉJÀ INITIALISÉ) ---

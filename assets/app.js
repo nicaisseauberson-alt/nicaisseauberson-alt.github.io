@@ -241,9 +241,10 @@ function renderApp() {
   renderNews(data.news);
   renderProjects(data.projects);
   renderTechTips(data.techTips);
-  renderCode(data.techTips);
-  renderGaming(data);
-  renderDocuments(data.projects);
+  renderCode(data.code, data.techTips);
+  renderGaming(data.gaming);
+  renderDocuments(data.documents, data.projects);
+  renderPortfolio(data.portfolio, data.profile);
 }
 
 /* -------------------------------------------------------------
@@ -512,103 +513,287 @@ function renderTechTips(tips, searchTerm = "") {
 }
 
 /* -------------------------------------------------------------
- * 10. RENDER CODE / PROGRAMMATION
+ * 10. RENDER CODE / PROGRAMMATION (100% DYNAMIQUE CLOUD)
  * ----------------------------------------------------------- */
-function renderCode(tips) {
+function renderCode(codeSnippets, techTips) {
   const container = document.getElementById("code-grid");
   if (!container) return;
 
-  const codeTips = (tips || []).filter(t => t.code && t.code.trim().length > 0);
-  if (codeTips.length === 0) {
+  const validSnippets = [...(codeSnippets || [])];
+  // Fallback aux astuces avec code si aucun snippet direct
+  if (validSnippets.length === 0 && techTips) {
+    techTips.filter(t => t.code && t.code.trim().length > 0).forEach(t => {
+      validSnippets.push({
+        id: t.id,
+        title: t.title,
+        language: t.category || "Script",
+        category: t.category || "DevOps",
+        description: t.summary || t.explanation || "",
+        code: t.code,
+        tags: [t.category || "Code"]
+      });
+    });
+  }
+
+  if (validSnippets.length === 0) {
     container.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
         <div style="font-size: 2.8rem; margin-bottom: 12px;">💻</div>
         <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Scripts & Extraits de Code</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun extrait de code pour le moment. Ajoutez des astuces avec du code dans le panneau admin.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun extrait de code pour le moment. Vous pouvez en publier depuis l'espace administrateur.</p>
       </div>
     `;
     return;
   }
 
-  container.innerHTML = codeTips.map(tip => `
-    <div class="tip-card">
+  container.innerHTML = validSnippets.map(item => {
+    const tagList = Array.isArray(item.tags) ? item.tags : (item.tags ? String(item.tags).split(',') : []);
+    return `
+    <div class="tip-card code-card">
       <div class="tip-header">
-        <span class="badge-tag">${escapeHTML(tip.category || 'Code')}</span>
-        <span class="tip-date">${escapeHTML(tip.date || '')}</span>
+        <span class="badge-tag" style="background: rgba(0, 210, 255, 0.12); color: var(--neon-primary, #00d2ff); border-color: rgba(0, 210, 255, 0.3);">
+          ${escapeHTML(item.language || item.category || 'Code')}
+        </span>
+        <span class="tip-date">${escapeHTML(item.category || '')}</span>
       </div>
-      <h3 class="tip-title">${escapeHTML(tip.title)}</h3>
+      <h3 class="tip-title">${escapeHTML(item.title)}</h3>
+      ${item.description ? `<p class="tip-summary">${escapeHTML(item.description)}</p>` : ''}
       <div class="code-block-wrapper">
         <div class="code-block-header">
-          <span class="code-lang-tag">💻 Script</span>
-          <button class="copy-btn" onclick="copyCode(this, \`${encodeURIComponent(tip.code || '')}\`)">📋 Copier</button>
+          <span class="code-lang-tag">⚡ ${escapeHTML(item.language || 'Terminal')}</span>
+          <button class="copy-btn" onclick="copyCode(this, \`${encodeURIComponent(item.code || '')}\`)">📋 Copier</button>
         </div>
         <div class="code-box">
-          <pre><code>${escapeHTML(tip.code)}</code></pre>
+          <pre><code>${escapeHTML(item.code || '')}</code></pre>
         </div>
       </div>
+      ${tagList.length > 0 ? `
+        <div class="project-tags" style="margin-top: 14px;">
+          ${tagList.map(t => `<span class="tag">${escapeHTML(t.trim())}</span>`).join('')}
+        </div>
+      ` : ''}
     </div>
-  `).join("");
+  `;
+  }).join("");
 }
 
 /* -------------------------------------------------------------
- * 11. RENDER GAMING SECTION
+ * 11. RENDER GAMING & 3D (100% DYNAMIQUE CLOUD)
  * ----------------------------------------------------------- */
-function renderGaming(data) {
+function renderGaming(gamingItems) {
   const container = document.getElementById("gaming-content");
   if (!container) return;
 
-  container.innerHTML = `
-    <div class="bento-grid">
-      <div class="bento-card col-6">
-        <div class="card-icon" style="background: rgba(168, 85, 247, 0.12); color: #a855f7;">🎮</div>
-        <h3 class="card-title">Moteurs 3D & Next-Gen Gaming</h3>
-        <p class="card-desc">Suivi des innovations Unreal Engine 5, ray-tracing matériel et optimisation des pipelines graphiques temps réel.</p>
-      </div>
-      <div class="bento-card col-6">
-        <div class="card-icon" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6;">⚡</div>
-        <h3 class="card-title">Performance & Matériel</h3>
-        <p class="card-desc">Tests de fréquence d'images, architecture GPU et architectures de streaming gaming basse latence.</p>
-      </div>
-    </div>
-  `;
-}
+  const validItems = gamingItems || [];
 
-/* -------------------------------------------------------------
- * 12. RENDER DOCUMENTS
- * ----------------------------------------------------------- */
-function renderDocuments(projects) {
-  const container = document.getElementById("documents-grid");
-  if (!container) return;
-
-  const docs = (projects || []).filter(p => p.fileName);
-  if (docs.length === 0) {
+  if (validItems.length === 0) {
     container.innerHTML = `
-      <div style="text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
-        <div style="font-size: 2.8rem; margin-bottom: 12px;">📄</div>
-        <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Bibliothèque Numérique</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun document téléchargeable disponible pour l'instant.</p>
+      <div class="bento-grid" style="margin-bottom: 24px;">
+        <div class="bento-card col-6">
+          <div class="card-icon" style="background: rgba(168, 85, 247, 0.12); color: #a855f7;">🎮</div>
+          <h3 class="card-title">Moteurs 3D & Next-Gen Gaming</h3>
+          <p class="card-desc">Suivi des innovations Unreal Engine 5, ray-tracing matériel et optimisation des pipelines graphiques temps réel.</p>
+        </div>
+        <div class="bento-card col-6">
+          <div class="card-icon" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6;">⚡</div>
+          <h3 class="card-title">Performance & Matériel</h3>
+          <p class="card-desc">Tests de fréquence d'images, architecture GPU et architectures de streaming gaming basse latence.</p>
+        </div>
+      </div>
+      <div style="text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun jeu ou projet 3D ajouté dans le catalogue pour le moment. Vous pouvez en publier librement depuis l'espace administrateur.</p>
       </div>
     `;
     return;
   }
 
   container.innerHTML = `
-    <div style="display: flex; flex-direction: column; gap: 14px;">
-      ${docs.map(d => `
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); flex-wrap: wrap; gap: 12px;">
-          <div style="display: flex; align-items: center; gap: 16px;">
-            <div style="font-size: 2rem;">📄</div>
-            <div>
-              <strong style="font-size: 1.05rem;">${escapeHTML(d.fileName)}</strong>
-              <div style="font-size: 0.82rem; color: var(--text-tertiary);">${escapeHTML(d.title)} • ${escapeHTML(d.fileSize || 'PDF')}</div>
-            </div>
+    <div class="gaming-grid">
+      ${validItems.map(game => {
+        const tagList = Array.isArray(game.tags) ? game.tags : (game.tags ? String(game.tags).split(',') : []);
+        return `
+        <div class="gaming-card">
+          <div class="gaming-card-img-wrap">
+            <img src="${escapeHTML(game.image || '')}" alt="${escapeHTML(game.title)}" class="gaming-card-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800'">
+            <div class="gaming-rating-badge">★ ${escapeHTML(game.rating || '9.5/10')}</div>
+            <div class="gaming-platform-badge">${escapeHTML(game.platform || 'PC')}</div>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="downloadProjectFile('${escapeHTML(d.id)}')">Télécharger le document</button>
+          <div class="gaming-card-content">
+            <div class="news-meta">
+              <span class="badge-tag" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.3);">
+                ${escapeHTML(game.category || 'Gaming')}
+              </span>
+              <span>${escapeHTML(game.platform || 'Multiplateforme')}</span>
+            </div>
+            <h3 class="gaming-card-title">${escapeHTML(game.title)}</h3>
+            <p class="gaming-card-desc">${escapeHTML(game.summary || '')}</p>
+            ${tagList.length > 0 ? `
+              <div class="project-tags" style="margin-top: auto; margin-bottom: 12px;">
+                ${tagList.map(t => `<span class="tag">${escapeHTML(t.trim())}</span>`).join('')}
+              </div>
+            ` : ''}
+            ${game.trailerUrl ? `
+              <div style="margin-top: auto;">
+                <button class="btn btn-primary btn-sm" onclick="openTrailer('${escapeHTML(game.title)}', '${escapeHTML(game.trailerUrl)}')">
+                  Bande-Annonce ▶
+                </button>
+              </div>
+            ` : ''}
+          </div>
         </div>
-      `).join("")}
+      `;
+      }).join("")}
     </div>
   `;
 }
+
+/* -------------------------------------------------------------
+ * 12. RENDER DOCUMENTS (100% DYNAMIQUE CLOUD)
+ * ----------------------------------------------------------- */
+function renderDocuments(documents, projects) {
+  const container = document.getElementById("documents-grid");
+  if (!container) return;
+
+  const validDocs = [...(documents || [])];
+  // Si aucun document dédié, inclure les projets comportant un fichier téléchargeable
+  if (validDocs.length === 0 && projects) {
+    projects.filter(p => p.fileName).forEach(p => {
+      validDocs.push({
+        id: p.id,
+        title: p.title,
+        category: p.category || "Projet & Guide",
+        description: p.description || "",
+        fileName: p.fileName,
+        fileSize: p.fileSize || "Document",
+        fileUrl: p.fileUrl,
+        tags: p.tags || []
+      });
+    });
+  }
+
+  if (validDocs.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
+        <div style="font-size: 2.8rem; margin-bottom: 12px;">📚</div>
+        <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Bibliothèque de Documents & Ressources</h4>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun document disponible pour le moment. Vous pouvez en déposer depuis l'espace administrateur.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="documents-list-grid">
+      ${validDocs.map(d => {
+        const tagList = Array.isArray(d.tags) ? d.tags : (d.tags ? String(d.tags).split(',') : []);
+        return `
+        <div class="document-card">
+          <div class="document-icon-badge">📕</div>
+          <div class="document-info">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
+              <span class="badge-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                ${escapeHTML(d.category || 'Documentation')}
+              </span>
+              <span style="font-size: 0.78rem; color: var(--text-dim);">${escapeHTML(d.fileSize || 'PDF')}</span>
+            </div>
+            <h3 class="document-title">${escapeHTML(d.title)}</h3>
+            <p class="document-desc">${escapeHTML(d.description || '')}</p>
+            ${tagList.length > 0 ? `
+              <div class="project-tags" style="margin-top: 8px;">
+                ${tagList.map(t => `<span class="tag">${escapeHTML(t.trim())}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+          <div class="document-action">
+            <button class="btn btn-primary btn-sm" onclick="downloadDocumentItem('${escapeHTML(d.id)}')">
+              📥 Télécharger
+            </button>
+          </div>
+        </div>
+      `;
+      }).join("")}
+    </div>
+  `;
+}
+
+/* -------------------------------------------------------------
+ * 12b. RENDER PORTFOLIO (100% DYNAMIQUE CLOUD)
+ * ----------------------------------------------------------- */
+function renderPortfolio(portfolioItems, profile) {
+  const container = document.getElementById("portfolio-grid");
+  if (!container) return;
+
+  const validItems = portfolioItems || [];
+  if (validItems.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle); margin-top: 24px;">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune réalisation supplémentaire ajoutée pour le moment. Vous pouvez en publier depuis l'espace administrateur.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="margin-top: 36px; margin-bottom: 20px;">
+      <div class="section-tag">Réalisations & Systèmes</div>
+      <h3 class="section-title" style="font-size: 1.5rem;">Projets Conçus & Développés par Auberson</h3>
+    </div>
+    <div class="portfolio-cards-grid">
+      ${validItems.map(item => {
+        const techs = item.technologies ? item.technologies.split(',').map(t => t.trim()) : [];
+        return `
+        <div class="portfolio-item-card">
+          ${item.image ? `
+            <div class="portfolio-card-img-wrap">
+              <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}" class="portfolio-card-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
+            </div>
+          ` : ''}
+          <div class="portfolio-card-content">
+            <div class="news-meta">
+              <span class="badge-tag">${escapeHTML(item.category || 'Tech')}</span>
+              <span style="font-size: 0.8rem; color: var(--neon-primary, #00d2ff); font-weight: 600;">${escapeHTML(item.role || 'Créateur')}</span>
+            </div>
+            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">${escapeHTML(item.title)}</h3>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 14px;">${escapeHTML(item.description || '')}</p>
+            ${techs.length > 0 ? `
+              <div class="project-tags" style="margin-top: auto; margin-bottom: 16px;">
+                ${techs.map(t => `<span class="tag">${escapeHTML(t)}</span>`).join('')}
+              </div>
+            ` : ''}
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto;">
+              ${item.demoUrl ? `<a href="${escapeHTML(item.demoUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Voir en Direct ↗</a>` : ''}
+              ${item.repoUrl ? `<a href="${escapeHTML(item.repoUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">Code Source ⌥</a>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+      }).join("")}
+    </div>
+  `;
+}
+
+// Helper pour télécharger un document de la bibliothèque
+window.downloadDocumentItem = function(docId) {
+  const data = StorageService.get();
+  let docItem = (data.documents || []).find(d => d.id === docId);
+  if (!docItem) {
+    docItem = (data.projects || []).find(p => p.id === docId);
+  }
+  if (!docItem || !docItem.fileUrl) {
+    alert("Fichier non disponible");
+    return;
+  }
+  if (docItem.fileUrl.startsWith("http")) {
+    window.open(docItem.fileUrl, "_blank");
+    return;
+  }
+  const link = document.createElement("a");
+  link.href = docItem.fileUrl;
+  link.download = docItem.fileName || "document_outlook_studio.pdf";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
 /* -------------------------------------------------------------
  * 13. EVENT HANDLERS & HELPERS
