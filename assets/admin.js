@@ -1671,7 +1671,12 @@ class AdminManager {
         await window.FirebaseBridge.updatePlatform(platform);
       }
       const data = StorageService.get();
-      data.platform = platform;
+      data.platform = { ...(data.platform || {}), ...platform };
+      if (data.profile) {
+        data.profile.phone = platform.phone;
+        data.profile.whatsapp = platform.whatsapp;
+        data.profile.email = platform.email;
+      }
       StorageService.save(data, true);
       alert("✅ Coordonnées et identité mises à jour sur le Cloud !");
     } catch (err) {

@@ -113,7 +113,7 @@ function switchView(routeKey) {
   }
 
   // 3. Update active states on nav links
-  const allNavLinks = document.querySelectorAll(".nav-route-link, .mobile-route-link, .drawer-nav-link, .bottom-nav-item");
+  const allNavLinks = document.querySelectorAll(".nav-route-link, .mobile-route-link, .drawer-nav-link, .bottom-nav-item, .nav-more-item");
   allNavLinks.forEach(link => {
     if (link.getAttribute("data-route") === routeKey) {
       link.classList.add("active");
@@ -121,6 +121,16 @@ function switchView(routeKey) {
       link.classList.remove("active");
     }
   });
+
+  const navMoreBtn = document.getElementById("navMoreBtn");
+  const moreRoutes = ["projects", "tips", "code", "gaming", "portfolio", "contact"];
+  if (navMoreBtn) {
+    if (moreRoutes.includes(routeKey)) {
+      navMoreBtn.classList.add("has-active-child");
+    } else {
+      navMoreBtn.classList.remove("has-active-child");
+    }
+  }
 
   if (window.updateFloatingGlowPill) {
     window.updateFloatingGlowPill(true);
@@ -146,9 +156,12 @@ function initFloatingNavbar() {
   const glowPill = document.getElementById("glowPill");
   const menuToggle = document.getElementById("menuToggle");
   const mobileMenu = document.getElementById("mobileMenu");
+  const navMoreBtn = document.getElementById("navMoreBtn");
+  const navMoreMenu = document.getElementById("navMoreMenu");
 
   function moveGlowTo(link, animate) {
     if (!link || !glowPill || !navLinks) return;
+    glowPill.style.display = "block";
     const linkRect = link.getBoundingClientRect();
     const parentRect = navLinks.getBoundingClientRect();
     const left = linkRect.left - parentRect.left + navLinks.scrollLeft;
@@ -166,10 +179,14 @@ function initFloatingNavbar() {
   }
 
   window.updateFloatingGlowPill = function(animate = true) {
-    if (!navLinks) return;
+    if (!navLinks || !glowPill) return;
     const activeLink = navLinks.querySelector(".nav-route-link.active");
     if (activeLink) {
       moveGlowTo(activeLink, animate);
+    } else if (navMoreBtn && navMoreBtn.classList.contains("has-active-child")) {
+      moveGlowTo(navMoreBtn, animate);
+    } else {
+      glowPill.style.display = "none";
     }
   };
 
@@ -180,7 +197,26 @@ function initFloatingNavbar() {
       link.addEventListener("click", () => {
         links.forEach(l => l.classList.remove("active"));
         link.classList.add("active");
+        if (navMoreBtn) navMoreBtn.classList.remove("has-active-child");
         moveGlowTo(link, true);
+      });
+    });
+  }
+
+  // Navbar "Plus" Dropdown Logic
+  if (navMoreBtn && navMoreMenu) {
+    navMoreBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = navMoreMenu.classList.toggle("open");
+      navMoreBtn.classList.toggle("open", isOpen);
+      navMoreBtn.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    navMoreMenu.querySelectorAll("a").forEach(item => {
+      item.addEventListener("click", () => {
+        navMoreMenu.classList.remove("open");
+        navMoreBtn.classList.remove("open");
+        navMoreBtn.setAttribute("aria-expanded", "false");
       });
     });
   }
@@ -223,10 +259,26 @@ function initFloatingNavbar() {
         menuToggle && !menuToggle.contains(e.target)) {
       closeMobileMenu();
     }
+    if (navMoreMenu && navMoreMenu.classList.contains("open") &&
+        !navMoreMenu.contains(e.target) &&
+        navMoreBtn && !navMoreBtn.contains(e.target)) {
+      navMoreMenu.classList.remove("open");
+      navMoreBtn.classList.remove("open");
+      navMoreBtn.setAttribute("aria-expanded", "false");
+    }
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeMobileMenu();
+    if (e.key === "Escape") {
+      closeMobileMenu();
+      if (navMoreMenu) {
+        navMoreMenu.classList.remove("open");
+        if (navMoreBtn) {
+          navMoreBtn.classList.remove("open");
+          navMoreBtn.setAttribute("aria-expanded", "false");
+        }
+      }
+    }
   });
 
   // Initial pill placement once layout settles
@@ -356,6 +408,9 @@ function renderApp() {
     bioEl.textContent = data.profile.bio;
   }
 
+  // Synchronize Phone, WhatsApp, Email, Platform & Creator info dynamically
+  renderPlatformAndContact(data.platform, data.profile);
+
   // Render individual sections
   renderCinema(data.cinema);
   renderNews(data.news);
@@ -365,6 +420,111 @@ function renderApp() {
   renderGaming(data.gaming);
   renderDocuments(data.documents, data.projects);
   renderPortfolio(data.portfolio, data.profile);
+}
+
+/* -------------------------------------------------------------
+ * 3.bis REAL-TIME PHONE, WHATSAPP & IDENTITY SYNC
+ * ----------------------------------------------------------- */
+function renderPlatformAndContact(platform, profile) {
+  if (!platform) platform = {};
+  const phone = platform.phone || (profile && profile.phone) || "+509 55 55 85 50";
+  const whatsapp = platform.whatsapp || (profile && profile.whatsapp) || "+509 31 84 93 85";
+  const email = platform.email || (profile && profile.email) || "contact@nicaisseauberson.ch";
+  const creator = platform.creator || (profile && profile.name) || "Auberson";
+  const platformName = platform.name || "Outlook Studio";
+
+  // Clean numbers for tel: and wa.me links
+  const phoneClean = phone.replace(/[^0-9+]/g, '');
+  const waClean = whatsapp.replace(/[^0-9]/g, '');
+
+  // 1. Hero Section
+  const heroPhoneLink = document.getElementById("hero-phone-link");
+  if (heroPhoneLink) {
+    heroPhoneLink.href = `tel:${phoneClean}`;
+  }
+  const heroPhoneText = document.getElementById("hero-phone-text");
+  if (heroPhoneText) {
+    heroPhoneText.textContent = phone;
+  }
+
+  const heroWaLink = document.getElementById("hero-whatsapp-link");
+  if (heroWaLink) {
+    heroWaLink.href = `https://wa.me/${waClean}`;
+  }
+
+  const heroEmailLink = document.getElementById("hero-email-link");
+  if (heroEmailLink) {
+    heroEmailLink.href = `mailto:${email}`;
+  }
+
+  // 2. Contact View Card Details & Action buttons
+  const contactPhoneDetail = document.getElementById("contact-phone-detail");
+  if (contactPhoneDetail) {
+    contactPhoneDetail.textContent = phone;
+  }
+  const contactPhoneBtn = document.getElementById("contact-phone-btn");
+  if (contactPhoneBtn) {
+    contactPhoneBtn.href = `tel:${phoneClean}`;
+  }
+
+  const contactWaDetail = document.getElementById("contact-whatsapp-detail");
+  if (contactWaDetail) {
+    contactWaDetail.textContent = whatsapp;
+  }
+  const contactWaBtn = document.getElementById("contact-whatsapp-btn");
+  if (contactWaBtn) {
+    contactWaBtn.href = `https://wa.me/${waClean}`;
+  }
+
+  const contactEmailDetail = document.getElementById("contact-email-detail");
+  if (contactEmailDetail) {
+    contactEmailDetail.textContent = email;
+  }
+  const contactEmailBtn = document.getElementById("contact-email-btn");
+  if (contactEmailBtn) {
+    contactEmailBtn.href = `mailto:${email}`;
+  }
+
+  // 3. Footer Links & Text
+  const footerPhoneText = document.getElementById("footer-phone-text");
+  if (footerPhoneText) {
+    footerPhoneText.textContent = phone;
+  }
+  const footerPhoneLink = document.getElementById("footer-phone-link");
+  if (footerPhoneLink) {
+    footerPhoneLink.href = `tel:${phoneClean}`;
+  }
+
+  const footerWaText = document.getElementById("footer-whatsapp-text");
+  if (footerWaText) {
+    footerWaText.textContent = whatsapp;
+  }
+  const footerWaLink = document.getElementById("footer-whatsapp-link");
+  if (footerWaLink) {
+    footerWaLink.href = `https://wa.me/${waClean}`;
+  }
+
+  const footerEmailText = document.getElementById("footer-email-text");
+  if (footerEmailText) {
+    footerEmailText.textContent = email;
+  }
+  const footerEmailLink = document.getElementById("footer-email-link");
+  if (footerEmailLink) {
+    footerEmailLink.href = `mailto:${email}`;
+  }
+
+  // 4. Platform Brand & Creator mentions
+  const brandTitles = document.querySelectorAll(".brand-title");
+  brandTitles.forEach(el => { el.textContent = platformName; });
+
+  const homeNeonPill = document.getElementById("home-neon-pill");
+  if (homeNeonPill) {
+    homeNeonPill.textContent = `⚡ Powered by ${creator}`;
+  }
+  const footerCreatorPill = document.querySelector(".footer-creator-pill");
+  if (footerCreatorPill) {
+    footerCreatorPill.textContent = `Powered by ${creator}`;
+  }
 }
 
 /* -------------------------------------------------------------

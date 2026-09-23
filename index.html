@@ -13,10 +13,10 @@
   <meta property="og:title" content="Outlook Studio — Powered by Auberson">
   <meta property="og:description" content="Plateforme technologique moderne : astuces tech, cinéma, gaming, programmation, documents et actualités numériques.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="assets/logo.jpg">
+  <meta property="og:image" content="assets/logo.png">
 
-  <!-- Favicon officiel sans cadre artificiel -->
-  <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
+  <!-- Favicon officiel sans cadre artificiel (transparence pure) -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
   
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,7 +42,7 @@
   <!-- NAVIGATION FLOTTANTE ULTRA-MODERNE (Glassmorphism & Sliding Glow Indicator) -->
   <nav class="floating" id="main-navbar" aria-label="Navigation principale">
     <a href="#/" class="brand" title="Outlook Studio — Accueil" data-route="home">
-      <img src="assets/logo.jpg" alt="Outlook Studio" class="brand-logo" style="width: 28px; height: 28px; border-radius: 7px; object-fit: cover; border: 1px solid rgba(255,255,255,0.18); flex-shrink: 0;">
+      <img src="assets/logo.png" alt="Outlook Studio" class="brand-logo" style="width: 36px; height: 36px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(255,255,255,0.35));">
       <span class="brand-title">Outlook Studio</span>
     </a>
 
@@ -51,13 +51,21 @@
       <li><a href="#/" class="nav-route-link active" data-route="home">Accueil</a></li>
       <li><a href="#/cinema" class="nav-route-link" data-route="cinema">Cinéma</a></li>
       <li><a href="#/actualites" class="nav-route-link" data-route="news">Actualités</a></li>
-      <li><a href="#/projets" class="nav-route-link" data-route="projects">Projets</a></li>
-      <li><a href="#/astuces" class="nav-route-link" data-route="tips">Astuces</a></li>
-      <li><a href="#/code" class="nav-route-link" data-route="code">Code</a></li>
-      <li><a href="#/gaming" class="nav-route-link" data-route="gaming">Gaming</a></li>
       <li><a href="#/documents" class="nav-route-link" data-route="documents">Documents</a></li>
-      <li><a href="#/portfolio" class="nav-route-link" data-route="portfolio">Portfolio</a></li>
-      <li><a href="#/contact" class="nav-route-link" data-route="contact">Contact</a></li>
+      <li class="nav-more-dropdown">
+        <button class="nav-more-btn" id="navMoreBtn" type="button" aria-expanded="false" aria-label="Afficher plus de rubriques">
+          <span>Plus</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="nav-more-menu" id="navMoreMenu">
+          <a href="#/projets" class="nav-more-item" data-route="projects">📁 Projets</a>
+          <a href="#/astuces" class="nav-more-item" data-route="tips">💡 Astuces Tech</a>
+          <a href="#/code" class="nav-more-item" data-route="code">💻 Code & Scripts</a>
+          <a href="#/gaming" class="nav-more-item" data-route="gaming">🎮 Gaming & 3D</a>
+          <a href="#/portfolio" class="nav-more-item" data-route="portfolio">💼 Portfolio</a>
+          <a href="#/contact" class="nav-more-item" data-route="contact">✉️ Contact</a>
+        </div>
+      </li>
     </ul>
 
     <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu" aria-expanded="false">
@@ -120,13 +128,13 @@
               </div>
 
               <div class="hero-social-dock">
-                <a href="https://wa.me/50931849385" target="_blank" rel="noopener noreferrer" class="hero-social-pill" title="WhatsApp direct">
+                <a href="https://wa.me/50931849385" id="hero-whatsapp-link" target="_blank" rel="noopener noreferrer" class="hero-social-pill" title="WhatsApp direct">
                   <span>💬</span> WhatsApp
                 </a>
-                <a href="tel:+50955558550" class="hero-social-pill" title="Téléphone direct">
-                  <span>📞</span> +509 55 55 85 50
+                <a href="tel:+50955558550" id="hero-phone-link" class="hero-social-pill" title="Téléphone direct">
+                  <span>📞</span> <span id="hero-phone-text">+509 55 55 85 50</span>
                 </a>
-                <a href="mailto:contact@nicaisseauberson.ch" class="hero-social-pill" title="Email officiel">
+                <a href="mailto:contact@nicaisseauberson.ch" id="hero-email-link" class="hero-social-pill" title="Email officiel">
                   <span>✉️</span> Contact
                 </a>
               </div>
@@ -439,10 +447,10 @@
             <div class="contact-card-icon">💬</div>
             <div>
               <div class="contact-card-title">WhatsApp</div>
-              <div class="contact-card-detail">+509 31 84 93 85</div>
+              <div class="contact-card-detail" id="contact-whatsapp-detail">+509 31 84 93 85</div>
               <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Réponse rapide et échange direct via WhatsApp.</p>
             </div>
-            <a href="https://wa.me/50931849385" target="_blank" rel="noopener noreferrer" class="contact-btn whatsapp">
+            <a href="https://wa.me/50931849385" id="contact-whatsapp-btn" target="_blank" rel="noopener noreferrer" class="contact-btn whatsapp">
               <span>💬</span> Contacter sur WhatsApp
             </a>
           </div>
@@ -452,10 +460,10 @@
             <div class="contact-card-icon">📞</div>
             <div>
               <div class="contact-card-title">Téléphone</div>
-              <div class="contact-card-detail">+509 55 55 85 50</div>
+              <div class="contact-card-detail" id="contact-phone-detail">+509 55 55 85 50</div>
               <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Appel direct sur mobile et appareils compatibles.</p>
             </div>
-            <a href="tel:+50955558550" class="contact-btn phone">
+            <a href="tel:+50955558550" id="contact-phone-btn" class="contact-btn phone">
               <span>📞</span> Appeler directement
             </a>
           </div>
@@ -465,10 +473,10 @@
             <div class="contact-card-icon">✉️</div>
             <div>
               <div class="contact-card-title">Courrier Électronique</div>
-              <div class="contact-card-detail" style="font-size: 0.95rem; word-break: break-all;">contact@nicaisseauberson.ch</div>
+              <div class="contact-card-detail" id="contact-email-detail" style="font-size: 0.95rem; word-break: break-all;">contact@nicaisseauberson.ch</div>
               <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Pour les messages détaillés, projets et demandes formelles.</p>
             </div>
-            <a href="mailto:contact@nicaisseauberson.ch" class="contact-btn email">
+            <a href="mailto:contact@nicaisseauberson.ch" id="contact-email-btn" class="contact-btn email">
               <span>✉️</span> Envoyer un e-mail
             </a>
           </div>
@@ -478,27 +486,46 @@
     </div>
   </main>
 
-  <!-- MOBILE BOTTOM NAVIGATION (Navigation tactile à une main) -->
-  <nav class="bottom-nav" aria-label="Navigation rapide mobile">
-    <a href="#/" class="bottom-nav-item active" data-route="home">
-      <span class="nav-icon">🏠</span>
-      <span>Accueil</span>
+  <!-- MOBILE BOTTOM NAVIGATION (Navigation par icônes épurées professionnelles, sans libellés) -->
+  <nav class="bottom-nav" aria-label="Navigation rapide">
+    <a href="#/" class="bottom-nav-item active" data-route="home" aria-label="Accueil" title="Accueil">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
     </a>
-    <a href="#/cinema" class="bottom-nav-item" data-route="cinema">
-      <span class="nav-icon">🎬</span>
-      <span>Cinéma</span>
+    <a href="#/cinema" class="bottom-nav-item" data-route="cinema" aria-label="Cinéma & Séries" title="Cinéma & Séries">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+        <line x1="7" y1="2" x2="7" y2="22"/>
+        <line x1="17" y1="2" x2="17" y2="22"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+        <line x1="2" y1="7" x2="7" y2="7"/>
+        <line x1="2" y1="17" x2="7" y2="17"/>
+        <line x1="17" y1="17" x2="22" y2="17"/>
+        <line x1="17" y1="7" x2="22" y2="7"/>
+      </svg>
     </a>
-    <a href="#/actualites" class="bottom-nav-item" data-route="news">
-      <span class="nav-icon">📰</span>
-      <span>News</span>
+    <a href="#/actualites" class="bottom-nav-item" data-route="news" aria-label="Actualités" title="Actualités">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+        <path d="M18 14h-8"/>
+        <path d="M15 18h-5"/>
+        <path d="M10 6h8v4h-8V6Z"/>
+      </svg>
     </a>
-    <a href="#/projets" class="bottom-nav-item" data-route="projects">
-      <span class="nav-icon">📁</span>
-      <span>Projets</span>
+    <a href="#/documents" class="bottom-nav-item" data-route="documents" aria-label="Documents" title="Documents">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
     </a>
-    <a href="#/contact" class="bottom-nav-item" data-route="contact">
-      <span class="nav-icon">✉️</span>
-      <span>Contact</span>
+    <a href="#/contact" class="bottom-nav-item" data-route="contact" aria-label="Contact direct" title="Contact direct">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
     </a>
   </nav>
 
@@ -509,13 +536,13 @@
         <!-- Col 1 : Identité -->
         <div>
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-            <img src="assets/logo.jpg" alt="Logo Outlook Studio" style="width: 32px; height: 32px; border-radius: 6px;">
-            <strong style="font-size: 1.1rem; color: #fff;">Outlook Studio</strong>
+            <img src="assets/logo.png" alt="Logo Outlook Studio" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));">
+            <strong style="font-size: 1.1rem; color: #fff;" class="brand-title">Outlook Studio</strong>
           </div>
           <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
             Plateforme technologique de référence rassemblant ressources, astuces, cinéma, gaming et ingénierie logicielle.
           </p>
-          <div class="neon-glow-text" style="font-size: 0.82rem; font-weight: 600;">
+          <div class="neon-glow-text footer-creator-pill" style="font-size: 0.82rem; font-weight: 600;">
             Powered by Auberson
           </div>
         </div>
@@ -536,9 +563,9 @@
         <div>
           <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 14px;">Contact direct</h4>
           <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.88rem;">
-            <li><a href="https://wa.me/50931849385" target="_blank" rel="noopener noreferrer" style="color: #25d366; text-decoration: none;">💬 WhatsApp : +509 31 84 93 85</a></li>
-            <li><a href="tel:+50955558550" style="color: var(--text-secondary); text-decoration: none;">📞 Tél : +509 55 55 85 50</a></li>
-            <li><a href="mailto:contact@nicaisseauberson.ch" style="color: var(--text-secondary); text-decoration: none;">✉️ contact@nicaisseauberson.ch</a></li>
+            <li><a href="https://wa.me/50931849385" id="footer-whatsapp-link" target="_blank" rel="noopener noreferrer" style="color: #25d366; text-decoration: none;">💬 WhatsApp : <span id="footer-whatsapp-text">+509 31 84 93 85</span></a></li>
+            <li><a href="tel:+50955558550" id="footer-phone-link" style="color: var(--text-secondary); text-decoration: none;">📞 Tél : <span id="footer-phone-text">+509 55 55 85 50</span></a></li>
+            <li><a href="mailto:contact@nicaisseauberson.ch" id="footer-email-link" style="color: var(--text-secondary); text-decoration: none;">✉️ <span id="footer-email-text">contact@nicaisseauberson.ch</span></a></li>
             <li><a href="#/portfolio" style="color: var(--text-secondary); text-decoration: none;">💼 Portfolio du Créateur</a></li>
           </ul>
         </div>
