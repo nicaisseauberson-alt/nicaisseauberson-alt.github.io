@@ -449,6 +449,21 @@ class FirebaseBridgeService {
     } catch (e) {
       console.warn("⚠️ [Firestore] Erreur setup portfolioItems listener:", e);
     }
+
+    // 14. Écouteur sur la configuration Cloudinary
+    try {
+      const cloudinaryDocRef = doc(this.db, "settings", "cloudinary");
+      const unsubCloudinary = onSnapshot(cloudinaryDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          onDataUpdated("cloudinary", docSnap.data());
+        }
+      }, (error) => {
+        console.warn("⚠️ [Firestore] Erreur listener cloudinary:", error.message);
+      });
+      this.unsubscribers.push(unsubCloudinary);
+    } catch (e) {
+      console.warn("⚠️ [Firestore] Erreur setup cloudinary listener:", e);
+    }
   }
 
   // --- CRUD CINÉMA ---
@@ -598,6 +613,20 @@ class FirebaseBridgeService {
       ...platformData,
       updatedAt: serverTimestamp()
     }, { merge: true });
+  }
+
+  // --- CONFIGURATION CLOUDINARY ---
+  async updateCloudinary(cloudinaryData) {
+    if (!this.isConfigured || !this.db) return false;
+    const docRef = doc(this.db, "settings", "cloudinary");
+    return await setDoc(docRef, {
+      ...cloudinaryData,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
+
+  async saveCloudinaryConfig(cloudinaryData) {
+    return await this.updateCloudinary(cloudinaryData);
   }
 
   // --- CRUD ACTUALITÉS ---

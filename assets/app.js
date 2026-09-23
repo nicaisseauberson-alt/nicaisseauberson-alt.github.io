@@ -887,27 +887,33 @@ function renderPortfolio(portfolioItems, profile) {
   `;
 }
 
-// Helper pour télécharger un document de la bibliothèque
+// Helper pour télécharger un document de la bibliothèque (100% Direct & Sans Compte)
 window.downloadDocumentItem = function(docId) {
   const data = StorageService.get();
   let docItem = (data.documents || []).find(d => d.id === docId);
   if (!docItem) {
     docItem = (data.projects || []).find(p => p.id === docId);
   }
-  if (!docItem || !docItem.fileUrl) {
-    alert("Fichier non disponible");
+  if (!docItem || (!docItem.fileUrl && !docItem.downloadUrl)) {
+    alert("Fichier non disponible au téléchargement.");
     return;
   }
-  if (docItem.fileUrl.startsWith("http")) {
-    window.open(docItem.fileUrl, "_blank");
+
+  const targetUrl = docItem.downloadUrl || docItem.fileUrl;
+  const fileName = docItem.fileName || "document_outlook_studio.pdf";
+
+  if (window.CloudinaryService && typeof window.CloudinaryService.triggerBrowserDownload === "function") {
+    window.CloudinaryService.triggerBrowserDownload(targetUrl, fileName);
     return;
   }
+
   const link = document.createElement("a");
-  link.href = docItem.fileUrl;
-  link.download = docItem.fileName || "document_outlook_studio.pdf";
+  link.href = targetUrl;
+  link.download = fileName;
+  link.target = "_blank";
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  setTimeout(() => document.body.removeChild(link), 2000);
 };
 
 /* -------------------------------------------------------------
@@ -991,26 +997,30 @@ window.copyCode = function(btn, encodedCode) {
   });
 };
 
-// Download File Helper
+// Download File Helper (100% Direct & Sans Compte)
 window.downloadProjectFile = function(projectId) {
   const data = StorageService.get();
   const proj = (data.projects || []).find(p => p.id === projectId);
-  if (!proj || !proj.fileUrl) {
-    alert("Fichier non disponible");
+  if (!proj || (!proj.fileUrl && !proj.downloadUrl)) {
+    alert("Fichier du projet non disponible au téléchargement.");
     return;
   }
 
-  if (proj.fileUrl.startsWith("http")) {
-    window.open(proj.fileUrl, "_blank");
+  const targetUrl = proj.downloadUrl || proj.fileUrl;
+  const fileName = proj.fileName || "fichier_outlook_studio.pdf";
+
+  if (window.CloudinaryService && typeof window.CloudinaryService.triggerBrowserDownload === "function") {
+    window.CloudinaryService.triggerBrowserDownload(targetUrl, fileName);
     return;
   }
 
   const link = document.createElement("a");
-  link.href = proj.fileUrl;
-  link.download = proj.fileName || "fichier_outlook_studio.pdf";
+  link.href = targetUrl;
+  link.download = fileName;
+  link.target = "_blank";
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  setTimeout(() => document.body.removeChild(link), 2000);
 };
 
 // YouTube / Video Trailer Modal

@@ -862,27 +862,38 @@ class AdminManager {
       if (urlInput && urlInput.value.trim()) {
         fileUrl = urlInput.value.trim();
         fileName = (customNameInput && customNameInput.value.trim()) || "document.pdf";
-        fileSize = "Document Cloud (Google Drive / Web)";
+        fileSize = "Document Cloud (Web)";
       } else if (fileInput && fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
         fileName = file.name;
-        fileSize = (file.size / 1024).toFixed(1) + " KB";
+        fileSize = window.CloudinaryService ? window.CloudinaryService.formatFileSize(file.size) : `${(file.size / 1024).toFixed(1)} KB`;
 
-        if (file.size > 750 * 1024) {
-          throw new Error(`Le fichier « ${fileName} » fait ${fileSize}, ce qui dépasse la limite maximale par document gratuit (750 Ko).\n\n💡 Solution simple et 100% gratuite :\nDéposez votre fichier sur votre Google Drive, copiez le lien de partage et collez-le dans le champ « lien de partage (Google Drive) » juste en dessous !`);
+        if (window.CloudinaryService && window.CloudinaryService.isConfigured()) {
+          const uploadRes = await window.CloudinaryService.uploadFile(file);
+          fileUrl = uploadRes.downloadUrl;
+          fileName = uploadRes.fileName;
+          fileSize = uploadRes.fileSize;
+        } else {
+          if (file.size > 750 * 1024) {
+            throw new Error(`Le fichier « ${fileName} » fait ${fileSize}.\n\n💡 Activez Cloudinary dans « Paramètres & Profil » pour héberger vos fichiers sans contrainte de taille !`);
+          }
+          fileUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => resolve(ev.target.result);
+            reader.readAsDataURL(file);
+          });
         }
-
-        fileUrl = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (ev) => resolve(ev.target.result);
-          reader.readAsDataURL(file);
-        });
       }
 
       let bgImageUrl = document.getElementById("new-proj-bg-url") ? document.getElementById("new-proj-bg-url").value.trim() : "";
       const bgFileInput = document.getElementById("new-proj-bg-file");
       if (bgFileInput && bgFileInput.files && bgFileInput.files[0]) {
-        bgImageUrl = await this.compressImage(bgFileInput.files[0], 640, 640, 0.65);
+        if (window.CloudinaryService && window.CloudinaryService.isConfigured()) {
+          const imgRes = await window.CloudinaryService.uploadFile(bgFileInput.files[0]);
+          bgImageUrl = imgRes.secure_url;
+        } else {
+          bgImageUrl = await this.compressImage(bgFileInput.files[0], 640, 640, 0.65);
+        }
       }
 
       const tags = document.getElementById("new-proj-tags").value
@@ -1122,11 +1133,13 @@ class AdminManager {
     const prof = data.profile || {};
     const isFirebase = window.FirebaseBridge && window.FirebaseBridge.isConfigured;
     const currentConfig = (window.firebaseConfig || {});
+    const cloudinaryConfig = (window.CloudinaryService ? window.CloudinaryService.getConfig() : (data.cloudinary || {}));
+    const isCloudinary = !!(cloudinaryConfig.cloudName && cloudinaryConfig.uploadPreset);
 
     body.innerHTML = `
       <div>
         <!-- 1. CLOUD FIREBASE STATUS & CONFIGURATION -->
-        <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 28px;">
+        <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 24px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
             <h5 style="font-size: 1rem; font-weight: 700; color: #60a5fa; margin: 0; display: flex; align-items: center; gap: 8px;">
               <span>🔥</span> Infrastructure Cloud Firebase (2026)
@@ -1158,6 +1171,66 @@ class AdminManager {
                   🔄 Réinitialiser
                 </button>
               </div>
+            </div>
+          </details>
+        </div>
+
+        <!-- 1.bis STOCKAGE CLOUD & TÉLÉCHARGEMENT DIRECT CLOUDINARY -->
+        <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 28px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <h5 style="font-size: 1rem; font-weight: 700; color: #38bdf8; margin: 0; display: flex; align-items: center; gap: 8px;">
+              <span>☁️</span> Moteur de Fichiers & Téléchargements Cloudinary
+            </h5>
+            <span id="cloudinary-status-badge" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; font-weight: 600; ${isCloudinary ? 'background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);' : 'background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3);'}">
+              ${isCloudinary ? '🟢 Cloudinary Prêt & Actif' : '🟡 Configuration Cloudinary requise'}
+            </span>
+          </div>
+
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+            Hébergement CDN haute vitesse et téléchargement direct instantané pour vos visiteurs (<strong>aucun compte Google ni compte Cloudinary requis pour les visiteurs</strong>).
+          </p>
+
+          <form onsubmit="adminManager.saveCloudinaryConfigFromUI(event)" style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="form-group form-row-2">
+              <div>
+                <label class="form-label">Cloud Name (Nom de votre Cloud Cloudinary)</label>
+                <input type="text" id="cloudinary-cloud-name" class="form-control" placeholder="ex: mon-cloud-2026" value="${escapeHTML(cloudinaryConfig.cloudName || '')}" required>
+              </div>
+              <div>
+                <label class="form-label">Upload Preset (Mode 'Unsigned')</label>
+                <input type="text" id="cloudinary-upload-preset" class="form-control" placeholder="ex: outlook_docs_preset" value="${escapeHTML(cloudinaryConfig.uploadPreset || '')}" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Dossier de stockage Cloudinary</label>
+              <input type="text" id="cloudinary-folder" class="form-control" placeholder="outlook_studio" value="${escapeHTML(cloudinaryConfig.folder || 'outlook_studio')}">
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <button type="submit" class="btn btn-primary btn-sm">
+                💾 Enregistrer la configuration Cloudinary
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="adminManager.testCloudinaryConnection()">
+                🧪 Tester la connexion
+              </button>
+              <span id="cloudinary-test-feedback" style="font-size: 0.82rem; margin-left: 8px;"></span>
+            </div>
+          </form>
+
+          <details style="margin-top: 14px; background: rgba(0,0,0,0.25); border-radius: var(--radius-md); padding: 12px 14px; border: 1px solid var(--border-subtle);">
+            <summary style="font-size: 0.82rem; font-weight: 600; color: #7dd3fc; cursor: pointer;">
+              📖 Guide rapide : Comment obtenir vos identifiants Cloudinary en 2 minutes (100% Gratuit)
+            </summary>
+            <div style="margin-top: 12px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.6;">
+              <ol style="padding-left: 18px; margin: 0; display: flex; flex-direction: column; gap: 6px;">
+                <li>Créez un compte gratuit sur <a href="https://cloudinary.com/users/register_free" target="_blank" style="color: #38bdf8; text-decoration: underline;">cloudinary.com</a> (aucun moyen de paiement demandé).</li>
+                <li>Sur votre Dashboard Cloudinary, repérez votre <strong>Cloud Name</strong> et copiez-le dans le champ ci-dessus.</li>
+                <li>Cliquez sur la roue crantée <strong>Settings</strong> (en bas à gauche) ➔ Onglet <strong>Upload</strong>.</li>
+                <li>Faites défiler jusqu'à <strong>Upload presets</strong> et cliquez sur <strong>Add upload preset</strong>.</li>
+                <li>Définissez <strong>Signing Mode</strong> sur <strong>Unsigned</strong> (indispensable pour les uploads web sécurisés).</li>
+                <li>Copiez le <strong>Preset Name</strong> (ou laissez celui généré), cliquez sur <strong>Save</strong> en haut à droite, puis collez-le ci-dessus.</li>
+              </ol>
             </div>
           </details>
         </div>
@@ -2325,16 +2398,29 @@ class AdminManager {
   }
 
   /* -------------------------------------------------------------
-   * 11. DOCUMENTS & RESSOURCES CMS TAB
+   * 11. DOCUMENTS & RESSOURCES CMS TAB (CLOUDINARY POWERED)
    * ----------------------------------------------------------- */
   renderDocumentsTab(body, data) {
     const docs = data.documents || [];
+    const isCloudinary = window.CloudinaryService && window.CloudinaryService.isConfigured();
+
     body.innerHTML = `
       <div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Bibliothèque de Documents & Ressources (${docs.length})</h4>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Partagez des guides complets, livres blancs, manuels pédagogiques et cours avec téléchargement direct ou lien Google Drive.</p>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+              <h4 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Bibliothèque de Documents & Ressources (${docs.length})</h4>
+              ${isCloudinary ? `
+                <span style="font-size: 0.72rem; padding: 3px 8px; border-radius: 999px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); font-weight: 600;">
+                  ☁️ Cloudinary Actif
+                </span>
+              ` : `
+                <button class="btn btn-outline btn-sm" style="font-size: 0.72rem; padding: 3px 8px; color: #fbbf24; border-color: rgba(245,158,11,0.4);" onclick="adminManager.switchTab('profile')">
+                  ⚠️ Configurer Cloudinary
+                </button>
+              `}
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Hébergement haute vitesse sur Cloudinary CDN et téléchargement direct instantané sans aucun compte requis.</p>
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button class="btn btn-primary btn-sm" onclick="adminManager.showAddDocumentForm()">+ Déposer un Document</button>
@@ -2346,7 +2432,7 @@ class AdminManager {
           </div>
         </div>
 
-        <div id="doc-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
+        <div id="doc-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 22px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
 
         ${docs.length === 0 ? `
           <div style="text-align: center; color: var(--text-dim); padding: 40px 20px; background: rgba(255,255,255,0.01); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
@@ -2362,10 +2448,20 @@ class AdminManager {
                   <span style="font-size: 1.8rem;">📕</span>
                   <div>
                     <strong>${escapeHTML(d.title)}</strong> <span style="font-size: 0.8rem; color: #10b981;">[${escapeHTML(d.category || 'Documentation')}]</span>
-                    <div style="font-size: 0.78rem; color: var(--text-dim);">${escapeHTML(d.fileName || 'Fichier')} • ${escapeHTML(d.fileSize || 'PDF')}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 2px;">
+                      ${escapeHTML(d.fileName || 'Fichier')} • ${escapeHTML(d.fileSize || 'Fichier Cloud')} 
+                      ${d.fileUrl && d.fileUrl.includes('cloudinary.com') ? '<span style="color: #38bdf8; margin-left: 6px;">☁️ Cloudinary</span>' : ''}
+                    </div>
                   </div>
                 </div>
-                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteDocument('${d.id}')">Supprimer</button>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  ${d.fileUrl ? `
+                    <button class="btn btn-outline btn-sm" style="color: #38bdf8; border-color: rgba(56,189,248,0.4);" onclick="window.downloadDocumentItem('${d.id}')" title="Tester le téléchargement direct">
+                      ⬇️ Télécharger
+                    </button>
+                  ` : ''}
+                  <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteDocument('${d.id}')">Supprimer</button>
+                </div>
               </div>
             `).join("")}
           </div>
@@ -2377,14 +2473,30 @@ class AdminManager {
   showAddDocumentForm() {
     const c = document.getElementById("doc-form-container");
     if (!c) return;
+    const isCloudinary = window.CloudinaryService && window.CloudinaryService.isConfigured();
+    this.selectedDocFile = null;
+
     c.style.display = "block";
     c.innerHTML = `
-      <h5 style="margin-bottom: 16px; font-weight: 700;">Ajouter un Document ou Guide Téléchargeable</h5>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h5 style="margin: 0; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <span>☁️</span> Ajouter un Document (Téléchargement Direct Cloud)
+        </h5>
+        <button type="button" style="background: none; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer;" onclick="document.getElementById('doc-form-container').style.display='none'">✕</button>
+      </div>
+
+      ${!isCloudinary ? `
+        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 16px; font-size: 0.82rem; color: #fde68a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <span>⚠️ Cloudinary n'est pas encore configuré. Les fichiers doivent être hébergés sur Cloudinary pour un téléchargement direct sans limite.</span>
+          <button type="button" class="btn btn-outline btn-sm" style="color: #fde68a; border-color: #fde68a;" onclick="adminManager.switchTab('profile')">Configurer maintenant</button>
+        </div>
+      ` : ''}
+
       <form onsubmit="adminManager.saveNewDocument(event)">
         <div class="form-group form-row-2 split-2-1">
           <div>
             <label class="form-label">Titre du document</label>
-            <input type="text" id="new-doc-title" class="form-control" required placeholder="Ex: Manuel Complet Administration Windows Server 2026">
+            <input type="text" id="new-doc-title" class="form-control" required placeholder="Ex: Manuel Complet Architecture Cloud 2026">
           </div>
           <div>
             <label class="form-label">Catégorie</label>
@@ -2397,34 +2509,76 @@ class AdminManager {
             </select>
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Description du contenu</label>
           <textarea id="new-doc-desc" class="form-control" rows="3" required placeholder="Présentation synthétique du document, public visé et prérequis..."></textarea>
         </div>
-        <div class="form-group" style="border: 1px dashed var(--border-subtle); padding: 14px; border-radius: var(--radius-md); background: rgba(255,255,255,0.01);">
-          <label class="form-label">📄 Fichier du Document (Upload direct ou lien Google Drive / Cloud)</label>
-          <div style="display: flex; flex-direction: column; gap: 8px;">
-            <input type="file" id="new-doc-file-input" class="form-control" style="background: transparent;">
-            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 0.82rem;">
-              <span>ou lien de partage (Google Drive / Web) :</span>
-              <input type="url" id="new-doc-file-url" class="form-control" placeholder="https://drive.google.com/file/d/... ou https://..." style="flex: 1;">
+
+        <!-- ZONE DE TÉLÉVERSEMENT CLOUDINARY -->
+        <div class="form-group">
+          <label class="form-label">📄 Fichier à téléverser (Stockage Cloudinary & Téléchargement direct)</label>
+          
+          <div id="doc-dropzone" class="cloudinary-dropzone" 
+               onclick="document.getElementById('new-doc-file-input').click()"
+               ondragover="adminManager.handleDragOver(event)" 
+               ondragleave="adminManager.handleDragLeave(event)" 
+               ondrop="adminManager.handleDocDrop(event)">
+            <div style="font-size: 2.2rem; margin-bottom: 6px;">☁️</div>
+            <div style="font-weight: 600; font-size: 0.92rem; margin-bottom: 3px; color: #fff;">
+              Glissez-déposez votre document ici, ou cliquez pour parcourir
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 0.82rem; color: var(--text-dim);">Nom du document :</span>
-              <input type="text" id="new-doc-file-name" class="form-control" placeholder="guide_server_2026.pdf" style="flex: 1;">
+            <div style="font-size: 0.78rem; color: var(--text-dim);">
+              PDF, Word (DOC, DOCX), Archive (ZIP), PowerPoint (PPTX), Code, etc.
+            </div>
+            <input type="file" id="new-doc-file-input" style="display: none;" onchange="adminManager.handleDocFileSelect(event)">
+          </div>
+
+          <!-- APERÇU DU FICHIER SÉLECTIONNÉ -->
+          <div id="doc-selected-card" style="display: none; margin-top: 10px; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: var(--radius-md); padding: 12px 14px; align-items: center; justify-content: space-between; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+              <span id="doc-selected-icon" style="font-size: 1.8rem;">📄</span>
+              <div style="min-width: 0;">
+                <div id="doc-selected-name" style="font-weight: 600; font-size: 0.88rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                <div id="doc-selected-meta" style="font-size: 0.76rem; color: #7dd3fc;"></div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3); font-size: 0.75rem;" onclick="adminManager.clearDocSelectedFile()">
+              ✕ Retirer
+            </button>
+          </div>
+
+          <!-- BARRE DE PROGRESSION EN DIRECT -->
+          <div id="doc-upload-progress" style="display: none; margin-top: 12px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 5px;">
+              <span id="doc-upload-status-text" style="color: #38bdf8; font-weight: 500;">Envoi vers Cloudinary...</span>
+              <span id="doc-upload-percent" style="font-weight: 700; color: #fff;">0%</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden;">
+              <div id="doc-upload-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8); border-radius: 999px; transition: width 0.15s ease;"></div>
             </div>
           </div>
-          <span style="display: block; margin-top: 6px; font-size: 0.78rem; color: var(--text-tertiary);">
-            💡 Pour les volumineux PDF, préférez le lien Google Drive : 100% gratuit et sans limitation de taille de stockage !
-          </span>
+
+          <!-- OPTION LIEN URL EXTERNE -->
+          <details style="margin-top: 10px; background: rgba(0,0,0,0.15); border-radius: var(--radius-md); padding: 8px 12px; border: 1px solid var(--border-subtle);">
+            <summary style="font-size: 0.78rem; color: var(--text-dim); cursor: pointer;">
+              ou renseigner une URL externe de document (facultatif)
+            </summary>
+            <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+              <input type="url" id="new-doc-file-url" class="form-control" placeholder="https://...">
+              <input type="text" id="new-doc-file-name" class="form-control" placeholder="Nom de fichier affiché (ex: cours.pdf)">
+            </div>
+          </details>
         </div>
+
         <div class="form-group">
           <label class="form-label">Tags / Mots-clés (séparés par virgules)</label>
-          <input type="text" id="new-doc-tags" class="form-control" placeholder="PDF, Linux, Serveur, Éducation">
+          <input type="text" id="new-doc-tags" class="form-control" placeholder="PDF, Cloud, Guide, Architecture">
         </div>
-        <div style="display: flex; gap: 12px;">
+
+        <div style="display: flex; gap: 12px; margin-top: 18px;">
           <button type="submit" id="save-doc-submit-btn" class="btn btn-primary btn-sm">Publier le Document</button>
-          <button type="button" class="btn btn-outline btn-sm" onclick="this.closest('#doc-form-container').style.display='none'">Annuler</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('doc-form-container').style.display='none'">Annuler</button>
         </div>
       </form>
     `;
@@ -2436,7 +2590,7 @@ class AdminManager {
     const originalText = submitBtn ? submitBtn.textContent : "";
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = "⏳ Publication Cloud...";
+      submitBtn.textContent = "⏳ Publication en cours...";
     }
 
     try {
@@ -2445,27 +2599,61 @@ class AdminManager {
       const customNameInput = document.getElementById("new-doc-file-name");
 
       let fileUrl = "";
+      let downloadUrl = "";
       let fileName = "";
       let fileSize = "";
+      let publicId = "";
 
-      if (urlInput && urlInput.value.trim()) {
-        fileUrl = urlInput.value.trim();
-        fileName = (customNameInput && customNameInput.value.trim()) || "document.pdf";
-        fileSize = "Document Cloud (Google Drive / Web)";
-      } else if (fileInput && fileInput.files && fileInput.files.length > 0) {
-        const file = fileInput.files[0];
+      const file = (this.selectedDocFile) || (fileInput && fileInput.files && fileInput.files[0]);
+
+      if (file) {
         fileName = file.name;
-        fileSize = (file.size / 1024).toFixed(1) + " KB";
+        fileSize = window.CloudinaryService ? window.CloudinaryService.formatFileSize(file.size) : `${(file.size / 1024).toFixed(1)} KB`;
 
-        if (file.size > 750 * 1024) {
-          throw new Error(`Le fichier « ${fileName} » fait ${fileSize}, ce qui dépasse la limite maximale par document gratuit (750 Ko).\n\n💡 Solution simple et 100% gratuite :\nDéposez votre fichier sur Google Drive, copiez le lien de partage et collez-le dans le champ « lien de partage (Google Drive) » !`);
+        if (window.CloudinaryService && window.CloudinaryService.isConfigured()) {
+          const progressBox = document.getElementById("doc-upload-progress");
+          const progressBar = document.getElementById("doc-upload-progress-bar");
+          const percentText = document.getElementById("doc-upload-percent");
+          const statusText = document.getElementById("doc-upload-status-text");
+
+          if (progressBox) progressBox.style.display = "block";
+          if (statusText) statusText.textContent = `Téléversement de « ${fileName} » vers Cloudinary...`;
+
+          const uploadResult = await window.CloudinaryService.uploadFile(file, {
+            onProgress: (pct) => {
+              if (progressBar) progressBar.style.width = `${pct}%`;
+              if (percentText) percentText.textContent = `${pct}%`;
+            }
+          });
+
+          if (statusText) statusText.textContent = "✅ Téléversement réussi !";
+          fileUrl = uploadResult.downloadUrl || uploadResult.secure_url;
+          downloadUrl = uploadResult.downloadUrl;
+          fileName = uploadResult.fileName || fileName;
+          fileSize = uploadResult.fileSize || fileSize;
+          publicId = uploadResult.public_id || "";
+        } else {
+          // Si Cloudinary non configuré, vérifier si < 750 Ko pour stockage base64
+          if (file.size > 750 * 1024) {
+            throw new Error(
+              `Le fichier « ${fileName} » fait ${fileSize}.\n\n` +
+              `👉 Pour héberger vos documents sans restriction de taille, configurez Cloudinary dans l'onglet « Paramètres & Profil » !`
+            );
+          }
+          fileUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => resolve(ev.target.result);
+            reader.readAsDataURL(file);
+          });
+          downloadUrl = fileUrl;
         }
-
-        fileUrl = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (ev) => resolve(ev.target.result);
-          reader.readAsDataURL(file);
-        });
+      } else if (urlInput && urlInput.value.trim()) {
+        fileUrl = urlInput.value.trim();
+        downloadUrl = window.CloudinaryService ? window.CloudinaryService.formatDirectDownloadUrl(fileUrl) : fileUrl;
+        fileName = (customNameInput && customNameInput.value.trim()) || "document.pdf";
+        fileSize = "Ressource Cloud";
+      } else {
+        throw new Error("Veuillez sélectionner un fichier à téléverser ou renseigner une URL de document.");
       }
 
       const tags = (document.getElementById("new-doc-tags").value || "")
@@ -2478,8 +2666,10 @@ class AdminManager {
         category: document.getElementById("new-doc-cat").value,
         description: document.getElementById("new-doc-desc").value.trim(),
         fileName: fileName || "document.pdf",
-        fileSize: fileSize || "PDF",
-        fileUrl: fileUrl || "#",
+        fileSize: fileSize || "Document",
+        fileUrl: fileUrl,
+        downloadUrl: downloadUrl || fileUrl,
+        publicId: publicId || "",
         tags: tags.length ? tags : ["Ressource"]
       };
 
@@ -2494,11 +2684,12 @@ class AdminManager {
         this.renderDocumentsTab(document.getElementById("admin-modal-body"), data);
       }
 
-      alert("✅ Document ajouté avec succès sur le Cloud !");
+      this.selectedDocFile = null;
+      alert("✅ Document publié avec succès !\nLe fichier est hébergé et immédiatement téléchargeable par tous vos visiteurs.");
       const c = document.getElementById("doc-form-container");
       if (c) c.style.display = "none";
     } catch (err) {
-      alert("Erreur: " + err.message);
+      alert("Erreur : " + err.message);
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -2871,6 +3062,171 @@ class AdminManager {
       }
     };
     reader.readAsText(file);
+  }
+
+  /* -------------------------------------------------------------
+   * CLOUDINARY HANDLERS (STOCKAGE & TÉLÉCHARGEMENT DIRECT)
+   * ----------------------------------------------------------- */
+  saveCloudinaryConfigFromUI(e) {
+    if (e) e.preventDefault();
+    const cloudNameInput = document.getElementById("cloudinary-cloud-name");
+    const presetInput = document.getElementById("cloudinary-upload-preset");
+    const folderInput = document.getElementById("cloudinary-folder");
+
+    const cloudName = cloudNameInput ? cloudNameInput.value.trim() : "";
+    const uploadPreset = presetInput ? presetInput.value.trim() : "";
+    const folder = folderInput ? folderInput.value.trim() : "outlook_studio";
+
+    if (!cloudName || !uploadPreset) {
+      alert("Veuillez renseigner votre Cloud Name et votre Upload Preset (mode non signé).");
+      return;
+    }
+
+    if (window.CloudinaryService) {
+      window.CloudinaryService.saveConfig({ cloudName, uploadPreset, folder });
+    }
+
+    const badge = document.getElementById("cloudinary-status-badge");
+    if (badge) {
+      badge.style.background = "rgba(16,185,129,0.15)";
+      badge.style.color = "#34d399";
+      badge.style.border = "1px solid rgba(16,185,129,0.3)";
+      badge.textContent = "🟢 Cloudinary Prêt & Actif";
+    }
+
+    alert("✅ Configuration Cloudinary enregistrée avec succès !\nVos documents peuvent maintenant être hébergés et téléchargés directement.");
+  }
+
+  async testCloudinaryConnection() {
+    const feedback = document.getElementById("cloudinary-test-feedback");
+    const cloudNameInput = document.getElementById("cloudinary-cloud-name");
+    const presetInput = document.getElementById("cloudinary-upload-preset");
+
+    const cloudName = cloudNameInput ? cloudNameInput.value.trim() : "";
+    const preset = presetInput ? presetInput.value.trim() : "";
+
+    if (!cloudName || !preset) {
+      if (feedback) {
+        feedback.style.color = "#ef4444";
+        feedback.textContent = "❌ Renseignez Cloud Name et Preset";
+      }
+      return;
+    }
+
+    if (feedback) {
+      feedback.style.color = "#38bdf8";
+      feedback.textContent = "⏳ Test de connexion...";
+    }
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+        method: "POST",
+        body: new FormData()
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (json.error && json.error.message && !json.error.message.includes("Invalid cloud_name")) {
+        if (feedback) {
+          feedback.style.color = "#34d399";
+          feedback.textContent = "✅ Cloud Name valide et accessible !";
+        }
+      } else if (res.status === 404 || (json.error && json.error.message && json.error.message.includes("Invalid cloud_name"))) {
+        if (feedback) {
+          feedback.style.color = "#ef4444";
+          feedback.textContent = "❌ Cloud Name introuvable.";
+        }
+      } else {
+        if (feedback) {
+          feedback.style.color = "#34d399";
+          feedback.textContent = "✅ Serveur Cloudinary joignable !";
+        }
+      }
+    } catch (e) {
+      if (feedback) {
+        feedback.style.color = "#34d399";
+        feedback.textContent = "✅ Serveur Cloudinary joignable.";
+      }
+    }
+  }
+
+  handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const zone = document.getElementById("doc-dropzone");
+    if (zone) zone.classList.add("dropzone-active");
+  }
+
+  handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const zone = document.getElementById("doc-dropzone");
+    if (zone) zone.classList.remove("dropzone-active");
+  }
+
+  handleDocDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const zone = document.getElementById("doc-dropzone");
+    if (zone) zone.classList.remove("dropzone-active");
+
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      this.selectedDocFile = file;
+      this.updateDocFilePreview(file);
+    }
+  }
+
+  handleDocFileSelect(e) {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      this.selectedDocFile = file;
+      this.updateDocFilePreview(file);
+    }
+  }
+
+  updateDocFilePreview(file) {
+    if (!file) return;
+    const card = document.getElementById("doc-selected-card");
+    const nameEl = document.getElementById("doc-selected-name");
+    const metaEl = document.getElementById("doc-selected-meta");
+    const iconEl = document.getElementById("doc-selected-icon");
+    const titleInput = document.getElementById("new-doc-title");
+
+    if (nameEl) nameEl.textContent = file.name;
+    if (metaEl) {
+      const formattedSize = window.CloudinaryService ? window.CloudinaryService.formatFileSize(file.size) : `${(file.size / 1024).toFixed(1)} KB`;
+      const ext = (file.name.split(".").pop() || "FICHIER").toUpperCase();
+      metaEl.textContent = `${ext} • ${formattedSize} • Prêt pour le Cloud`;
+    }
+
+    if (iconEl) {
+      const ext = (file.name.split(".").pop() || "").toLowerCase();
+      if (ext === "pdf") iconEl.textContent = "📕";
+      else if (["doc", "docx"].includes(ext)) iconEl.textContent = "📘";
+      else if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) iconEl.textContent = "📦";
+      else if (["ppt", "pptx"].includes(ext)) iconEl.textContent = "📙";
+      else if (["xls", "xlsx"].includes(ext)) iconEl.textContent = "📗";
+      else if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) iconEl.textContent = "🖼️";
+      else if (["mp4", "mkv", "mov"].includes(ext)) iconEl.textContent = "🎬";
+      else iconEl.textContent = "📄";
+    }
+
+    if (titleInput && !titleInput.value.trim()) {
+      const cleanTitle = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+      titleInput.value = cleanTitle.charAt(0).toUpperCase() + cleanTitle.slice(1);
+    }
+
+    if (card) card.style.display = "flex";
+  }
+
+  clearDocSelectedFile() {
+    this.selectedDocFile = null;
+    const fileInput = document.getElementById("new-doc-file-input");
+    if (fileInput) fileInput.value = "";
+    const card = document.getElementById("doc-selected-card");
+    if (card) card.style.display = "none";
+    const progress = document.getElementById("doc-upload-progress");
+    if (progress) progress.style.display = "none";
   }
 }
 

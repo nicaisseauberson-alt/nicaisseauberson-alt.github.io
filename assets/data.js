@@ -35,6 +35,11 @@ const DEFAULT_DATA = {
     documents: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1920&q=80",
     portfolio: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1920&q=80"
   },
+  cloudinary: {
+    cloudName: "",
+    uploadPreset: "",
+    folder: "outlook_studio"
+  },
   categories: [
     { id: "cinema", name: "Cinéma", icon: "🎬", desc: "Recommandations, affiches et bandes-annonces" },
     { id: "news", name: "Actualités", icon: "📰", desc: "Nouveautés tech, cinéma, gaming et innovations" },
@@ -378,6 +383,7 @@ class StorageService {
         code: (Array.isArray(parsed.code) && parsed.code.length > 0) ? parsed.code : (parsed.emptyCollections?.code ? [] : DEFAULT_DATA.code),
         portfolio: (Array.isArray(parsed.portfolio) && parsed.portfolio.length > 0) ? parsed.portfolio : (parsed.emptyCollections?.portfolio ? [] : DEFAULT_DATA.portfolio),
         customCategories: Array.isArray(parsed.customCategories) ? parsed.customCategories : [],
+        cloudinary: { ...DEFAULT_DATA.cloudinary, ...(parsed.cloudinary || {}) },
         profile: { ...DEFAULT_DATA.profile, ...(parsed.profile || {}) }
       };
     } catch (e) {
@@ -428,6 +434,8 @@ class StorageService {
         current.theme = { ...current.theme, ...(items || {}) };
       } else if (collectionName === "backgrounds") {
         current.backgrounds = { ...current.backgrounds, ...(items || {}) };
+      } else if (collectionName === "cloudinary") {
+        current.cloudinary = { ...current.cloudinary, ...(items || {}) };
       } else if (collectionName === "platform") {
         current.platform = { ...current.platform, ...(items || {}) };
       } else if (collectionName === "profile") {
