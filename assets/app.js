@@ -18,6 +18,7 @@ window.openAdminTab = function(tabId) {
 document.addEventListener("DOMContentLoaded", () => {
   initVisitorTelemetry();
   initRouter();
+  initFloatingNavbar();
   renderApp();
   setupEventListeners();
   setupNavbarScroll();
@@ -112,7 +113,7 @@ function switchView(routeKey) {
   }
 
   // 3. Update active states on nav links
-  const allNavLinks = document.querySelectorAll(".nav-route-link, .drawer-nav-link, .bottom-nav-item");
+  const allNavLinks = document.querySelectorAll(".nav-route-link, .mobile-route-link, .drawer-nav-link, .bottom-nav-item");
   allNavLinks.forEach(link => {
     if (link.getAttribute("data-route") === routeKey) {
       link.classList.add("active");
@@ -121,13 +122,121 @@ function switchView(routeKey) {
     }
   });
 
+  if (window.updateFloatingGlowPill) {
+    window.updateFloatingGlowPill(true);
+  }
+
   // 4. Scroll smoothly to top
   window.scrollTo({ top: 0, behavior: "smooth" });
 
-  // 5. Close mobile drawer if open
+  // 5. Close mobile menus if open
+  if (window.closeMobileMenu) {
+    window.closeMobileMenu();
+  }
   if (window.closeMobileDrawer) {
     window.closeMobileDrawer();
   }
+}
+
+/* -------------------------------------------------------------
+ * FLOATING GLASSMORPHISM NAVBAR & GLOW PILL ENGINE
+ * ----------------------------------------------------------- */
+function initFloatingNavbar() {
+  const navLinks = document.getElementById("navLinks");
+  const glowPill = document.getElementById("glowPill");
+  const menuToggle = document.getElementById("menuToggle");
+  const mobileMenu = document.getElementById("mobileMenu");
+
+  function moveGlowTo(link, animate) {
+    if (!link || !glowPill || !navLinks) return;
+    const linkRect = link.getBoundingClientRect();
+    const parentRect = navLinks.getBoundingClientRect();
+    const left = linkRect.left - parentRect.left + navLinks.scrollLeft;
+    glowPill.style.left = left + "px";
+    glowPill.style.width = linkRect.width + "px";
+
+    // Auto-scroll the navlinks container smoothly so the active link is centered
+    link.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+
+    if (animate) {
+      glowPill.classList.remove("pulse");
+      void glowPill.offsetWidth; // restart animation
+      glowPill.classList.add("pulse");
+    }
+  }
+
+  window.updateFloatingGlowPill = function(animate = true) {
+    if (!navLinks) return;
+    const activeLink = navLinks.querySelector(".nav-route-link.active");
+    if (activeLink) {
+      moveGlowTo(activeLink, animate);
+    }
+  };
+
+  // Wire up desktop navigation links
+  if (navLinks) {
+    const links = navLinks.querySelectorAll(".nav-route-link");
+    links.forEach(link => {
+      link.addEventListener("click", () => {
+        links.forEach(l => l.classList.remove("active"));
+        link.classList.add("active");
+        moveGlowTo(link, true);
+      });
+    });
+  }
+
+  // Mobile Dropdown Menu Controls
+  function closeMobileMenu() {
+    if (mobileMenu) mobileMenu.classList.remove("open");
+    if (menuToggle) {
+      menuToggle.classList.remove("open");
+      menuToggle.setAttribute("aria-expanded", "false");
+    }
+  }
+  window.closeMobileMenu = closeMobileMenu;
+
+  function toggleMobileMenu() {
+    if (!mobileMenu || !menuToggle) return;
+    const isOpen = mobileMenu.classList.toggle("open");
+    menuToggle.classList.toggle("open", isOpen);
+    menuToggle.setAttribute("aria-expanded", String(isOpen));
+  }
+
+  if (menuToggle) {
+    menuToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleMobileMenu();
+    });
+  }
+
+  if (mobileMenu) {
+    mobileMenu.querySelectorAll("a").forEach(a => {
+      a.addEventListener("click", () => {
+        closeMobileMenu();
+      });
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (mobileMenu && mobileMenu.classList.contains("open") &&
+        !mobileMenu.contains(e.target) &&
+        menuToggle && !menuToggle.contains(e.target)) {
+      closeMobileMenu();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMobileMenu();
+  });
+
+  // Initial pill placement once layout settles
+  setTimeout(() => {
+    window.updateFloatingGlowPill(false);
+  }, 120);
+
+  window.addEventListener("resize", () => {
+    window.updateFloatingGlowPill(false);
+  });
 }
 
 /* -------------------------------------------------------------
