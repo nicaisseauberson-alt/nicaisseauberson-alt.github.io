@@ -28,10 +28,8 @@
 </head>
 <body>
 
-  <!-- Ambiance dynamique & Éclairage Néon Solaire (Inspiré de Scriptix) -->
+  <!-- Ambiance dynamique & Éclairage Néon Solaire -->
   <div class="ambient-glow" id="ambient-glow"></div>
-  <!-- Animation d'Arrière-Plan Flottante Framer (WebGL2) -->
-  <canvas id="floating-bg-canvas" aria-hidden="true"></canvas>
   <div class="solar-neon-light" id="solar-neon-light" aria-hidden="true"></div>
 
   <!-- Decorative background orbs for ultra-deep glassmorphism blur -->
@@ -42,29 +40,71 @@
   <!-- NAVIGATION FLOTTANTE ULTRA-MODERNE (Glassmorphism & Sliding Glow Indicator) -->
   <nav class="floating" id="main-navbar" aria-label="Navigation principale">
     <a href="#/" class="brand" title="Outlook Studio — Accueil" data-route="home">
-      <img src="assets/logo.png" alt="Outlook Studio" class="brand-logo" style="width: 36px; height: 36px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(255,255,255,0.35));">
+      <img src="assets/logo.png" alt="Outlook Studio" class="brand-logo" style="width: 42px; height: 42px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(255,255,255,0.45));">
       <span class="brand-title">Outlook Studio</span>
     </a>
 
     <ul class="nav-links" id="navLinks">
       <span class="glow-pill" id="glowPill" aria-hidden="true"></span>
+      <!-- 4 Sections Principales Visibles -->
       <li><a href="#/" class="nav-route-link active" data-route="home">Accueil</a></li>
       <li><a href="#/cinema" class="nav-route-link" data-route="cinema">Cinéma</a></li>
       <li><a href="#/actualites" class="nav-route-link" data-route="news">Actualités</a></li>
       <li><a href="#/documents" class="nav-route-link" data-route="documents">Documents</a></li>
-      <li class="nav-more-dropdown">
-        <button class="nav-more-btn" id="navMoreBtn" type="button" aria-expanded="false" aria-label="Afficher plus de rubriques">
-          <span>Plus</span>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <div class="nav-more-menu" id="navMoreMenu">
-          <a href="#/projets" class="nav-more-item" data-route="projects">📁 Projets</a>
-          <a href="#/astuces" class="nav-more-item" data-route="tips">💡 Astuces Tech</a>
-          <a href="#/code" class="nav-more-item" data-route="code">💻 Code & Scripts</a>
-          <a href="#/gaming" class="nav-more-item" data-route="gaming">🎮 Gaming & 3D</a>
-          <a href="#/portfolio" class="nav-more-item" data-route="portfolio">💼 Portfolio</a>
-          <a href="#/contact" class="nav-more-item" data-route="contact">✉️ Contact</a>
-        </div>
+
+      <!-- Séparateur vertical discret -->
+      <li class="nav-divider" aria-hidden="true"></li>
+
+      <!-- Navigation Secondaire : Uniquement des icônes professionnelles avec infobulles -->
+      <li>
+        <a href="#/projets" class="nav-route-link nav-icon-only" data-route="projects" title="Projets & Laboratoires" aria-label="Projets">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a href="#/astuces" class="nav-route-link nav-icon-only" data-route="tips" title="Astuces Technologiques" aria-label="Astuces">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18h6"/>
+            <path d="M10 22h4"/>
+            <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a href="#/code" class="nav-route-link nav-icon-only" data-route="code" title="Code & Scripts" aria-label="Code">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a href="#/gaming" class="nav-route-link nav-icon-only" data-route="gaming" title="Gaming & Moteurs 3D" aria-label="Gaming">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="4"/>
+            <path d="M6 12h4"/>
+            <path d="M8 10v4"/>
+            <circle cx="17" cy="10" r="1" fill="currentColor"/>
+            <circle cx="15" cy="14" r="1" fill="currentColor"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a href="#/portfolio" class="nav-route-link nav-icon-only" data-route="portfolio" title="Portfolio du Créateur" aria-label="Portfolio">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a href="#/contact" class="nav-route-link nav-icon-only" data-route="contact" title="Contact direct" aria-label="Contact">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </a>
       </li>
     </ul>
 
@@ -131,8 +171,8 @@
                 <a href="https://wa.me/50931849385" id="hero-whatsapp-link" target="_blank" rel="noopener noreferrer" class="hero-social-pill" title="WhatsApp direct">
                   <span>💬</span> WhatsApp
                 </a>
-                <a href="tel:+50955558550" id="hero-phone-link" class="hero-social-pill" title="Téléphone direct">
-                  <span>📞</span> <span id="hero-phone-text">+509 55 55 85 50</span>
+                <a href="tel:" id="hero-phone-link" class="hero-social-pill" title="Téléphone direct">
+                  <span>📞</span> <span id="hero-phone-text">Téléphone direct</span>
                 </a>
                 <a href="mailto:contact@nicaisseauberson.ch" id="hero-email-link" class="hero-social-pill" title="Email officiel">
                   <span>✉️</span> Contact
@@ -189,10 +229,21 @@
               </div>
             </div>
           </div>
+
+          <!-- Indicateur de défilement mobile centré au pixel près -->
+          <div class="hero-scroll-indicator" aria-label="Faire défiler vers le bas" onclick="document.getElementById('bento-categories')?.scrollIntoView({ behavior: 'smooth' })">
+            <div class="scroll-mouse-pill">
+              <span class="scroll-wheel-dot"></span>
+            </div>
+            <span class="scroll-label">Défiler</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="scroll-chevron-bounce">
+              <path d="M7 10l5 5 5-5"/>
+            </svg>
+          </div>
         </div>
 
         <!-- Grille de découverte des catégories principales -->
-        <div style="margin-top: 48px; margin-bottom: 24px;">
+        <div id="bento-categories" style="margin-top: 48px; margin-bottom: 24px;">
           <div class="section-tag">Navigation & Modules</div>
           <h2 class="section-title">Explorez les Univers d'Outlook Studio</h2>
         </div>
@@ -247,9 +298,6 @@
         <div class="category-header-clean" id="hero-banner-cinema">
           <div class="category-header-top">
             <span class="category-badge">🎬 Univers Cinéma</span>
-            <button class="btn btn-outline btn-sm" onclick="if(window.openAdminTab) window.openAdminTab('cinema'); else adminManager.openLoginOrDashboard();">
-              ➕ Ajouter un Film
-            </button>
           </div>
           <h2 class="category-title">L'Univers Cinéma</h2>
           <p class="category-desc">Explorez le catalogue cinématographique, découvrez les chefs-d'œuvre sélectionnés et visionnez les bandes-annonces officielles.</p>
@@ -274,9 +322,6 @@
         <div class="category-header-clean" id="hero-banner-news">
           <div class="category-header-top">
             <span class="category-badge">📰 Actualités & Veille</span>
-            <button class="btn btn-outline btn-sm" onclick="if(window.openAdminTab) window.openAdminTab('news'); else adminManager.openLoginOrDashboard();">
-              ➕ Publier un Article
-            </button>
           </div>
           <h2 class="category-title">Actualités & Nouveautés</h2>
           <p class="category-desc">Toutes les dernières informations technologiques, sorties cinéma, nouveautés gaming et annonces de la plateforme.</p>
@@ -292,9 +337,6 @@
         <div class="category-header-clean" id="hero-banner-projects">
           <div class="category-header-top">
             <span class="category-badge">📁 Réalisations & Supports</span>
-            <button class="btn btn-outline btn-sm" onclick="if(window.openAdminTab) window.openAdminTab('projects'); else adminManager.openLoginOrDashboard();">
-              ➕ Ajouter un Projet
-            </button>
           </div>
           <h2 class="category-title">Projets & Documents</h2>
           <p class="category-desc">Téléchargez les ressources, programmes de formation, documents PDF et projets open-source mis à disposition.</p>
@@ -310,9 +352,6 @@
         <div class="category-header-clean" id="hero-banner-tips">
           <div class="category-header-top">
             <span class="category-badge">💡 Savoir & Efficacité</span>
-            <button class="btn btn-outline btn-sm" onclick="if(window.openAdminTab) window.openAdminTab('tips'); else adminManager.openLoginOrDashboard();">
-              ➕ Ajouter une Astuce
-            </button>
           </div>
           <h2 class="category-title">Astuces Technologiques</h2>
           <p class="category-desc">Conseils pratiques, optimisation de performances, sécurité et astuces d'administration système.</p>
@@ -335,9 +374,6 @@
         <div class="category-header-clean" id="hero-banner-code">
           <div class="category-header-top">
             <span class="category-badge">💻 Programmation & Scripts</span>
-            <button class="btn btn-outline btn-sm" onclick="if(window.openAdminTab) window.openAdminTab('code'); else adminManager.openLoginOrDashboard();">
-              ➕ Ajouter un Script
-            </button>
           </div>
           <h2 class="category-title">Code & Développements</h2>
           <p class="category-desc">Extraits de code, scripts d'automatisation PowerShell, Python, JavaScript et architectures logicielles.</p>
@@ -353,9 +389,6 @@
         <div class="category-header-clean" id="hero-banner-gaming">
           <div class="category-header-top">
             <span class="category-badge">🎮 Univers Gaming</span>
-            <button class="btn btn-outline btn-sm" onclick="if(window.openAdminTab) window.openAdminTab('gaming'); else adminManager.openLoginOrDashboard();">
-              ➕ Ajouter un Titre Gaming
-            </button>
           </div>
           <h2 class="category-title">Gaming & Moteurs 3D</h2>
           <p class="category-desc">Exploration du jeu vidéo moderne, analyses graphiques, moteurs 3D temps réel et culture gaming.</p>
@@ -371,9 +404,6 @@
         <div class="category-header-clean" id="hero-banner-documents">
           <div class="category-header-top">
             <span class="category-badge">📄 Bibliothèque Numérique</span>
-            <button class="btn btn-outline btn-sm" onclick="if(window.openAdminTab) window.openAdminTab('documents'); else adminManager.openLoginOrDashboard();">
-              ➕ Déposer un Document
-            </button>
           </div>
           <h2 class="category-title">Documents & Ressources</h2>
           <p class="category-desc">Accédez directement aux programmes de formation, documents PDF et manuels téléchargeables.</p>
@@ -389,9 +419,6 @@
         <div class="category-header-clean" id="hero-banner-portfolio">
           <div class="category-header-top">
             <span class="category-badge">💼 Profil du Créateur</span>
-            <button class="btn btn-outline btn-sm" onclick="if(window.openAdminTab) window.openAdminTab('portfolio'); else adminManager.openLoginOrDashboard();">
-              ➕ Ajouter au Portfolio
-            </button>
           </div>
           <h2 class="category-title">Portfolio d'Auberson</h2>
           <p class="category-desc">Parcours professionnel, certifications, compétences en génie logiciel et réalisations.</p>
@@ -532,46 +559,55 @@
   <!-- FOOTER OFFICIEL OUTLOOK STUDIO -->
   <footer class="footer">
     <div class="wrapper">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; padding: 40px 0 24px; border-bottom: 1px solid var(--border-subtle);">
-        <!-- Col 1 : Identité -->
-        <div>
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-            <img src="assets/logo.png" alt="Logo Outlook Studio" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));">
-            <strong style="font-size: 1.1rem; color: #fff;" class="brand-title">Outlook Studio</strong>
+      <div class="footer-grid">
+        <!-- Bloc 1 : Outlook Studio -->
+        <div class="footer-block footer-block-brand">
+          <div class="footer-brand-header">
+            <img src="assets/logo.png" alt="Logo Outlook Studio" class="footer-logo">
+            <strong class="brand-title footer-brand-title">Outlook Studio</strong>
           </div>
-          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
-            Plateforme technologique de référence rassemblant ressources, astuces, cinéma, gaming et ingénierie logicielle.
-          </p>
-          <div class="neon-glow-text footer-creator-pill" style="font-size: 0.82rem; font-weight: 600;">
+          <div class="neon-glow-text footer-creator-pill">
             Powered by Auberson
           </div>
         </div>
 
-        <!-- Col 2 : Navigation -->
-        <div>
-          <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 14px;">Catégories</h4>
-          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.88rem;">
-            <li><a href="#/" style="color: var(--text-secondary); text-decoration: none;">Accueil</a></li>
-            <li><a href="#/cinema" style="color: var(--text-secondary); text-decoration: none;">Cinéma & Séries</a></li>
-            <li><a href="#/actualites" style="color: var(--text-secondary); text-decoration: none;">Actualités & Innovations</a></li>
-            <li><a href="#/projets" style="color: var(--text-secondary); text-decoration: none;">Projets & Documents</a></li>
-            <li><a href="#/astuces" style="color: var(--text-secondary); text-decoration: none;">Astuces Tech & Code</a></li>
+        <!-- Bloc 2 : Plateforme technologique -->
+        <div class="footer-block footer-block-mission">
+          <h4 class="footer-block-title">Plateforme technologique</h4>
+          <p class="footer-mission-text">
+            Plateforme technologique de référence rassemblant cinéma, actualités, gaming, ingénierie logicielle, astuces tech et ressources documentaires.
+          </p>
+        </div>
+
+        <!-- Bloc 3 : Catégories -->
+        <div class="footer-block footer-block-categories">
+          <h4 class="footer-block-title">Catégories</h4>
+          <ul class="footer-links-list">
+            <li><a href="#/">Accueil</a></li>
+            <li><a href="#/cinema">Cinéma & Séries</a></li>
+            <li><a href="#/actualites">Actualités</a></li>
+            <li><a href="#/documents">Documents</a></li>
+            <li><a href="#/projets">Projets</a></li>
+            <li><a href="#/astuces">Astuces Tech</a></li>
+            <li><a href="#/gaming">Gaming</a></li>
+            <li><a href="#/code">Snippets & Code</a></li>
+            <li><a href="#/portfolio">Portfolio</a></li>
           </ul>
         </div>
 
-        <!-- Col 3 : Contact & Lignes directes -->
-        <div>
-          <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 14px;">Contact direct</h4>
-          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.88rem;">
-            <li><a href="https://wa.me/50931849385" id="footer-whatsapp-link" target="_blank" rel="noopener noreferrer" style="color: #25d366; text-decoration: none;">💬 WhatsApp : <span id="footer-whatsapp-text">+509 31 84 93 85</span></a></li>
-            <li><a href="tel:+50955558550" id="footer-phone-link" style="color: var(--text-secondary); text-decoration: none;">📞 Tél : <span id="footer-phone-text">+509 55 55 85 50</span></a></li>
-            <li><a href="mailto:contact@nicaisseauberson.ch" id="footer-email-link" style="color: var(--text-secondary); text-decoration: none;">✉️ <span id="footer-email-text">contact@nicaisseauberson.ch</span></a></li>
-            <li><a href="#/portfolio" style="color: var(--text-secondary); text-decoration: none;">💼 Portfolio du Créateur</a></li>
+        <!-- Bloc 4 : Contact direct -->
+        <div class="footer-block footer-block-contact">
+          <h4 class="footer-block-title">Contact direct</h4>
+          <ul class="footer-links-list">
+            <li><a href="https://wa.me/50931849385" id="footer-whatsapp-link" target="_blank" rel="noopener noreferrer" class="footer-contact-link footer-contact-whatsapp">💬 WhatsApp : <span id="footer-whatsapp-text">+509 31 84 93 85</span></a></li>
+            <li><a href="tel:+50955558550" id="footer-phone-link" class="footer-contact-link">📞 Tél : <span id="footer-phone-text">+509 55 55 85 50</span></a></li>
+            <li><a href="mailto:contact@nicaisseauberson.ch" id="footer-email-link" class="footer-contact-link">✉️ <span id="footer-email-text">contact@nicaisseauberson.ch</span></a></li>
+            <li><a href="#/portfolio" class="footer-contact-link">💼 Portfolio du Créateur</a></li>
           </ul>
         </div>
       </div>
 
-      <div class="footer-content" style="padding-top: 20px;">
+      <div class="footer-content" style="padding-top: 24px; border-top: 1px solid var(--border-subtle); margin-top: 24px;">
         <div class="footer-text">
           © 2026 <strong>Outlook Studio</strong> — Powered by <strong>Auberson</strong>. Tous droits réservés.
         </div>
@@ -616,8 +652,6 @@
   <script src="assets/data.js?v=2026.7"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
   <script src="assets/cloudinary-service.js?v=2026.7"></script>
-  <!-- 1.ter Framer Floating Wave Animation (WebGL2) -->
-  <script src="assets/floating-animation.js?v=2026.7"></script>
   <!-- 2. Main Application UI & SPA Router -->
   <script src="assets/app.js?v=2026.7"></script>
   <!-- 3. Admin & Mini-CMS Engine -->

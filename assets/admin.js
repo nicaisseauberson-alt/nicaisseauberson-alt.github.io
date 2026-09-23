@@ -52,6 +52,35 @@ class AdminManager {
     });
   }
 
+  /**
+   * VERIFICATION STRICTE DE SECURITE (Anti-Bypass Guard)
+   * Bloque immédiatement toute tentative d'ajout, modification ou suppression non authentifiée
+   */
+  requireAuth(actionName = "effectuer cette action") {
+    // 1. Contrôle en mémoire de l'état d'authentification
+    if (!this.isAuthenticated) {
+      console.warn(`[Security Lock] Action bloquée (${actionName}) : Authentification administrateur requise.`);
+      alert(`⛔ Accès refusé : Vous devez être connecté en tant qu'administrateur pour ${actionName}.`);
+      this.openLoginOrDashboard();
+      return false;
+    }
+
+    // 2. Contrôle de la session active Firebase si configurée
+    if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+      const activeUser = window.FirebaseBridge.getCurrentUser ? window.FirebaseBridge.getCurrentUser() : this.currentUser;
+      if (!activeUser && !this.currentUser) {
+        this.isAuthenticated = false;
+        this.currentUser = null;
+        console.warn(`[Security Lock] Session Firebase expirée (${actionName}).`);
+        alert(`⛔ Session expirée : Veuillez vous reconnecter à l'espace administrateur.`);
+        this.openLoginOrDashboard();
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   bindDOM() {
     // Bouton Espace Admin dans le footer
     const openBtn = document.getElementById("admin-open-btn");
@@ -267,10 +296,16 @@ class AdminManager {
       clearInterval(this.analyticsPollTimer);
       this.analyticsPollTimer = null;
     }
+    const tabsContainer = document.getElementById("admin-tabs");
+    if (tabsContainer) tabsContainer.style.display = "none";
     this.showLoginForm();
+    this.closeModal();
+    alert("🔒 Déconnexion réussie. Droits administrateur révoqués.");
   }
 
   showDashboard() {
+    if (!this.requireAuth("accéder au tableau de bord")) return;
+
     const headerTitle = document.getElementById("admin-modal-title");
     const tabsContainer = document.getElementById("admin-tabs");
     
@@ -313,6 +348,8 @@ class AdminManager {
   }
 
   switchTab(tabId) {
+    if (!this.requireAuth("changer d'onglet")) return;
+
     this.activeTab = tabId;
     if (tabId !== "analytics" && this.analyticsPollTimer) {
       clearInterval(this.analyticsPollTimer);
@@ -334,6 +371,8 @@ class AdminManager {
   }
 
   renderActiveTabContent() {
+    if (!this.requireAuth("afficher le contenu d'administration")) return;
+
     const body = document.getElementById("admin-modal-body");
     const data = StorageService.get();
 
@@ -508,6 +547,7 @@ class AdminManager {
   }
 
   clearVisitorLogs() {
+    if (!this.requireAuth("effacer les journaux des visiteurs")) return;
     if (!confirm("Voulez-vous effacer tout l'historique des visites ?")) return;
     const data = StorageService.get();
     data.visitors = [];
@@ -570,6 +610,7 @@ class AdminManager {
   }
 
   showAddFilmForm() {
+    if (!this.requireAuth("ajouter un film")) return;
     const c = document.getElementById("film-form-container");
     if (!c) return;
     c.style.display = "block";
@@ -646,6 +687,7 @@ class AdminManager {
   }
 
   async saveNewFilm(e) {
+    if (!this.requireAuth("enregistrer un film")) return;
     e.preventDefault();
     const submitBtn = document.getElementById("save-film-submit-btn");
     const originalText = submitBtn ? submitBtn.textContent : "";
@@ -704,6 +746,7 @@ class AdminManager {
   }
 
   async deleteFilm(id) {
+    if (!this.requireAuth("supprimer un film")) return;
     if (!confirm("Voulez-vous vraiment supprimer ce film définitivement ?")) return;
     try {
       StorageService.recordDeletedId(id);
@@ -725,6 +768,7 @@ class AdminManager {
   }
 
   async deleteAllFilms() {
+    if (!this.requireAuth("supprimer tous les films")) return;
     const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUS les films de votre catalogue ?\nCette opération est irréversible.");
     if (!confirmPrompt) return;
 
@@ -796,6 +840,7 @@ class AdminManager {
   }
 
   showAddProjectForm() {
+    if (!this.requireAuth("ajouter un projet")) return;
     const c = document.getElementById("proj-form-container");
     if (!c) return;
     c.style.display = "block";
@@ -864,6 +909,7 @@ class AdminManager {
   }
 
   async saveNewProject(e) {
+    if (!this.requireAuth("enregistrer un projet")) return;
     e.preventDefault();
     const submitBtn = document.getElementById("save-proj-submit-btn");
     const originalText = submitBtn ? submitBtn.textContent : "";
@@ -969,6 +1015,7 @@ class AdminManager {
   }
 
   async deleteProject(id) {
+    if (!this.requireAuth("supprimer un projet")) return;
     if (!confirm("Supprimer ce projet définitivement ?")) return;
     try {
       StorageService.recordDeletedId(id);
@@ -990,6 +1037,7 @@ class AdminManager {
   }
 
   async deleteAllProjects() {
+    if (!this.requireAuth("supprimer tous les projets")) return;
     const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUS les projets ?\nCette opération est irréversible.");
     if (!confirmPrompt) return;
 
@@ -1058,6 +1106,7 @@ class AdminManager {
   }
 
   showAddTipForm() {
+    if (!this.requireAuth("ajouter une astuce")) return;
     const c = document.getElementById("tip-form-container");
     if (!c) return;
     c.style.display = "block";
@@ -1099,6 +1148,7 @@ class AdminManager {
   }
 
   async saveNewTip(e) {
+    if (!this.requireAuth("enregistrer une astuce")) return;
     e.preventDefault();
     try {
       const newTip = {
@@ -1131,6 +1181,7 @@ class AdminManager {
   }
 
   async deleteTip(id) {
+    if (!this.requireAuth("supprimer une astuce")) return;
     if (!confirm("Voulez-vous vraiment supprimer cette astuce ?")) return;
     try {
       StorageService.recordDeletedId(id);
@@ -1152,6 +1203,7 @@ class AdminManager {
   }
 
   async deleteAllTips() {
+    if (!this.requireAuth("supprimer toutes les astuces")) return;
     const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUTES les astuces tech ?\nCette opération est irréversible.");
     if (!confirmPrompt) return;
 
@@ -1339,6 +1391,7 @@ class AdminManager {
   }
 
   saveFirebaseConfigFromUI() {
+    if (!this.requireAuth("modifier la configuration Firebase")) return;
     const textarea = document.getElementById("firebase-custom-config-json");
     if (!textarea || !textarea.value.trim()) {
       alert("Veuillez coller le JSON de configuration Firebase.");
@@ -1370,6 +1423,7 @@ class AdminManager {
   }
 
   resetFirebaseConfigFromUI() {
+    if (!this.requireAuth("réinitialiser la configuration Firebase")) return;
     if (!confirm("Réinitialiser la configuration Firebase ?")) return;
     if (window.FirebaseBridge) {
       window.FirebaseBridge.resetCustomConfig();
@@ -1380,6 +1434,7 @@ class AdminManager {
   }
 
   async saveProfileInfo(e) {
+    if (!this.requireAuth("modifier le profil")) return;
     e.preventDefault();
     const data = StorageService.get();
     data.profile.name = document.getElementById("prof-name").value.trim();
@@ -1399,6 +1454,7 @@ class AdminManager {
   }
 
   changePassword(e) {
+    if (!this.requireAuth("changer le mot de passe")) return;
     e.preventDefault();
     const newPass = document.getElementById("new-admin-pass").value;
     if (!newPass || newPass.trim().length < 4) {
@@ -1611,6 +1667,7 @@ class AdminManager {
   }
 
   async saveThemeSettings() {
+    if (!this.requireAuth("modifier le thème")) return;
     const theme = this._currentNeonTheme || {
       primary: document.getElementById("neon-custom-hex").value || "#00d2ff",
       glow: "rgba(0, 210, 255, 0.45)",
@@ -1631,6 +1688,7 @@ class AdminManager {
   }
 
   async saveBackgroundSettings(e) {
+    if (!this.requireAuth("modifier les arrière-plans")) return;
     e.preventDefault();
     const backgrounds = {
       cinema: document.getElementById("bg-cinema").value.trim(),
@@ -1657,6 +1715,7 @@ class AdminManager {
   }
 
   async savePlatformSettings(e) {
+    if (!this.requireAuth("modifier les coordonnées de la plateforme")) return;
     e.preventDefault();
     const platform = {
       name: document.getElementById("plat-name").value.trim(),
@@ -1735,6 +1794,7 @@ class AdminManager {
   }
 
   showAddNewsForm() {
+    if (!this.requireAuth("rédiger une actualité")) return;
     const c = document.getElementById("news-form-container");
     if (!c) return;
     c.style.display = "block";
@@ -1799,6 +1859,7 @@ class AdminManager {
   }
 
   async saveNewNews(e) {
+    if (!this.requireAuth("publier une actualité")) return;
     e.preventDefault();
     const submitBtn = document.getElementById("save-news-submit-btn");
     const originalText = submitBtn ? submitBtn.textContent : "";
@@ -1859,6 +1920,7 @@ class AdminManager {
   }
 
   async deleteNews(id) {
+    if (!this.requireAuth("supprimer une actualité")) return;
     if (!confirm("Supprimer cette actualité définitivement ?")) return;
     try {
       StorageService.recordDeletedId(id);
@@ -1880,6 +1942,7 @@ class AdminManager {
   }
 
   async deleteAllNews() {
+    if (!this.requireAuth("supprimer toutes les actualités")) return;
     if (!confirm("⚠️ Supprimer TOUTES les actualités ? Cette action est irréversible.")) return;
     try {
       const data = StorageService.get();
@@ -1966,6 +2029,7 @@ class AdminManager {
   }
 
   showAddCategoryForm() {
+    if (!this.requireAuth("ajouter une catégorie")) return;
     const c = document.getElementById("cat-form-container");
     if (!c) return;
     c.style.display = "block";
@@ -2003,6 +2067,7 @@ class AdminManager {
   }
 
   async saveNewCategory(e) {
+    if (!this.requireAuth("enregistrer une catégorie")) return;
     e.preventDefault();
     const submitBtn = document.getElementById("save-cat-submit-btn");
     const originalText = submitBtn ? submitBtn.textContent : "";
@@ -2046,6 +2111,7 @@ class AdminManager {
   }
 
   async deleteCategory(id) {
+    if (!this.requireAuth("supprimer une catégorie")) return;
     if (!confirm("Supprimer cette catégorie définitivement ?")) return;
     try {
       StorageService.recordDeletedId(id);
@@ -2115,6 +2181,7 @@ class AdminManager {
   }
 
   showAddCodeForm() {
+    if (!this.requireAuth("ajouter un script ou code")) return;
     const c = document.getElementById("code-form-container");
     if (!c) return;
     c.style.display = "block";
@@ -2166,6 +2233,7 @@ class AdminManager {
   }
 
   async saveNewCode(e) {
+    if (!this.requireAuth("enregistrer un script de code")) return;
     e.preventDefault();
     const submitBtn = document.getElementById("save-code-submit-btn");
     const originalText = submitBtn ? submitBtn.textContent : "";
@@ -2214,6 +2282,7 @@ class AdminManager {
   }
 
   async deleteCode(id) {
+    if (!this.requireAuth("supprimer un script")) return;
     if (!confirm("Supprimer ce script définitivement ?")) return;
     try {
       StorageService.recordDeletedId(id);
@@ -2235,6 +2304,7 @@ class AdminManager {
   }
 
   async deleteAllCode() {
+    if (!this.requireAuth("supprimer tous les scripts")) return;
     if (!confirm("⚠️ Supprimer TOUS les scripts de code ? Cette action est irréversible.")) return;
     try {
       const data = StorageService.get();
@@ -2304,6 +2374,7 @@ class AdminManager {
   }
 
   showAddGamingForm() {
+    if (!this.requireAuth("ajouter un titre gaming")) return;
     const c = document.getElementById("gaming-form-container");
     if (!c) return;
     c.style.display = "block";
@@ -2371,6 +2442,7 @@ class AdminManager {
   }
 
   async saveNewGaming(e) {
+    if (!this.requireAuth("enregistrer un titre gaming")) return;
     e.preventDefault();
     const submitBtn = document.getElementById("save-game-submit-btn");
     const originalText = submitBtn ? submitBtn.textContent : "";
@@ -2430,6 +2502,7 @@ class AdminManager {
   }
 
   async deleteGaming(id) {
+    if (!this.requireAuth("supprimer un élément gaming")) return;
     if (!confirm("Supprimer cet élément Gaming définitivement ?")) return;
     try {
       StorageService.recordDeletedId(id);
@@ -2451,6 +2524,7 @@ class AdminManager {
   }
 
   async deleteAllGaming() {
+    if (!this.requireAuth("supprimer tous les éléments gaming")) return;
     if (!confirm("⚠️ Supprimer TOUS les éléments Gaming ? Cette action est irréversible.")) return;
     try {
       const data = StorageService.get();
@@ -2548,6 +2622,7 @@ class AdminManager {
   }
 
   showAddDocumentForm() {
+    if (!this.requireAuth("déposer un document")) return;
     const c = document.getElementById("doc-form-container");
     if (!c) return;
     const isCloudinary = window.CloudinaryService && window.CloudinaryService.isConfigured();
@@ -2668,6 +2743,7 @@ class AdminManager {
   }
 
   async saveNewDocument(e) {
+    if (!this.requireAuth("enregistrer un document")) return;
     e.preventDefault();
     const submitBtn = document.getElementById("save-doc-submit-btn");
     const originalText = submitBtn ? submitBtn.textContent : "";
@@ -2811,6 +2887,7 @@ class AdminManager {
   }
 
   async deleteDocument(id) {
+    if (!this.requireAuth("supprimer un document")) return;
     if (!confirm("Supprimer ce document définitivement ?")) return;
     try {
       StorageService.recordDeletedId(id);
@@ -2832,6 +2909,7 @@ class AdminManager {
   }
 
   async deleteAllDocuments() {
+    if (!this.requireAuth("supprimer tous les documents")) return;
     if (!confirm("⚠️ Supprimer TOUS les documents de la bibliothèque ?")) return;
     try {
       const data = StorageService.get();
@@ -2901,6 +2979,7 @@ class AdminManager {
   }
 
   showAddPortfolioForm() {
+    if (!this.requireAuth("ajouter une réalisation au portfolio")) return;
     const c = document.getElementById("portfolio-form-container");
     if (!c) return;
     c.style.display = "block";
@@ -2969,6 +3048,7 @@ class AdminManager {
   }
 
   async saveNewPortfolioItem(e) {
+    if (!this.requireAuth("enregistrer une réalisation")) return;
     e.preventDefault();
     const submitBtn = document.getElementById("save-port-submit-btn");
     const originalText = submitBtn ? submitBtn.textContent : "";
@@ -3023,6 +3103,7 @@ class AdminManager {
   }
 
   async deletePortfolioItem(id) {
+    if (!this.requireAuth("supprimer une réalisation")) return;
     if (!confirm("Supprimer cette réalisation définitivement ?")) return;
     try {
       StorageService.recordDeletedId(id);
@@ -3044,6 +3125,7 @@ class AdminManager {
   }
 
   async deleteAllPortfolioItems() {
+    if (!this.requireAuth("supprimer tout le portfolio")) return;
     if (!confirm("⚠️ Supprimer TOUT le portfolio ? Cette action est irréversible.")) return;
     try {
       const data = StorageService.get();
@@ -3162,6 +3244,7 @@ class AdminManager {
   }
 
   exportDatabase() {
+    if (!this.requireAuth("exporter la base de données")) return;
     const data = StorageService.get();
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -3173,6 +3256,7 @@ class AdminManager {
   }
 
   importDatabase(e) {
+    if (!this.requireAuth("importer une sauvegarde")) return;
     const file = e.target.files[0];
     if (!file) return;
 
@@ -3194,6 +3278,7 @@ class AdminManager {
    * CLOUDINARY HANDLERS (STOCKAGE & TÉLÉCHARGEMENT DIRECT)
    * ----------------------------------------------------------- */
   saveCloudinaryConfigFromUI(e) {
+    if (!this.requireAuth("modifier la configuration Cloudinary")) return;
     if (e) e.preventDefault();
     const cloudNameInput = document.getElementById("cloudinary-cloud-name");
     const presetInput = document.getElementById("cloudinary-upload-preset");

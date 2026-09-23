@@ -14,9 +14,9 @@ const DEFAULT_DATA = {
     whatsapp: "+509 31 84 93 85",
     whatsappDisplay: "+509 31 84 93 85",
     whatsappLink: "https://wa.me/50931849385",
-    phone: "+509 55 55 85 50",
-    phoneDisplay: "+509 55 55 85 50",
-    phoneLink: "tel:+50955558550",
+    phone: "+509 31 84 93 85",
+    phoneDisplay: "+509 31 84 93 85",
+    phoneLink: "tel:+50931849385",
     email: "contact@nicaisseauberson.ch",
     emailLink: "mailto:contact@nicaisseauberson.ch"
   },

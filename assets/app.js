@@ -4,17 +4,6 @@
  * Real-time rendering, dynamic neon/backgrounds, visitor telemetry & streaming UI
  */
 
-window.openAdminTab = function(tabId) {
-  if (window.adminManager) {
-    window.adminManager.openLoginOrDashboard();
-    setTimeout(() => {
-      if (window.adminManager.activeTab !== undefined) {
-        window.adminManager.switchTab(tabId);
-      }
-    }, 150);
-  }
-};
-
 document.addEventListener("DOMContentLoaded", () => {
   initVisitorTelemetry();
   initRouter();
@@ -427,7 +416,9 @@ function renderApp() {
  * ----------------------------------------------------------- */
 function renderPlatformAndContact(platform, profile) {
   if (!platform) platform = {};
-  const phone = platform.phone || (profile && profile.phone) || "+509 55 55 85 50";
+  const phone = (platform.phone !== undefined && platform.phone !== null && platform.phone !== "")
+    ? platform.phone
+    : (profile && profile.phone ? profile.phone : "+509 31 84 93 85");
   const whatsapp = platform.whatsapp || (profile && profile.whatsapp) || "+509 31 84 93 85";
   const email = platform.email || (profile && profile.email) || "contact@nicaisseauberson.ch";
   const creator = platform.creator || (profile && profile.name) || "Auberson";
@@ -440,11 +431,11 @@ function renderPlatformAndContact(platform, profile) {
   // 1. Hero Section
   const heroPhoneLink = document.getElementById("hero-phone-link");
   if (heroPhoneLink) {
-    heroPhoneLink.href = `tel:${phoneClean}`;
+    heroPhoneLink.href = phoneClean ? `tel:${phoneClean}` : `#/contact`;
   }
   const heroPhoneText = document.getElementById("hero-phone-text");
   if (heroPhoneText) {
-    heroPhoneText.textContent = phone;
+    heroPhoneText.textContent = phone || "Contact direct";
   }
 
   const heroWaLink = document.getElementById("hero-whatsapp-link");
