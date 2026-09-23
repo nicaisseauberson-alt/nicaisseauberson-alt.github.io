@@ -2675,7 +2675,7 @@ class AdminManager {
             throw new Error(
               `Le fichier « ${fileName} » fait ${fileSize}.\n\n` +
               `💡 Cloudinary n'étant pas accessible dans votre région, 2 solutions 100% gratuites sont disponibles :\n\n` +
-              `1️⃣ Activez « Storage » dans votre console Firebase (outlook-studio) en 2 clics : le téléversement se fera alors directement sans aucune limite !\n` +
+              `1️⃣ Activez « Storage » dans votre console Firebase (outlook-studio-b0713) en 2 clics : le téléversement se fera alors directement sans aucune limite !\n` +
               `2️⃣ Ou déposez votre fichier sur votre Google Drive, copiez le lien de partage et collez-le ci-dessous : notre site le convertit automatiquement en téléchargement direct sans compte pour vos visiteurs !`
             );
           }
