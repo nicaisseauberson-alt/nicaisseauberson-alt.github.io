@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Nicaisse Auberson — Informaticien & Enseignant | Portfolio 2026</title>
+  <title>Outlook Studio — Powered by Auberson</title>
   
-  <meta name="description" content="Portfolio officiel de Nicaisse Auberson — Informaticien et Enseignant. Astuces tech, projets numériques, recommandations cinéma et architectures logicielles modernes.">
-  <meta name="author" content="Nicaisse Auberson">
-  <meta name="theme-color" content="#07090e">
+  <meta name="description" content="Outlook Studio rassemble des ressources, astuces technologiques, documents, programmes, actualités et contenus autour du cinéma, du gaming, du code et des innovations numériques. Créé par Auberson.">
+  <meta name="author" content="Auberson">
+  <meta name="theme-color" content="#06080d">
   
-  <!-- Open Graph -->
-  <meta property="og:title" content="Nicaisse Auberson — Informaticien & Enseignant">
-  <meta property="og:description" content="Portfolio 2026 nouvelle génération : 3D interactive, astuces tech et univers cinéma.">
+  <!-- Open Graph / Meta Réseaux Sociaux -->
+  <meta property="og:title" content="Outlook Studio — Powered by Auberson">
+  <meta property="og:description" content="Plateforme technologique moderne : astuces tech, cinéma, gaming, programmation, documents et actualités numériques.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="assets/logo.jpg">
 
-  <!-- Favicon -->
+  <!-- Favicon officiel sans cadre artificiel -->
   <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
   
-  <!-- Google Fonts: Inter -->
+  <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -28,26 +28,32 @@
 </head>
 <body>
 
-  <!-- Ambient mesh background -->
-  <div class="ambient-glow"></div>
+  <!-- Ambiance dynamique & Canvas d'arrière-plan -->
+  <div class="ambient-glow" id="ambient-glow"></div>
 
-  <!-- NAVIGATION -->
-  <header class="navbar">
+  <!-- NAVIGATION PRINCIPALE (Glassmorphism & Flou de verre) -->
+  <header class="navbar" id="main-navbar">
     <div class="nav-container">
-      <a href="#hero" class="brand">
-        <div class="brand-icon">
-          <img src="assets/logo.jpg" alt="Logo Nicaisse Auberson">
+      <a href="#/" class="brand" title="Outlook Studio — Accueil">
+        <img src="assets/logo.jpg" alt="Logo Outlook Studio" class="brand-logo-os">
+        <div style="display: flex; flex-direction: column; line-height: 1.2;">
+          <span style="font-weight: 800; font-size: 1.05rem; letter-spacing: -0.01em;">Outlook Studio</span>
+          <span style="font-size: 0.68rem; color: var(--text-tertiary); font-weight: 500;">Powered by Auberson</span>
         </div>
-        <span class="profile-name">Nicaisse Auberson</span>
       </a>
 
-      <nav>
+      <nav class="desktop-nav">
         <ul class="nav-links">
-          <li><a href="#presentation" class="active">Profil</a></li>
-          <li><a href="#astuces">Astuces Tech</a></li>
-          <li><a href="#cinema">Cinéma</a></li>
-          <li><a href="#projets">Projets & Fichiers</a></li>
-          <li><a href="#contact">Contact</a></li>
+          <li><a href="#/" class="nav-route-link active" data-route="home">Accueil</a></li>
+          <li><a href="#/cinema" class="nav-route-link" data-route="cinema">Cinéma</a></li>
+          <li><a href="#/actualites" class="nav-route-link" data-route="news">Actualités</a></li>
+          <li><a href="#/projets" class="nav-route-link" data-route="projects">Projets</a></li>
+          <li><a href="#/astuces" class="nav-route-link" data-route="tips">Astuces Tech</a></li>
+          <li><a href="#/code" class="nav-route-link" data-route="code">Code</a></li>
+          <li><a href="#/gaming" class="nav-route-link" data-route="gaming">Gaming</a></li>
+          <li><a href="#/documents" class="nav-route-link" data-route="documents">Documents</a></li>
+          <li><a href="#/portfolio" class="nav-route-link" data-route="portfolio">Portfolio</a></li>
+          <li><a href="#/contact" class="nav-route-link" data-route="contact">Contact</a></li>
         </ul>
       </nav>
 
@@ -64,236 +70,446 @@
     </div>
   </header>
 
-  <!-- MOBILE DRAWER / SHEET -->
+  <!-- MOBILE DRAWER / MENU LATÉRAL -->
   <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
   <aside class="drawer-sheet" id="drawer-sheet" aria-label="Menu de navigation mobile" aria-hidden="true">
     <div class="drawer-header">
       <div class="brand">
-        <div class="brand-icon">
-          <img src="assets/logo.jpg" alt="Logo Nicaisse Auberson">
+        <img src="assets/logo.jpg" alt="Logo Outlook Studio" class="brand-logo-os">
+        <div style="display: flex; flex-direction: column; line-height: 1.2;">
+          <span style="font-weight: 800; font-size: 1rem;">Outlook Studio</span>
+          <span style="font-size: 0.7rem; color: var(--text-tertiary);">Powered by Auberson</span>
         </div>
-        <span class="profile-name">Nicaisse Auberson</span>
       </div>
       <button class="drawer-close" id="drawer-close-btn" aria-label="Fermer le menu">&times;</button>
     </div>
 
     <ul class="drawer-nav-list">
-      <li><a href="#hero" class="drawer-nav-link"><span>🏠</span> Accueil</a></li>
-      <li><a href="#presentation" class="drawer-nav-link"><span>👤</span> Profil & Présentation</a></li>
-      <li><a href="#astuces" class="drawer-nav-link"><span>💡</span> Astuces Tech</a></li>
-      <li><a href="#cinema" class="drawer-nav-link"><span>🎬</span> Cinéma & Recommandations</a></li>
-      <li><a href="#projets" class="drawer-nav-link"><span>📁</span> Projets & Fichiers</a></li>
-      <li><a href="#contact" class="drawer-nav-link"><span>✉️</span> Contact direct</a></li>
+      <li><a href="#/" class="drawer-nav-link active" data-route="home"><span>🏠</span> Accueil</a></li>
+      <li><a href="#/cinema" class="drawer-nav-link" data-route="cinema"><span>🎬</span> Cinéma</a></li>
+      <li><a href="#/actualites" class="drawer-nav-link" data-route="news"><span>📰</span> Actualités</a></li>
+      <li><a href="#/projets" class="drawer-nav-link" data-route="projects"><span>📁</span> Projets</a></li>
+      <li><a href="#/astuces" class="drawer-nav-link" data-route="tips"><span>💡</span> Astuces Tech</a></li>
+      <li><a href="#/code" class="drawer-nav-link" data-route="code"><span>💻</span> Code & Scripts</a></li>
+      <li><a href="#/gaming" class="drawer-nav-link" data-route="gaming"><span>🎮</span> Gaming</a></li>
+      <li><a href="#/documents" class="drawer-nav-link" data-route="documents"><span>📄</span> Documents & Fichiers</a></li>
+      <li><a href="#/portfolio" class="drawer-nav-link" data-route="portfolio"><span>💼</span> Portfolio Auberson</a></li>
+      <li><a href="#/contact" class="drawer-nav-link" data-route="contact"><span>✉️</span> Contact direct</a></li>
     </ul>
 
     <div class="drawer-footer">
       <button class="btn btn-primary btn-block-mobile" onclick="adminManager.openLoginOrDashboard(); if(window.closeMobileDrawer) window.closeMobileDrawer();">
-        <span>🔐</span> Espace Admin (Nicaisse)
+        <span>🔐</span> Espace Administrateur
       </button>
     </div>
   </aside>
 
+  <!-- CONTENEUR PRINCIPAL SPA MULTI-PAGES -->
   <main class="wrapper">
+    <div id="spa-container">
 
-    <!-- HERO SECTION -->
-    <section id="hero" class="hero">
-      <div class="hero-grid">
-        
-        <!-- Left: Intro text -->
-        <div class="hero-text-content">
-          <div class="hero-badge">
-            <span class="pulse-dot"></span>
-            <span id="profile-availability">Informaticien & Enseignant • Disponible</span>
-          </div>
+      <!-- =========================================================
+           VUE 1 : ACCUEIL IMMERSIF (OUTLOOK STUDIO)
+           ========================================================= -->
+      <section id="view-home" class="spa-view active">
+        <!-- Hero Section -->
+        <div class="hero">
+          <div class="hero-grid">
+            <div class="hero-text-content">
+              <div class="neon-badge" id="home-neon-badge">
+                <span class="pulse-dot"></span>
+                <span>Outlook Studio • Plateforme Technologique 2026</span>
+              </div>
 
-          <h1 class="hero-title">
-            Nicaisse<br>
-            Auberson
-          </h1>
+              <h1 class="hero-title" style="letter-spacing: -0.03em;">
+                Outlook<br>
+                <span class="neon-glow-text" id="home-neon-title">Studio</span>
+              </h1>
 
-          <div class="hero-subtitle">
-            <span class="hero-pill">💻 Informaticien</span>
-            <span class="hero-pill">🎓 Enseignant</span>
-            <span class="hero-pill accent">⚡ Innovateur Tech</span>
-          </div>
+              <div class="hero-subtitle">
+                <span class="hero-pill accent" id="home-neon-pill">⚡ Powered by Auberson</span>
+                <span class="hero-pill">🎬 Cinéma</span>
+                <span class="hero-pill">💻 Code</span>
+                <span class="hero-pill">🎮 Gaming</span>
+              </div>
 
-          <p class="hero-desc" id="profile-tagline">
-            Allier la rigueur informatique à la transmission du savoir — Architectures web modernes, ingénierie logicielle et pédagogie de pointe.
-          </p>
+              <p class="hero-desc" id="platform-tagline">
+                Une plateforme moderne dédiée aux ressources numériques, astuces informatiques, recommandations cinéma, gaming et développement logiciel.
+              </p>
 
-          <div class="hero-cta">
-            <a href="#astuces" class="btn btn-primary btn-block-mobile">Explorer les Astuces Tech 🚀</a>
-            <a href="#cinema" class="btn btn-outline btn-block-mobile">Espace Cinéma 🎬</a>
-          </div>
-        </div>
+              <div class="hero-cta">
+                <a href="#/cinema" class="btn neon-btn-primary">Explorer le Cinéma 🎬</a>
+                <a href="#/actualites" class="btn btn-outline">Dernières Actualités 📰</a>
+                <a href="#/contact" class="btn btn-outline">Nous Contacter ✉️</a>
+              </div>
+            </div>
 
-        <!-- Right: 3D Optical Illusion Logo -->
-        <div class="logo3d-wrapper">
-          <div id="logo3d-canvas"></div>
-          <div class="canvas-hint">Toucher / Glisser pour faire pivoter en 3D</div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- BENTO GRID PRESENTATION -->
-    <section id="presentation" class="section">
-      <div class="section-header">
-        <div>
-          <div class="section-tag">Vision & Savoir-faire</div>
-          <h2 class="section-title">Ingénierie & Pédagogie</h2>
-        </div>
-      </div>
-
-      <div class="bento-grid">
-        
-        <!-- Card 1: Informaticien & Architecte -->
-        <div class="bento-card col-8">
-          <div class="card-icon">💻</div>
-          <h3 class="card-title">Informaticien de Pointe</h3>
-          <p class="card-desc" id="profile-bio">
-            Spécialiste en technologies logicielles et architectures modernes, j'élabore des solutions fiables, performantes et sécurisées adaptées aux exigences du web d'aujourd'hui et de demain.
-          </p>
-          <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
-            <span class="tag">Architecture Cloud</span>
-            <span class="tag">Performance Web 2026</span>
-            <span class="tag">Cybersécurité</span>
-            <span class="tag">Automatisation</span>
+            <!-- Visualisation 3D Logo OS -->
+            <div class="logo3d-wrapper">
+              <div id="logo3d-canvas"></div>
+              <div class="canvas-hint">Toucher / Glisser pour interagir en 3D</div>
+            </div>
           </div>
         </div>
 
-        <!-- Card 2: Enseignant & Formateur -->
-        <div class="bento-card col-4">
-          <div class="card-icon">🎓</div>
-          <h3 class="card-title">Enseignant Passionné</h3>
-          <p class="card-desc">
-            Transmettre les fondamentaux du code et susciter des vocations grâce à une pédagogie vivante, claire et axée sur des projets réels.
-          </p>
+        <!-- Grille de découverte des catégories principales -->
+        <div style="margin-top: 48px; margin-bottom: 24px;">
+          <div class="section-tag">Navigation & Modules</div>
+          <h2 class="section-title">Explorez les Univers d'Outlook Studio</h2>
         </div>
 
-        <!-- Card 3: Compétences Clés -->
-        <div class="bento-card col-6">
-          <h3 class="card-title">Expertises & Domaines</h3>
-          <p class="card-desc">Maîtrise technique et méthodologique continue.</p>
-          <div class="skills-list" id="skills-container">
-            <!-- Dynamically populated -->
+        <div class="bento-grid">
+          <!-- Carte 1 : Cinéma -->
+          <div class="bento-card col-4" style="cursor: pointer;" onclick="location.hash='#/cinema'">
+            <div class="card-icon" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #ef4444;">🎬</div>
+            <h3 class="card-title">Espace Cinéma</h3>
+            <p class="card-desc">Fiches, affiches officielles, notes et bandes-annonces sélectionnées.</p>
+            <div style="margin-top: 14px; font-size: 0.85rem; color: #ef4444; font-weight: 600;">Accéder au streaming & fiches →</div>
+          </div>
+
+          <!-- Carte 2 : Actualités -->
+          <div class="bento-card col-4" style="cursor: pointer;" onclick="location.hash='#/actualites'">
+            <div class="card-icon" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #3b82f6;">📰</div>
+            <h3 class="card-title">Actualités & News</h3>
+            <p class="card-desc">Suivez les innovations numériques, sorties ciné, updates et tendances tech.</p>
+            <div style="margin-top: 14px; font-size: 0.85rem; color: #3b82f6; font-weight: 600;">Lire les actualités →</div>
+          </div>
+
+          <!-- Carte 3 : Astuces Tech & Code -->
+          <div class="bento-card col-4" style="cursor: pointer;" onclick="location.hash='#/astuces'">
+            <div class="card-icon" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #10b981;">💡</div>
+            <h3 class="card-title">Astuces Tech & Code</h3>
+            <p class="card-desc">Commandes terminal, bonnes pratiques et scripts d'optimisation prêts à l'emploi.</p>
+            <div style="margin-top: 14px; font-size: 0.85rem; color: #10b981; font-weight: 600;">Voir les astuces →</div>
+          </div>
+
+          <!-- Carte 4 : Projets & Fichiers -->
+          <div class="bento-card col-6" style="cursor: pointer;" onclick="location.hash='#/projets'">
+            <div class="card-icon" style="background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); color: #a855f7;">📁</div>
+            <h3 class="card-title">Projets & Téléchargements</h3>
+            <p class="card-desc">Téléchargez les supports pédagogiques, documentations et architectures logicielles.</p>
+            <div style="margin-top: 14px; font-size: 0.85rem; color: #a855f7; font-weight: 600;">Télécharger des documents →</div>
+          </div>
+
+          <!-- Carte 5 : Contact Auberson -->
+          <div class="bento-card col-6" style="cursor: pointer;" onclick="location.hash='#/contact'">
+            <div class="card-icon" style="background: rgba(37, 211, 102, 0.1); border-color: rgba(37, 211, 102, 0.3); color: #25d366;">✉️</div>
+            <h3 class="card-title">Contact & Messagerie Directe</h3>
+            <p class="card-desc">Joindre Auberson par WhatsApp (+509 31 84 93 85), appel direct ou e-mail.</p>
+            <div style="margin-top: 14px; font-size: 0.85rem; color: #25d366; font-weight: 600;">Ouvrir la page de contact →</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           VUE 2 : PAGE CINÉMA DÉDIÉE (STREAMING & RECOMMANDATIONS)
+           ========================================================= -->
+      <section id="view-cinema" class="spa-view">
+        <div class="category-hero" id="hero-banner-cinema" style="background-image: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&q=80');">
+          <div class="category-hero-overlay"></div>
+          <div class="category-hero-content">
+            <span class="category-hero-badge">🎬 Cinéma & Séries</span>
+            <h2 class="category-hero-title">L'Univers Cinéma</h2>
+            <p class="category-hero-desc">Explorez le catalogue cinématographique, découvrez les chefs-d'œuvre sélectionnés et visionnez les bandes-annonces officielles.</p>
           </div>
         </div>
 
-        <!-- Card 4: Compatibilité & Écosystème -->
-        <div class="bento-card col-6" style="display: flex; flex-direction: column; justify-content: space-between;">
-          <div>
-            <div class="card-icon">⚡</div>
-            <h3 class="card-title">Expérience Multi-Écrans</h3>
-            <p class="card-desc">
-              Optimisé pour tous les appareils et navigateurs modernes. Navigation instantanée, protection de la vie privée et fluidité 120 FPS.
+        <!-- Recherche de films -->
+        <div class="search-filter-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="cinema-search" class="search-input" placeholder="Rechercher un film, un réalisateur ou un genre...">
+          </div>
+        </div>
+
+        <!-- Grille de films (gérée par app.js) -->
+        <div class="cinema-grid" id="cinema-grid"></div>
+      </section>
+
+      <!-- =========================================================
+           VUE 3 : PAGE ACTUALITÉS MULTI-CATÉGORIES
+           ========================================================= -->
+      <section id="view-news" class="spa-view">
+        <div class="category-hero" id="hero-banner-news" style="background-image: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1920&q=80');">
+          <div class="category-hero-overlay"></div>
+          <div class="category-hero-content">
+            <span class="category-hero-badge">📰 Actualités & Veille</span>
+            <h2 class="category-hero-title">Actualités & Nouveautés</h2>
+            <p class="category-hero-desc">Toutes les dernières informations technologiques, sorties cinéma, nouveautés gaming et annonces de la plateforme.</p>
+          </div>
+        </div>
+
+        <div class="news-grid" id="news-grid"></div>
+      </section>
+
+      <!-- =========================================================
+           VUE 4 : PAGE PROJETS & TÉLÉCHARGEMENTS
+           ========================================================= -->
+      <section id="view-projects" class="spa-view">
+        <div class="category-hero" id="hero-banner-projects" style="background-image: url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80');">
+          <div class="category-hero-overlay"></div>
+          <div class="category-hero-content">
+            <span class="category-hero-badge">📁 Réalisations & Supports</span>
+            <h2 class="category-hero-title">Projets & Documents</h2>
+            <p class="category-hero-desc">Téléchargez les ressources, programmes de formation, documents PDF et projets open-source mis à disposition.</p>
+          </div>
+        </div>
+
+        <div class="projects-grid" id="projects-grid"></div>
+      </section>
+
+      <!-- =========================================================
+           VUE 5 : PAGE ASTUCES TECH
+           ========================================================= -->
+      <section id="view-tips" class="spa-view">
+        <div class="category-hero" id="hero-banner-tips" style="background-image: url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1920&q=80');">
+          <div class="category-hero-overlay"></div>
+          <div class="category-hero-content">
+            <span class="category-hero-badge">💡 Savoir & Efficacité</span>
+            <h2 class="category-hero-title">Astuces Technologiques</h2>
+            <p class="category-hero-desc">Conseils pratiques, optimisation de performances, sécurité et astuces d'administration système.</p>
+          </div>
+        </div>
+
+        <div class="search-filter-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="tips-search" class="search-input" placeholder="Rechercher une astuce, une commande ou un mot-clé...">
+          </div>
+        </div>
+
+        <div class="tips-grid" id="tips-grid"></div>
+      </section>
+
+      <!-- =========================================================
+           VUE 6 : PAGE CODE & PROGRAMMATION
+           ========================================================= -->
+      <section id="view-code" class="spa-view">
+        <div class="category-hero" id="hero-banner-code" style="background-image: url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=80');">
+          <div class="category-hero-overlay"></div>
+          <div class="category-hero-content">
+            <span class="category-hero-badge">💻 Programmation & Scripts</span>
+            <h2 class="category-hero-title">Code & Développements</h2>
+            <p class="category-hero-desc">Extraits de code, scripts d'automatisation PowerShell, Python, JavaScript et architectures logicielles.</p>
+          </div>
+        </div>
+
+        <div class="tips-grid" id="code-grid"></div>
+      </section>
+
+      <!-- =========================================================
+           VUE 7 : PAGE GAMING
+           ========================================================= -->
+      <section id="view-gaming" class="spa-view">
+        <div class="category-hero" id="hero-banner-gaming" style="background-image: url('https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1920&q=80');">
+          <div class="category-hero-overlay"></div>
+          <div class="category-hero-content">
+            <span class="category-hero-badge">🎮 Univers Gaming</span>
+            <h2 class="category-hero-title">Gaming & Moteurs 3D</h2>
+            <p class="category-hero-desc">Exploration du jeu vidéo moderne, analyses graphiques, moteurs 3D temps réel et culture gaming.</p>
+          </div>
+        </div>
+
+        <div id="gaming-content"></div>
+      </section>
+
+      <!-- =========================================================
+           VUE 8 : PAGE DOCUMENTS & RESSOURCES
+           ========================================================= -->
+      <section id="view-documents" class="spa-view">
+        <div class="category-hero" id="hero-banner-documents" style="background-image: url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1920&q=80');">
+          <div class="category-hero-overlay"></div>
+          <div class="category-hero-content">
+            <span class="category-hero-badge">📄 Bibliothèque Numérique</span>
+            <h2 class="category-hero-title">Documents & Ressources</h2>
+            <p class="category-hero-desc">Accédez directement aux programmes de formation, documents PDF et manuels téléchargeables.</p>
+          </div>
+        </div>
+
+        <div id="documents-grid"></div>
+      </section>
+
+      <!-- =========================================================
+           VUE 9 : PAGE PORTFOLIO INDÉPENDANT (AUBERSON)
+           ========================================================= -->
+      <section id="view-portfolio" class="spa-view">
+        <div class="category-hero" id="hero-banner-portfolio" style="background-image: url('https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1920&q=80');">
+          <div class="category-hero-overlay"></div>
+          <div class="category-hero-content">
+            <span class="category-hero-badge">💼 Profil du Créateur</span>
+            <h2 class="category-hero-title">Portfolio d'Auberson</h2>
+            <p class="category-hero-desc">Parcours professionnel, certifications, compétences en génie logiciel et réalisations.</p>
+          </div>
+        </div>
+
+        <div class="bento-grid" id="portfolio-bento-grid">
+          <div class="bento-card col-8">
+            <h3 class="card-title">Ingénierie & Pédagogie</h3>
+            <p class="card-desc" id="portfolio-bio">
+              Avec une solide expérience en architectures logicielles, administration système et formation professionnelle, Auberson conçoit des solutions technologiques robustes et transmet les meilleures pratiques numériques.
             </p>
+            <div class="skills-wrap" style="margin-top: 20px;">
+              <span class="tag">Architecture Logicielle</span>
+              <span class="tag">Pédagogie</span>
+              <span class="tag">Cloud & DevOps</span>
+              <span class="tag">Cybersécurité</span>
+              <span class="tag">JavaScript / Node.js</span>
+              <span class="tag">Python</span>
+            </div>
           </div>
-          <div style="display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap;">
-            <div class="tag" style="background: rgba(59,130,246,0.1); color: #93c5fd;">📱 iPhone / Android</div>
-            <div class="tag" style="background: rgba(234,88,12,0.1); color: #fdba74;">🦁 Brave Browser</div>
-            <div class="tag" style="background: rgba(34,197,94,0.1); color: #86efac;">💻 PC & Mac</div>
-            <div class="tag" style="background: rgba(168,85,247,0.1); color: #d8b4fe;">⚡ 100% Fluide</div>
+
+          <div class="bento-card col-4">
+            <h3 class="card-title">Identité Plateforme</h3>
+            <p class="card-desc">Fondateur et développeur d'Outlook Studio (OS), conçu pour rassembler la culture technologique et cinématographique.</p>
+            <div style="margin-top: 16px;">
+              <a href="#/contact" class="btn btn-outline btn-sm">Contacter Auberson</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================
+           VUE 10 : PAGE CONTACT DÉDIÉE (WHATSAPP, TÉLÉPHONE, EMAIL)
+           ========================================================= -->
+      <section id="view-contact" class="spa-view">
+        <div class="category-hero" id="hero-banner-contact" style="background-image: url('https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80');">
+          <div class="category-hero-overlay"></div>
+          <div class="category-hero-content">
+            <span class="category-hero-badge">✉️ Ligne Directe</span>
+            <h2 class="category-hero-title">Contacter Auberson</h2>
+            <p class="category-hero-desc">Pour toute demande professionnelle, question technologique ou collaboration autour d'Outlook Studio.</p>
           </div>
         </div>
 
-      </div>
-    </section>
+        <div class="contact-grid">
+          <!-- Carte 1 : WhatsApp -->
+          <div class="contact-card whatsapp">
+            <div class="contact-card-icon">💬</div>
+            <div>
+              <div class="contact-card-title">WhatsApp</div>
+              <div class="contact-card-detail">+509 31 84 93 85</div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Réponse rapide et échange direct via WhatsApp.</p>
+            </div>
+            <a href="https://wa.me/50931849385" target="_blank" rel="noopener noreferrer" class="contact-btn whatsapp">
+              <span>💬</span> Contacter sur WhatsApp
+            </a>
+          </div>
 
-    <!-- SECTION ASTUCES TECH -->
-    <section id="astuces" class="section">
-      <div class="section-header">
-        <div>
-          <div class="section-tag">Partage de connaissances</div>
-          <h2 class="section-title">Astuces Tech & Code</h2>
+          <!-- Carte 2 : Téléphone -->
+          <div class="contact-card phone">
+            <div class="contact-card-icon">📞</div>
+            <div>
+              <div class="contact-card-title">Téléphone</div>
+              <div class="contact-card-detail">+509 55 55 85 50</div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Appel direct sur mobile et appareils compatibles.</p>
+            </div>
+            <a href="tel:+50955558550" class="contact-btn phone">
+              <span>📞</span> Appeler directement
+            </a>
+          </div>
+
+          <!-- Carte 3 : E-mail -->
+          <div class="contact-card email">
+            <div class="contact-card-icon">✉️</div>
+            <div>
+              <div class="contact-card-title">Courrier Électronique</div>
+              <div class="contact-card-detail" style="font-size: 0.95rem; word-break: break-all;">contact@nicaisseauberson.ch</div>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Pour les messages détaillés, projets et demandes formelles.</p>
+            </div>
+            <a href="mailto:contact@nicaisseauberson.ch" class="contact-btn email">
+              <span>✉️</span> Envoyer un e-mail
+            </a>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Search & Filters -->
-      <div class="search-filter-bar">
-        <div class="search-input-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="tips-search" class="search-input" placeholder="Rechercher une astuce, une commande ou un mot-clé...">
-        </div>
-      </div>
-
-      <!-- Grid of Tips -->
-      <div class="tips-grid" id="tips-grid">
-        <!-- Rendered by app.js -->
-      </div>
-    </section>
-
-    <!-- SECTION CINÉMA -->
-    <section id="cinema" class="section">
-      <div class="section-header">
-        <div>
-          <div class="section-tag">Culture & Passions</div>
-          <h2 class="section-title">L'Espace Cinéma</h2>
-        </div>
-        <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 480px;">
-          Sélection de chefs-d'œuvre, réflexions cinématographiques et liens officiels recommandés par Nicaisse.
-        </p>
-      </div>
-
-      <div class="cinema-grid" id="cinema-grid">
-        <!-- Rendered by app.js -->
-      </div>
-    </section>
-
-    <!-- SECTION PROJETS & TÉLÉCHARGEMENTS -->
-    <section id="projets" class="section">
-      <div class="section-header">
-        <div>
-          <div class="section-tag">Ressources & Réalisations</div>
-          <h2 class="section-title">Projets & Fichiers</h2>
-        </div>
-        <p style="color: var(--text-muted); font-size: 0.95rem;">
-          Documents et supports téléchargeables en accès libre.
-        </p>
-      </div>
-
-      <div class="projects-grid" id="projects-grid">
-        <!-- Rendered by app.js -->
-      </div>
-    </section>
-
-    <!-- CONTACT SECTION -->
-    <section id="contact" class="section">
-      <div class="bento-card col-12" style="text-align: center; padding: 60px 24px;">
-        <h2 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 16px;">Prêt à échanger ?</h2>
-        <p style="color: var(--text-muted); max-width: 540px; margin: 0 auto 32px; font-size: 1.05rem;">
-          Que ce soit pour une intervention pédagogique, une conférence ou un projet informatique d'envergure, n'hésitez pas à me contacter.
-        </p>
-        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
-          <a href="mailto:contact@nicaisseauberson.ch" class="btn btn-primary">✉️ Envoyer un message</a>
-          <button class="btn btn-outline" onclick="adminManager.openLoginOrDashboard()">🔐 Accès Administrateur</button>
-        </div>
-      </div>
-    </section>
-
+    </div>
   </main>
 
-  <!-- FOOTER -->
+  <!-- MOBILE BOTTOM NAVIGATION (Navigation tactile à une main) -->
+  <nav class="bottom-nav" aria-label="Navigation rapide mobile">
+    <a href="#/" class="bottom-nav-item active" data-route="home">
+      <span class="nav-icon">🏠</span>
+      <span>Accueil</span>
+    </a>
+    <a href="#/cinema" class="bottom-nav-item" data-route="cinema">
+      <span class="nav-icon">🎬</span>
+      <span>Cinéma</span>
+    </a>
+    <a href="#/actualites" class="bottom-nav-item" data-route="news">
+      <span class="nav-icon">📰</span>
+      <span>News</span>
+    </a>
+    <a href="#/projets" class="bottom-nav-item" data-route="projects">
+      <span class="nav-icon">📁</span>
+      <span>Projets</span>
+    </a>
+    <a href="#/contact" class="bottom-nav-item" data-route="contact">
+      <span class="nav-icon">✉️</span>
+      <span>Contact</span>
+    </a>
+  </nav>
+
+  <!-- FOOTER OFFICIEL OUTLOOK STUDIO -->
   <footer class="footer">
     <div class="wrapper">
-      <div class="footer-content">
-        <div class="footer-text">
-          © 2026 <strong class="profile-name">Nicaisse Auberson</strong> — Informaticien & Enseignant. Tous droits réservés.
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; padding: 40px 0 24px; border-bottom: 1px solid var(--border-subtle);">
+        <!-- Col 1 : Identité -->
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <img src="assets/logo.jpg" alt="Logo Outlook Studio" style="width: 32px; height: 32px; border-radius: 6px;">
+            <strong style="font-size: 1.1rem; color: #fff;">Outlook Studio</strong>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+            Plateforme technologique de référence rassemblant ressources, astuces, cinéma, gaming et ingénierie logicielle.
+          </p>
+          <div class="neon-glow-text" style="font-size: 0.82rem; font-weight: 600;">
+            Powered by Auberson
+          </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 16px;">
+
+        <!-- Col 2 : Navigation -->
+        <div>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 14px;">Catégories</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.88rem;">
+            <li><a href="#/" style="color: var(--text-secondary); text-decoration: none;">Accueil</a></li>
+            <li><a href="#/cinema" style="color: var(--text-secondary); text-decoration: none;">Cinéma & Séries</a></li>
+            <li><a href="#/actualites" style="color: var(--text-secondary); text-decoration: none;">Actualités & Innovations</a></li>
+            <li><a href="#/projets" style="color: var(--text-secondary); text-decoration: none;">Projets & Documents</a></li>
+            <li><a href="#/astuces" style="color: var(--text-secondary); text-decoration: none;">Astuces Tech & Code</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3 : Contact & Lignes directes -->
+        <div>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 14px;">Contact direct</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.88rem;">
+            <li><a href="https://wa.me/50931849385" target="_blank" rel="noopener noreferrer" style="color: #25d366; text-decoration: none;">💬 WhatsApp : +509 31 84 93 85</a></li>
+            <li><a href="tel:+50955558550" style="color: var(--text-secondary); text-decoration: none;">📞 Tél : +509 55 55 85 50</a></li>
+            <li><a href="mailto:contact@nicaisseauberson.ch" style="color: var(--text-secondary); text-decoration: none;">✉️ contact@nicaisseauberson.ch</a></li>
+            <li><a href="#/portfolio" style="color: var(--text-secondary); text-decoration: none;">💼 Portfolio du Créateur</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-content" style="padding-top: 20px;">
+        <div class="footer-text">
+          © 2026 <strong>Outlook Studio</strong> — Powered by <strong>Auberson</strong>. Tous droits réservés.
+        </div>
+        <div>
           <button class="admin-lock-btn" id="admin-open-btn" onclick="adminManager.openLoginOrDashboard()">
-            <span>🔒</span> Espace Admin (Nicaisse)
+            <span>🔒</span> Espace Administrateur
           </button>
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- ADMIN MODAL -->
+  <!-- ADMIN MODAL (CMS COMPLET) -->
   <div class="modal-overlay" id="admin-modal">
     <div class="modal-container">
       <div class="modal-header">
-        <h3 id="admin-modal-title" style="font-weight: 700; font-size: 1.25rem;">Espace Administrateur</h3>
+        <h3 id="admin-modal-title" style="font-weight: 700; font-size: 1.25rem;">Outlook Studio — Administration</h3>
         <button class="modal-close" onclick="adminManager.closeModal()">&times;</button>
       </div>
       <div class="admin-sync-bar" id="admin-sync-bar">
@@ -301,15 +517,15 @@
           <span class="sync-pulse-dot"></span>
           <span id="sync-status-label">Cloud Synchronisé</span>
         </div>
-        <button class="btn-sync-cloud" onclick="adminManager.syncCloudContent(true)" title="Synchroniser immédiatement tout le contenu et le mot de passe avec le Cloud">
+        <button class="btn-sync-cloud" onclick="adminManager.syncCloudContent(true)" title="Synchroniser immédiatement tout le contenu avec le Cloud">
           <span class="sync-spin-icon">🔄</span> Synchro Cloud
         </button>
       </div>
       <div class="admin-tabs" id="admin-tabs" style="display: none;">
-        <!-- Tabs rendered by admin.js -->
+        <!-- Onglets générés dynamiquement par admin.js -->
       </div>
       <div class="modal-body" id="admin-modal-body">
-        <!-- Content rendered by admin.js -->
+        <!-- Contenu actif généré par admin.js -->
       </div>
     </div>
   </div>
@@ -317,15 +533,15 @@
   <!-- SCRIPTS -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
   <script type="module" src="assets/firebase-config.js"></script>
-  <!-- 1. Three.js for 3D Optical Illusion -->
+  <!-- 1. Three.js pour le modèle 3D -->
   <script src="assets/three.min.js"></script>
   <!-- 2. Data & Storage Engine -->
   <script src="assets/data.js"></script>
   <!-- 3. 3D Scene Initialization -->
   <script src="assets/three-logo.js"></script>
-  <!-- 4. Main Application UI -->
+  <!-- 4. Main Application UI & SPA Router -->
   <script src="assets/app.js"></script>
-  <!-- 5. Admin & Visitor Management Engine -->
+  <!-- 5. Admin & Mini-CMS Engine -->
   <script src="assets/admin.js"></script>
 
 </body>

@@ -121,7 +121,7 @@ class AdminManager {
     const headerTitle = document.getElementById("admin-modal-title");
     const tabsContainer = document.getElementById("admin-tabs");
     
-    headerTitle.textContent = "Espace Privé de Nicaisse Auberson";
+    headerTitle.textContent = "Outlook Studio — Administration (Auberson)";
     tabsContainer.style.display = "none";
     this.updateSyncStatusBar();
 
@@ -130,9 +130,9 @@ class AdminManager {
     body.innerHTML = `
       <div style="max-width: 440px; margin: 24px auto; text-align: center;">
         <div style="font-size: 3rem; margin-bottom: 12px;">🛡️</div>
-        <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; color: #fff;">Espace Personnel Sécurisé</h3>
+        <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; color: #fff;">Espace Privé — Outlook Studio</h3>
         <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 22px; line-height: 1.5;">
-          Accès réservé exclusivement à Nicaisse Auberson pour administrer le portfolio et superviser les visiteurs en direct.
+          Accès réservé exclusivement à l'administrateur Auberson pour piloter Outlook Studio, publier du contenu et superviser les visiteurs en direct.
         </p>
 
         ${isFirebase ? `
@@ -259,7 +259,7 @@ class AdminManager {
     const headerTitle = document.getElementById("admin-modal-title");
     const tabsContainer = document.getElementById("admin-tabs");
     
-    headerTitle.textContent = "Tableau de Bord — Nicaisse Auberson";
+    headerTitle.textContent = "Tableau de Bord — Outlook Studio";
     tabsContainer.style.display = "flex";
 
     this.updateSyncStatusBar();
@@ -270,10 +270,13 @@ class AdminManager {
   renderTabs() {
     const tabs = [
       { id: "analytics", label: "🟢 En Direct" },
+      { id: "theme", label: "🎨 Personnalisation" },
+      { id: "news", label: "📰 Actualités" },
       { id: "cinema", label: "🎬 Cinéma" },
       { id: "projects", label: "📁 Projets" },
       { id: "tips", label: "💡 Astuces Tech" },
-      { id: "profile", label: "🔑 Sécurité & Profil" }
+      { id: "categories", label: "🏷️ Catégories" },
+      { id: "profile", label: "🔑 Paramètres & Profil" }
     ];
 
     const tabsContainer = document.getElementById("admin-tabs");
@@ -307,12 +310,18 @@ class AdminManager {
 
     if (this.activeTab === "analytics") {
       this.renderAnalyticsTab(body, data);
+    } else if (this.activeTab === "theme") {
+      this.renderThemeTab(body, data);
+    } else if (this.activeTab === "news") {
+      this.renderNewsTab(body, data);
     } else if (this.activeTab === "cinema") {
       this.renderCinemaTab(body, data);
     } else if (this.activeTab === "projects") {
       this.renderProjectsTab(body, data);
     } else if (this.activeTab === "tips") {
       this.renderTipsTab(body, data);
+    } else if (this.activeTab === "categories") {
+      this.renderCategoriesTab(body, data);
     } else if (this.activeTab === "profile") {
       this.renderProfileTab(body, data);
     }
@@ -540,7 +549,7 @@ class AdminManager {
             <input type="text" id="new-film-year" class="form-control" required placeholder="Ex: 2014">
           </div>
         </div>
-        <div class="form-group form-row-3">
+        <div class="form-group form-row-2">
           <div>
             <label class="form-label">Réalisateur</label>
             <input type="text" id="new-film-director" class="form-control" required placeholder="Ex: Christopher Nolan">
@@ -548,6 +557,16 @@ class AdminManager {
           <div>
             <label class="form-label">Genre</label>
             <input type="text" id="new-film-genre" class="form-control" required placeholder="Ex: Science-Fiction / Drame">
+          </div>
+        </div>
+        <div class="form-group form-row-2">
+          <div>
+            <label class="form-label">Format de l'affiche / Ratio</label>
+            <select id="new-film-ratio" class="form-control">
+              <option value="portrait" selected>Portrait (2:3 — Format Affiche Standard Streaming)</option>
+              <option value="landscape">Paysage (16:9 — Bannière Vidéo)</option>
+              <option value="square">Carré (1:1 — Jaquette)</option>
+            </select>
           </div>
           <div>
             <label class="form-label">Note / 10</label>
@@ -563,8 +582,8 @@ class AdminManager {
               <input type="url" id="new-film-poster" class="form-control" placeholder="https://..." style="flex: 1;" oninput="adminManager.previewUrl(this.value, 'film-poster-preview')">
             </div>
           </div>
-          <div id="film-poster-preview" style="display: none; margin-top: 10px; max-height: 160px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-subtle); text-align: center;">
-            <img src="" style="max-height: 160px; object-fit: cover; display: inline-block;">
+          <div id="film-poster-preview" style="display: none; margin-top: 10px; max-height: 180px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-subtle); text-align: center;">
+            <img src="" style="max-height: 180px; object-fit: cover; display: inline-block;">
           </div>
         </div>
         <div class="form-group form-row-2">
@@ -614,6 +633,7 @@ class AdminManager {
         director: document.getElementById("new-film-director").value.trim(),
         year: document.getElementById("new-film-year").value.trim(),
         genre: document.getElementById("new-film-genre").value.trim(),
+        aspectRatio: document.getElementById("new-film-ratio") ? document.getElementById("new-film-ratio").value : "portrait",
         rating: document.getElementById("new-film-rating").value.trim() || "9.0 / 10",
         poster: posterUrl,
         review: document.getElementById("new-film-review").value.trim(),
@@ -748,13 +768,23 @@ class AdminManager {
             <input type="text" id="new-proj-cat" class="form-control" required placeholder="Ex: Enseignement, Cloud, Sécurité">
           </div>
         </div>
+        <div class="form-group form-row-2">
+          <div>
+            <label class="form-label">Format de l'image / Ratio</label>
+            <select id="new-proj-ratio" class="form-control">
+              <option value="landscape" selected>Paysage (16:9 — Format Standard)</option>
+              <option value="portrait">Portrait (2:3 — Format Affiche)</option>
+              <option value="square">Carré (1:1 — Miniature)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Mots-clés / Tags (séparés par des virgules)</label>
+            <input type="text" id="new-proj-tags" class="form-control" placeholder="Python, Réseau, Linux, Docker">
+          </div>
+        </div>
         <div class="form-group">
           <label class="form-label">Description du projet</label>
           <textarea id="new-proj-desc" class="form-control" rows="3" required placeholder="Objectifs et contexte pédagogique..."></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Mots-clés / Tags (séparés par des virgules)</label>
-          <input type="text" id="new-proj-tags" class="form-control" placeholder="Python, Réseau, Linux, Docker">
         </div>
 
         <div class="form-group" style="border: 1px dashed var(--border-subtle); padding: 14px; border-radius: var(--radius-md); background: rgba(255,255,255,0.01);">
@@ -841,6 +871,7 @@ class AdminManager {
       const newProj = {
         title: document.getElementById("new-proj-title").value.trim(),
         category: document.getElementById("new-proj-cat").value.trim(),
+        aspectRatio: document.getElementById("new-proj-ratio") ? document.getElementById("new-proj-ratio").value : "landscape",
         description: document.getElementById("new-proj-desc").value.trim(),
         bgImage: bgImageUrl || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1000&auto=format&fit=crop&q=80",
         tags: tags.length ? tags : ["Informatique"],
@@ -1237,6 +1268,645 @@ class AdminManager {
     StorageService.setPassword(cleanPass);
     alert("✅ Mot de passe secret mis à jour avec succès !");
     document.getElementById("new-admin-pass").value = "";
+  }
+
+  /* -------------------------------------------------------------
+   * 6. THEME, NEON & BACKGROUNDS CUSTOMIZATION CMS
+   * ----------------------------------------------------------- */
+  renderThemeTab(body, data) {
+    const theme = data.theme || { primary: "#00d2ff", glow: "rgba(0, 210, 255, 0.45)", border: "rgba(0, 210, 255, 0.3)" };
+    const bgs = data.backgrounds || {};
+    const platform = data.platform || {
+      name: "Outlook Studio",
+      creator: "Auberson",
+      tagline: "Plateforme technologique, cinéma & ressources",
+      whatsapp: "+509 31 84 93 85",
+      phone: "+509 55 55 85 50",
+      email: "contact@nicaisseauberson.ch"
+    };
+
+    const colorPresets = [
+      { name: "Cyan Cyberpunk (Défaut)", hex: "#00d2ff", glow: "rgba(0, 210, 255, 0.45)", border: "rgba(0, 210, 255, 0.3)" },
+      { name: "Bleu Électrique", hex: "#3b82f6", glow: "rgba(59, 130, 246, 0.45)", border: "rgba(59, 130, 246, 0.3)" },
+      { name: "Violet Cyber", hex: "#a855f7", glow: "rgba(168, 85, 247, 0.45)", border: "rgba(168, 85, 247, 0.3)" },
+      { name: "Rouge Radiant", hex: "#ef4444", glow: "rgba(239, 68, 68, 0.45)", border: "rgba(239, 68, 68, 0.3)" },
+      { name: "Vert Matrix", hex: "#10b981", glow: "rgba(16, 185, 129, 0.45)", border: "rgba(16, 185, 129, 0.3)" },
+      { name: "Rose Néon", hex: "#ec4899", glow: "rgba(236, 72, 153, 0.45)", border: "rgba(236, 72, 153, 0.3)" },
+      { name: "Ambre Doré", hex: "#f59e0b", glow: "rgba(245, 158, 11, 0.45)", border: "rgba(245, 158, 11, 0.3)" }
+    ];
+
+    body.innerHTML = `
+      <div>
+        <div style="margin-bottom: 24px;">
+          <h4 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+            <span>🎨</span> Personnalisation & Thème Néon (Temps Réel Cloud)
+          </h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">
+            Modifiez la couleur d'accentuation néon du site, les arrière-plans par catégorie et les coordonnées publiques d'Outlook Studio.
+          </p>
+        </div>
+
+        <!-- 1. COULEUR NÉON ACCUEIL & SITE -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 24px;">
+          <h5 style="font-size: 0.98rem; font-weight: 700; margin-bottom: 12px; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <span>💡</span> Couleur Néon de l'Accueil & Effets Lumineux
+          </h5>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
+            Sélectionnez une nuance néon prédéfinie ou choisissez librement votre code couleur :
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px;">
+            ${colorPresets.map(p => `
+              <button type="button" class="btn btn-sm" onclick="adminManager.applyNeonPreset('${p.hex}', '${p.glow}', '${p.border}')" style="display: flex; align-items: center; gap: 8px; justify-content: flex-start; background: rgba(255,255,255,0.03); border: 1px solid ${theme.primary === p.hex ? p.hex : 'var(--border-subtle)'}; color: #fff; border-radius: 8px; padding: 8px 10px; cursor: pointer;">
+                <span style="width: 14px; height: 14px; border-radius: 50%; background: ${p.hex}; box-shadow: 0 0 8px ${p.hex}; display: inline-block;"></span>
+                <span style="font-size: 0.78rem; font-weight: 600;">${p.name}</span>
+              </button>
+            `).join("")}
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 12px; background: rgba(0,0,0,0.2); border-radius: var(--radius-md);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label class="form-label" style="margin: 0; font-size: 0.82rem;">Couleur personnalisée :</label>
+              <input type="color" id="neon-custom-color" value="${theme.primary || '#00d2ff'}" onchange="adminManager.onCustomColorPick(this.value)" style="width: 44px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: transparent;">
+            </div>
+            <div style="flex: 1; min-width: 180px;">
+              <input type="text" id="neon-custom-hex" class="form-control form-control-sm" value="${theme.primary || '#00d2ff'}" readonly style="font-family: monospace; font-weight: 700; color: var(--neon-primary, #00d2ff);">
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="adminManager.saveThemeSettings()">
+              💾 Sauvegarder la couleur sur le Cloud
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. GESTION DES ARRIÈRE-PLANS PAR CATÉGORIE -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 24px;">
+          <h5 style="font-size: 0.98rem; font-weight: 700; margin-bottom: 8px; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <span>🖼️</span> Arrière-plans des Vues & Rubriques
+          </h5>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
+            Définissez l'image de bannière d'en-tête pour chacune des rubriques indépendantes d'Outlook Studio :
+          </p>
+
+          <form onsubmit="adminManager.saveBackgroundSettings(event)">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 16px;">
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">🎬 Cinéma & Séries</label>
+                <input type="url" id="bg-cinema" class="form-control form-control-sm" value="${escapeHTML(bgs.cinema || '')}" placeholder="https://images.unsplash.com/...">
+              </div>
+
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">📰 Actualités & Nouveautés</label>
+                <input type="url" id="bg-actualites" class="form-control form-control-sm" value="${escapeHTML(bgs.actualites || '')}" placeholder="https://images.unsplash.com/...">
+              </div>
+
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">📁 Projets & Documents</label>
+                <input type="url" id="bg-projets" class="form-control form-control-sm" value="${escapeHTML(bgs.projets || '')}" placeholder="https://images.unsplash.com/...">
+              </div>
+
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">💡 Astuces Tech</label>
+                <input type="url" id="bg-astuces" class="form-control form-control-sm" value="${escapeHTML(bgs.astuces || '')}" placeholder="https://images.unsplash.com/...">
+              </div>
+
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">💻 Programmation & Code</label>
+                <input type="url" id="bg-code" class="form-control form-control-sm" value="${escapeHTML(bgs.code || '')}" placeholder="https://images.unsplash.com/...">
+              </div>
+
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">🎮 Culture Jeux Vidéo</label>
+                <input type="url" id="bg-gaming" class="form-control form-control-sm" value="${escapeHTML(bgs.gaming || '')}" placeholder="https://images.unsplash.com/...">
+              </div>
+
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">📚 Ressources & Bibliothèque</label>
+                <input type="url" id="bg-documents" class="form-control form-control-sm" value="${escapeHTML(bgs.documents || '')}" placeholder="https://images.unsplash.com/...">
+              </div>
+
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">📬 Page Contact Direct</label>
+                <input type="url" id="bg-contact" class="form-control form-control-sm" value="${escapeHTML(bgs.contact || '')}" placeholder="https://images.unsplash.com/...">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-sm">
+              💾 Enregistrer les arrière-plans sur le Cloud
+            </button>
+          </form>
+        </div>
+
+        <!-- 3. COORDONNÉES & IDENTITÉ DU SITE -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 18px;">
+          <h5 style="font-size: 0.98rem; font-weight: 700; margin-bottom: 8px; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <span>🌐</span> Coordonnées Directes & Identité Publique
+          </h5>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
+            Informations affichées sur la page Contact, dans le Header et dans le Footer :
+          </p>
+
+          <form onsubmit="adminManager.savePlatformSettings(event)">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 16px;">
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">Nom Officiel du Site</label>
+                <input type="text" id="plat-name" class="form-control" value="${escapeHTML(platform.name || 'Outlook Studio')}" required>
+              </div>
+
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">Créé & Développé par</label>
+                <input type="text" id="plat-creator" class="form-control" value="${escapeHTML(platform.creator || 'Auberson')}" required>
+              </div>
+
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">WhatsApp Direct</label>
+                <input type="text" id="plat-whatsapp" class="form-control" value="${escapeHTML(platform.whatsapp || '+509 31 84 93 85')}" required>
+              </div>
+
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.82rem;">Téléphone Direct</label>
+                <input type="text" id="plat-phone" class="form-control" value="${escapeHTML(platform.phone || '+509 55 55 85 50')}" required>
+              </div>
+
+              <div class="form-group" style="margin: 0; grid-column: 1 / -1;">
+                <label class="form-label" style="font-size: 0.82rem;">Email Officiel</label>
+                <input type="email" id="plat-email" class="form-control" value="${escapeHTML(platform.email || 'contact@nicaisseauberson.ch')}" required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-sm">
+              💾 Enregistrer les coordonnées sur le Cloud
+            </button>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  applyNeonPreset(hex, glow, border) {
+    document.documentElement.style.setProperty("--neon-primary", hex);
+    document.documentElement.style.setProperty("--neon-glow", glow);
+    document.documentElement.style.setProperty("--neon-border", border);
+    const hexInput = document.getElementById("neon-custom-hex");
+    const colInput = document.getElementById("neon-custom-color");
+    if (hexInput) hexInput.value = hex;
+    if (colInput) colInput.value = hex;
+    this._currentNeonTheme = { primary: hex, glow, border };
+  }
+
+  onCustomColorPick(hex) {
+    const rgb = this.hexToRgb(hex) || { r: 0, g: 210, b: 255 };
+    const glow = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.45)`;
+    const border = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`;
+    this.applyNeonPreset(hex, glow, border);
+  }
+
+  hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  }
+
+  async saveThemeSettings() {
+    const theme = this._currentNeonTheme || {
+      primary: document.getElementById("neon-custom-hex").value || "#00d2ff",
+      glow: "rgba(0, 210, 255, 0.45)",
+      border: "rgba(0, 210, 255, 0.3)"
+    };
+
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.updateTheme(theme);
+      }
+      const data = StorageService.get();
+      data.theme = theme;
+      StorageService.save(data, true);
+      alert("✅ Thème Néon enregistré et synchronisé avec succès sur le Cloud !");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  async saveBackgroundSettings(e) {
+    e.preventDefault();
+    const backgrounds = {
+      cinema: document.getElementById("bg-cinema").value.trim(),
+      actualites: document.getElementById("bg-actualites").value.trim(),
+      projets: document.getElementById("bg-projets").value.trim(),
+      astuces: document.getElementById("bg-astuces").value.trim(),
+      code: document.getElementById("bg-code").value.trim(),
+      gaming: document.getElementById("bg-gaming").value.trim(),
+      documents: document.getElementById("bg-documents").value.trim(),
+      contact: document.getElementById("bg-contact").value.trim()
+    };
+
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.updateBackgrounds(backgrounds);
+      }
+      const data = StorageService.get();
+      data.backgrounds = backgrounds;
+      StorageService.save(data, true);
+      alert("✅ Arrière-plans des rubriques enregistrés sur le Cloud !");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  async savePlatformSettings(e) {
+    e.preventDefault();
+    const platform = {
+      name: document.getElementById("plat-name").value.trim(),
+      creator: document.getElementById("plat-creator").value.trim(),
+      whatsapp: document.getElementById("plat-whatsapp").value.trim(),
+      phone: document.getElementById("plat-phone").value.trim(),
+      email: document.getElementById("plat-email").value.trim()
+    };
+
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.updatePlatform(platform);
+      }
+      const data = StorageService.get();
+      data.platform = platform;
+      StorageService.save(data, true);
+      alert("✅ Coordonnées et identité mises à jour sur le Cloud !");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  /* -------------------------------------------------------------
+   * 7. NEWS CMS TAB
+   * ----------------------------------------------------------- */
+  renderNewsTab(body, data) {
+    const news = data.news || [];
+    body.innerHTML = `
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Gestion des Actualités (${news.length})</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Publiez des articles, nouveautés tech, annonces et veille technologique.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddNewsForm()">+ Rédiger une Actualité</button>
+            ${news.length > 0 ? `
+              <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" onclick="adminManager.deleteAllNews()" title="Supprimer toutes les actualités">
+                🗑️ Tout effacer (${news.length})
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div id="news-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
+
+        ${news.length === 0 ? `
+          <div style="text-align: center; color: var(--text-dim); padding: 40px 20px; background: rgba(255,255,255,0.01); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">📰</div>
+            <p style="margin-bottom: 12px;">Aucun article d'actualité pour le moment.</p>
+            <button class="btn btn-primary btn-sm" onclick="adminManager.showAddNewsForm()">+ Publier la première actualité</button>
+          </div>
+        ` : `
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            ${news.map(n => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                  <img src="${escapeHTML(n.image || '')}" style="width: 50px; height: 38px; object-fit: cover; border-radius: 4px;" onerror="this.src='https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800'">
+                  <div>
+                    <strong>${escapeHTML(n.title)}</strong> <span style="font-size: 0.8rem; color: var(--neon-primary, #00d2ff);">[${escapeHTML(n.category || 'Tech')}]</span>
+                    <div style="font-size: 0.78rem; color: var(--text-dim);">${escapeHTML(n.date || '')}</div>
+                  </div>
+                </div>
+                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteNews('${n.id}')">Supprimer</button>
+              </div>
+            `).join("")}
+          </div>
+        `}
+      </div>
+    `;
+  }
+
+  showAddNewsForm() {
+    const c = document.getElementById("news-form-container");
+    if (!c) return;
+    c.style.display = "block";
+    c.innerHTML = `
+      <h5 style="margin-bottom: 16px; font-weight: 700;">Nouvel Article d'Actualité</h5>
+      <form onsubmit="adminManager.saveNewNews(event)">
+        <div class="form-group form-row-2 split-2-1">
+          <div>
+            <label class="form-label">Titre de l'article</label>
+            <input type="text" id="new-news-title" class="form-control" required placeholder="Ex: Gemini 2.5 : La révolution de l'intelligence artificielle">
+          </div>
+          <div>
+            <label class="form-label">Catégorie</label>
+            <select id="new-news-cat" class="form-control">
+              <option value="Tech" selected>Tech & Innovation</option>
+              <option value="Intelligence Artificielle">Intelligence Artificielle</option>
+              <option value="Programmation">Programmation & Code</option>
+              <option value="Cinéma">Cinéma & Séries</option>
+              <option value="Jeux Vidéo">Jeux Vidéo</option>
+              <option value="Éducation">Éducation & Outils</option>
+              <option value="Annonce">Annonce Officielle</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Résumé court (affiché sur la carte d'actualité)</label>
+          <input type="text" id="new-news-summary" class="form-control" required placeholder="Une synthèse percutante en 1 ou 2 phrases...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contenu complet de l'article</label>
+          <textarea id="new-news-content" class="form-control" rows="5" required placeholder="Rédigez l'article complet ici..."></textarea>
+        </div>
+        <div class="form-group" style="border: 1px dashed var(--border-subtle); padding: 14px; border-radius: var(--radius-md); background: rgba(255,255,255,0.01);">
+          <label class="form-label">🖼️ Image de couverture</label>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <input type="file" id="new-news-img-file" accept="image/*" class="form-control" style="background: transparent;" onchange="adminManager.previewImage(this, 'news-img-preview')">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 0.8rem;">
+              <span>ou lien URL :</span>
+              <input type="url" id="new-news-img-url" class="form-control" placeholder="https://..." style="flex: 1;" oninput="adminManager.previewUrl(this.value, 'news-img-preview')">
+            </div>
+          </div>
+          <div id="news-img-preview" style="display: none; margin-top: 10px; max-height: 160px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-subtle); text-align: center;">
+            <img src="" style="max-height: 160px; object-fit: cover; display: inline-block;">
+          </div>
+        </div>
+        <div class="form-group form-row-2">
+          <div>
+            <label class="form-label">Mots-clés / Tags (séparés par virgules)</label>
+            <input type="text" id="new-news-tags" class="form-control" placeholder="IA, Google, Futur, 2026">
+          </div>
+          <div>
+            <label class="form-label">Lien externe / Source (optionnel)</label>
+            <input type="url" id="new-news-link" class="form-control" placeholder="https://...">
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button type="submit" id="save-news-submit-btn" class="btn btn-primary btn-sm">Publier l'Actualité</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="this.closest('#news-form-container').style.display='none'">Annuler</button>
+        </div>
+      </form>
+    `;
+  }
+
+  async saveNewNews(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById("save-news-submit-btn");
+    const originalText = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Publication Cloud...";
+    }
+
+    try {
+      let imgUrl = document.getElementById("new-news-img-url") ? document.getElementById("new-news-img-url").value.trim() : "";
+      const imgFileInput = document.getElementById("new-news-img-file");
+      if (imgFileInput && imgFileInput.files && imgFileInput.files[0]) {
+        imgUrl = await this.compressImage(imgFileInput.files[0], 720, 720, 0.7);
+      }
+
+      if (!imgUrl) {
+        imgUrl = "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&auto=format&fit=crop&q=80";
+      }
+
+      const tags = document.getElementById("new-news-tags").value
+        .split(",")
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
+
+      const newArticle = {
+        title: document.getElementById("new-news-title").value.trim(),
+        category: document.getElementById("new-news-cat").value,
+        summary: document.getElementById("new-news-summary").value.trim(),
+        content: document.getElementById("new-news-content").value.trim(),
+        image: imgUrl,
+        date: new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }),
+        tags: tags.length ? tags : ["Actualité"],
+        link: document.getElementById("new-news-link") ? document.getElementById("new-news-link").value.trim() : ""
+      };
+
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.addNews(newArticle);
+      } else {
+        const data = StorageService.get();
+        if (!data.news) data.news = [];
+        newArticle.id = "news-" + Date.now();
+        data.news.unshift(newArticle);
+        StorageService.save(data, true);
+        this.renderNewsTab(document.getElementById("admin-modal-body"), data);
+      }
+
+      alert("✅ Actualité publiée et synchronisée avec succès sur le Cloud !");
+      const formContainer = document.getElementById("news-form-container");
+      if (formContainer) formContainer.style.display = "none";
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
+  }
+
+  async deleteNews(id) {
+    if (!confirm("Supprimer cette actualité du Cloud ?")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteNews(id);
+      } else {
+        const data = StorageService.get();
+        data.news = (data.news || []).filter(n => n.id !== id);
+        StorageService.save(data, true);
+        this.renderNewsTab(document.getElementById("admin-modal-body"), data);
+      }
+      alert("✅ Actualité supprimée !");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  async deleteAllNews() {
+    if (!confirm("⚠️ Supprimer TOUTES les actualités ? Cette action est irréversible.")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteAllNews();
+      }
+      const data = StorageService.get();
+      data.news = [];
+      StorageService.save(data, true);
+      this.renderNewsTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Toutes les actualités ont été supprimées.");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
+  }
+
+  /* -------------------------------------------------------------
+   * 8. EXTENSIBLE CATEGORIES CMS TAB
+   * ----------------------------------------------------------- */
+  renderCategoriesTab(body, data) {
+    const customCats = data.customCategories || [];
+    const coreCats = [
+      { id: "cinema", name: "Cinéma & Séries", icon: "🎬", desc: "Streaming, fiches et bandes-annonces" },
+      { id: "actualites", name: "Actualités", icon: "📰", desc: "Nouveautés tech, annonces et veille" },
+      { id: "projets", name: "Projets & Documents", icon: "📁", desc: "Logiciels, scripts et ressources téléchargeables" },
+      { id: "astuces", name: "Astuces Tech", icon: "💡", desc: "Tips productivité, commandes et tutoriels" },
+      { id: "code", name: "Programmation & Code", icon: "💻", desc: "Snippets, langages et bibliothèques" },
+      { id: "gaming", name: "Culture Gaming", icon: "🎮", desc: "Moteurs 3D, actualité jeux et tech vidéoludique" },
+      { id: "documents", name: "Bibliothèque de Docs", icon: "📚", desc: "Guides pédagogiques, manuels et livres" },
+      { id: "contact", name: "Contact Direct", icon: "📬", desc: "WhatsApp, Téléphone et Email" }
+    ];
+
+    body.innerHTML = `
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Catégories & Rubriques de la Plateforme</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Gérez les sections de base et ajoutez de nouvelles catégories personnalisées.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="adminManager.showAddCategoryForm()">+ Ajouter une Catégorie</button>
+        </div>
+
+        <div id="cat-form-container" style="display: none; background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle);"></div>
+
+        <h5 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-secondary);">Rubriques Principales (Système)</h5>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 28px;">
+          ${coreCats.map(c => `
+            <div style="padding: 14px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span style="font-size: 1.25rem;">${c.icon}</span>
+                <strong style="font-size: 0.92rem; color: #fff;">${c.name}</strong>
+                <span style="font-size: 0.7rem; background: rgba(59,130,246,0.15); color: #60a5fa; padding: 2px 6px; border-radius: 4px; margin-left: auto;">Fixe</span>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-dim); margin: 0;">${c.desc}</p>
+            </div>
+          `).join("")}
+        </div>
+
+        <h5 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-secondary);">Catégories Personnalisées Ajoutées (${customCats.length})</h5>
+        ${customCats.length === 0 ? `
+          <div style="text-align: center; color: var(--text-dim); padding: 24px; background: rgba(255,255,255,0.01); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); font-size: 0.85rem;">
+            Aucune catégorie personnalisée créée. Vous pouvez en créer pour enrichir Outlook Studio !
+          </div>
+        ` : `
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            ${customCats.map(c => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="font-size: 1.4rem;">${escapeHTML(c.icon || '📌')}</span>
+                  <div>
+                    <strong style="color: #fff;">${escapeHTML(c.name)}</strong> <span style="font-size: 0.78rem; color: var(--text-dim);">[#/${escapeHTML(c.slug || '')}]</span>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(c.description || '')}</div>
+                  </div>
+                </div>
+                <button class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" onclick="adminManager.deleteCategory('${c.id}')">Supprimer</button>
+              </div>
+            `).join("")}
+          </div>
+        `}
+      </div>
+    `;
+  }
+
+  showAddCategoryForm() {
+    const c = document.getElementById("cat-form-container");
+    if (!c) return;
+    c.style.display = "block";
+    c.innerHTML = `
+      <h5 style="margin-bottom: 16px; font-weight: 700;">Ajouter une Nouvelle Catégorie</h5>
+      <form onsubmit="adminManager.saveNewCategory(event)">
+        <div class="form-group form-row-3">
+          <div>
+            <label class="form-label">Nom de la catégorie</label>
+            <input type="text" id="new-cat-name" class="form-control" required placeholder="Ex: Tutoriels Vidéo">
+          </div>
+          <div>
+            <label class="form-label">Identifiant URL (Slug)</label>
+            <input type="text" id="new-cat-slug" class="form-control" required placeholder="Ex: tutoriels-video">
+          </div>
+          <div>
+            <label class="form-label">Icône (Emoji)</label>
+            <input type="text" id="new-cat-icon" class="form-control" required placeholder="Ex: 🎥" style="text-align: center;">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description courte</label>
+          <input type="text" id="new-cat-desc" class="form-control" placeholder="Objectifs et contenu de cette catégorie...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Image d'arrière-plan de bannière (URL)</label>
+          <input type="url" id="new-cat-bg" class="form-control" placeholder="https://images.unsplash.com/...">
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button type="submit" id="save-cat-submit-btn" class="btn btn-primary btn-sm">Créer la Catégorie</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="this.closest('#cat-form-container').style.display='none'">Annuler</button>
+        </div>
+      </form>
+    `;
+  }
+
+  async saveNewCategory(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById("save-cat-submit-btn");
+    const originalText = submitBtn ? submitBtn.textContent : "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Création Cloud...";
+    }
+
+    try {
+      const rawSlug = document.getElementById("new-cat-slug").value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+      const newCat = {
+        name: document.getElementById("new-cat-name").value.trim(),
+        slug: rawSlug || "cat-" + Date.now(),
+        icon: document.getElementById("new-cat-icon").value.trim() || "📌",
+        description: document.getElementById("new-cat-desc").value.trim(),
+        bgImage: document.getElementById("new-cat-bg").value.trim() || ""
+      };
+
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.addCategory(newCat);
+      } else {
+        const data = StorageService.get();
+        if (!data.customCategories) data.customCategories = [];
+        newCat.id = "cat-" + Date.now();
+        data.customCategories.push(newCat);
+        StorageService.save(data, true);
+        this.renderCategoriesTab(document.getElementById("admin-modal-body"), data);
+      }
+
+      alert("✅ Catégorie créée avec succès sur le Cloud !");
+      const formContainer = document.getElementById("cat-form-container");
+      if (formContainer) formContainer.style.display = "none";
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    }
+  }
+
+  async deleteCategory(id) {
+    if (!confirm("Supprimer cette catégorie ?")) return;
+    try {
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        await window.FirebaseBridge.deleteCategory(id);
+      } else {
+        const data = StorageService.get();
+        data.customCategories = (data.customCategories || []).filter(c => c.id !== id);
+        StorageService.save(data, true);
+        this.renderCategoriesTab(document.getElementById("admin-modal-body"), data);
+      }
+      alert("✅ Catégorie supprimée !");
+    } catch (err) {
+      alert("Erreur: " + err.message);
+    }
   }
 
   /* -------------------------------------------------------------

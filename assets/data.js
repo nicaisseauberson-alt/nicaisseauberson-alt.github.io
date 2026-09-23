@@ -4,17 +4,60 @@
  */
 
 const DEFAULT_DATA = {
+  platform: {
+    name: "Outlook Studio",
+    acronym: "OS",
+    tagline: "A technology and resource platform",
+    creator: "Auberson",
+    attribution: "Powered by Auberson",
+    shortDescription: "Outlook Studio rassemble des ressources, astuces technologiques, documents, programmes, actualités et contenus autour du cinéma, du gaming, du code et des innovations numériques.",
+    whatsapp: "+509 31 84 93 85",
+    whatsappDisplay: "+509 31 84 93 85",
+    whatsappLink: "https://wa.me/50931849385",
+    phone: "+509 55 55 85 50",
+    phoneDisplay: "+509 55 55 85 50",
+    phoneLink: "tel:+50955558550",
+    email: "contact@nicaisseauberson.ch",
+    emailLink: "mailto:contact@nicaisseauberson.ch"
+  },
+  theme: {
+    neonColor: "#3b82f6", // Bleu électrique néon par défaut
+    neonPreset: "blue", // blue, purple, red, green, cyan, pink, custom
+    neonAnimation: "pulse"
+  },
+  backgrounds: {
+    cinema: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&q=80",
+    projects: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80",
+    tips: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1920&q=80",
+    code: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=80",
+    news: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1920&q=80",
+    gaming: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1920&q=80",
+    documents: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1920&q=80",
+    portfolio: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1920&q=80"
+  },
+  categories: [
+    { id: "cinema", name: "Cinéma", icon: "🎬", desc: "Recommandations, affiches et bandes-annonces" },
+    { id: "news", name: "Actualités", icon: "📰", desc: "Nouveautés tech, cinéma, gaming et innovations" },
+    { id: "projects", name: "Projets", icon: "📁", desc: "Laboratoires pédagogiques et réalisations" },
+    { id: "tips", name: "Astuces Tech", icon: "💡", desc: "Tutoriels et optimisations avancées" },
+    { id: "code", name: "Code", icon: "💻", desc: "Snippets, commandes et scripts multiplateformes" },
+    { id: "gaming", name: "Gaming", icon: "🎮", desc: "Jeux vidéo, moteur graphique et actualité gaming" },
+    { id: "documents", name: "Documents", icon: "📄", desc: "Fichiers, cours et programmes téléchargeables" },
+    { id: "portfolio", name: "Portfolio", icon: "💼", desc: "Projets et réalisations d'Auberson" },
+    { id: "contact", name: "Contact", icon: "✉️", desc: "WhatsApp, appel direct et e-mail" }
+  ],
   profile: {
-    name: "Nicaisse Auberson",
+    name: "Auberson",
+    fullName: "Auberson",
     titles: ["Informaticien", "Enseignant", "Architecte Solutions"],
     tagline: "Transformer la complexité informatique en savoir accessible et solutions performantes.",
     bio: "Spécialiste en technologies logicielles et enseignant passionné, j'accompagne les étudiants et les professionnels dans la maîtrise des outils informatiques modernes, du développement web avancé aux architectures systèmes robustes.",
-    availability: "Disponible pour conférences, formations & projets",
-    location: "Genève / Suisse & International",
+    availability: "Plateforme active & Ressources ouvertes",
+    location: "Genève & International",
     email: "contact@nicaisseauberson.ch",
     github: "https://github.com",
     linkedin: "https://linkedin.com",
-    accentColor: "#3b82f6" // Electric blue accent
+    accentColor: "#3b82f6"
   },
   skills: [
     { name: "Architecture Logicielle", level: "95%", icon: "cpu" },
@@ -24,9 +67,10 @@ const DEFAULT_DATA = {
     { name: "Cybersécurité & Réseaux", level: "85%", icon: "shield" },
     { name: "Intelligence Artificielle & Outils 2026", level: "90%", icon: "sparkles" }
   ],
-  techTips: [], // Géré exclusivement en temps réel via Cloud Firestore
-  cinema: [], // Géré exclusivement en temps réel via Cloud Firestore
-  projects: [], // Géré exclusivement en temps réel via Cloud Firestore
+  news: [],
+  techTips: [],
+  cinema: [],
+  projects: [],
   visitors: []
 };
 
@@ -34,9 +78,9 @@ const DEFAULT_DATA = {
 // STORAGE SERVICE & SYNCHRONISATION CLOUD EN TEMPS RÉEL
 // =============================================================================
 class StorageService {
-  static KEY = "nicaisse_portfolio_db_v2026_cloud";
+  static KEY = "outlook_studio_db_v2026_cloud";
   static AUTH_KEY = "nicaisse_owner_password_2026";
-  static LAST_SYNC_KEY = "nicaisse_last_cloud_sync_ts";
+  static LAST_SYNC_KEY = "outlook_studio_last_cloud_sync_ts";
   static DEFAULT_PASS = "nicaisse2026";
   
   static PRESENCE_HUB = "https://ntfy.sh/nicaisse_presence_hub_2026";
@@ -65,7 +109,6 @@ class StorageService {
     if (!inputPass) return false;
     const clean = inputPass.trim();
     const activePass = this.getPassword();
-    // Seul le mot de passe défini par l'administrateur est autorisé (aucun passe-droit comme 'admin')
     return clean === activePass;
   }
 
@@ -80,6 +123,11 @@ class StorageService {
       return {
         ...DEFAULT_DATA,
         ...parsed,
+        platform: { ...DEFAULT_DATA.platform, ...(parsed.platform || {}) },
+        theme: { ...DEFAULT_DATA.theme, ...(parsed.theme || {}) },
+        backgrounds: { ...DEFAULT_DATA.backgrounds, ...(parsed.backgrounds || {}) },
+        categories: Array.isArray(parsed.categories) && parsed.categories.length > 0 ? parsed.categories : DEFAULT_DATA.categories,
+        news: Array.isArray(parsed.news) ? parsed.news : [],
         cinema: Array.isArray(parsed.cinema) ? parsed.cinema : [],
         projects: Array.isArray(parsed.projects) ? parsed.projects : [],
         techTips: Array.isArray(parsed.techTips) ? parsed.techTips : [],
@@ -115,8 +163,18 @@ class StorageService {
         current.projects = Array.isArray(items) ? items : [];
       } else if (collectionName === "techTips") {
         current.techTips = Array.isArray(items) ? items : [];
+      } else if (collectionName === "news") {
+        current.news = Array.isArray(items) ? items : [];
+      } else if (collectionName === "categories") {
+        current.categories = Array.isArray(items) && items.length > 0 ? items : DEFAULT_DATA.categories;
+      } else if (collectionName === "theme") {
+        current.theme = { ...current.theme, ...(items || {}) };
+      } else if (collectionName === "backgrounds") {
+        current.backgrounds = { ...current.backgrounds, ...(items || {}) };
+      } else if (collectionName === "platform") {
+        current.platform = { ...current.platform, ...(items || {}) };
       } else if (collectionName === "profile") {
-        current.profile = { ...current.profile, ...items };
+        current.profile = { ...current.profile, ...(items || {}) };
       }
 
       // Sauvegarde dans le cache local (mode offline transparent)

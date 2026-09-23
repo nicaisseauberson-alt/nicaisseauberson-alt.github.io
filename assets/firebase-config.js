@@ -277,6 +277,90 @@ class FirebaseBridgeService {
     } catch (e) {
       console.warn("⚠️ [Firestore] Erreur setup profile listener:", e);
     }
+
+    // 5. Écouteur en direct sur la collection Actualités
+    try {
+      const newsCol = collection(this.db, "news");
+      const unsubNews = onSnapshot(newsCol, (snapshot) => {
+        const items = [];
+        snapshot.forEach((docSnap) => {
+          items.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        items.sort((a, b) => {
+          const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
+          const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
+          return timeB - timeA;
+        });
+        onDataUpdated("news", items);
+      }, (error) => {
+        console.warn("⚠️ [Firestore] Erreur listener news:", error.message);
+      });
+      this.unsubscribers.push(unsubNews);
+    } catch (e) {
+      console.warn("⚠️ [Firestore] Erreur setup news listener:", e);
+    }
+
+    // 6. Écouteur sur le Thème & Néon
+    try {
+      const themeDocRef = doc(this.db, "settings", "theme");
+      const unsubTheme = onSnapshot(themeDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          onDataUpdated("theme", docSnap.data());
+        }
+      }, (error) => {
+        console.warn("⚠️ [Firestore] Erreur listener theme:", error.message);
+      });
+      this.unsubscribers.push(unsubTheme);
+    } catch (e) {
+      console.warn("⚠️ [Firestore] Erreur setup theme listener:", e);
+    }
+
+    // 7. Écouteur sur les Arrière-plans par catégorie
+    try {
+      const bgDocRef = doc(this.db, "settings", "backgrounds");
+      const unsubBg = onSnapshot(bgDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          onDataUpdated("backgrounds", docSnap.data());
+        }
+      }, (error) => {
+        console.warn("⚠️ [Firestore] Erreur listener backgrounds:", error.message);
+      });
+      this.unsubscribers.push(unsubBg);
+    } catch (e) {
+      console.warn("⚠️ [Firestore] Erreur setup backgrounds listener:", e);
+    }
+
+    // 8. Écouteur sur les Catégories Personnalisées
+    try {
+      const catCol = collection(this.db, "customCategories");
+      const unsubCat = onSnapshot(catCol, (snapshot) => {
+        const items = [];
+        snapshot.forEach((docSnap) => {
+          items.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        onDataUpdated("categories", items.length > 0 ? items : null);
+      }, (error) => {
+        console.warn("⚠️ [Firestore] Erreur listener categories:", error.message);
+      });
+      this.unsubscribers.push(unsubCat);
+    } catch (e) {
+      console.warn("⚠️ [Firestore] Erreur setup categories listener:", e);
+    }
+
+    // 9. Écouteur sur la configuration Plateforme
+    try {
+      const platformDocRef = doc(this.db, "settings", "platform");
+      const unsubPlatform = onSnapshot(platformDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          onDataUpdated("platform", docSnap.data());
+        }
+      }, (error) => {
+        console.warn("⚠️ [Firestore] Erreur listener platform:", error.message);
+      });
+      this.unsubscribers.push(unsubPlatform);
+    } catch (e) {
+      console.warn("⚠️ [Firestore] Erreur setup platform listener:", e);
+    }
   }
 
   // --- CRUD CINÉMA ---
@@ -396,6 +480,87 @@ class FirebaseBridgeService {
       ...profileData,
       updatedAt: serverTimestamp()
     }, { merge: true });
+  }
+
+  // --- CRUD THÈME & NÉON ---
+  async updateTheme(themeData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const docRef = doc(this.db, "settings", "theme");
+    return await setDoc(docRef, {
+      ...themeData,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
+
+  // --- CRUD ARRIÈRE-PLANS PAR CATÉGORIE ---
+  async updateBackgrounds(bgData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const docRef = doc(this.db, "settings", "backgrounds");
+    return await setDoc(docRef, {
+      ...bgData,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
+
+  // --- CRUD PLATEFORME & IDENTITÉ ---
+  async updatePlatform(platformData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const docRef = doc(this.db, "settings", "platform");
+    return await setDoc(docRef, {
+      ...platformData,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
+
+  // --- CRUD ACTUALITÉS ---
+  async addNews(newsData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const cleanData = {
+      ...newsData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    return await addDoc(collection(this.db, "news"), cleanData);
+  }
+
+  async updateNews(id, newsData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const docRef = doc(this.db, "news", id);
+    return await updateDoc(docRef, {
+      ...newsData,
+      updatedAt: serverTimestamp()
+    });
+  }
+
+  async deleteNews(id) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    return await deleteDoc(doc(this.db, "news", id));
+  }
+
+  async deleteAllNews() {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const snap = await getDocs(collection(this.db, "news"));
+    const deletePromises = [];
+    snap.forEach((docSnap) => {
+      deletePromises.push(deleteDoc(doc(this.db, "news", docSnap.id)));
+    });
+    await Promise.all(deletePromises);
+    return true;
+  }
+
+  // --- CRUD CATÉGORIES EXTENSIBLES ---
+  async addCategory(catData) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    const cleanData = {
+      ...catData,
+      createdAt: serverTimestamp()
+    };
+    return await addDoc(collection(this.db, "customCategories"), cleanData);
+  }
+
+  async deleteCategory(id) {
+    if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas configuré.");
+    return await deleteDoc(doc(this.db, "customCategories", id));
   }
 
   // --- SEED INITIAL SÉCURISÉ (UNE SEULE FOIS, JAMAIS SI DÉJÀ INITIALISÉ) ---
