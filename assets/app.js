@@ -4,6 +4,17 @@
  * Real-time rendering, dynamic neon/backgrounds, visitor telemetry & streaming UI
  */
 
+window.openAdminTab = function(tabId) {
+  if (window.adminManager) {
+    window.adminManager.openLoginOrDashboard();
+    setTimeout(() => {
+      if (window.adminManager.activeTab !== undefined) {
+        window.adminManager.switchTab(tabId);
+      }
+    }, 150);
+  }
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initVisitorTelemetry();
   initRouter();
@@ -588,20 +599,15 @@ function renderGaming(gamingItems) {
 
   if (validItems.length === 0) {
     container.innerHTML = `
-      <div class="bento-grid" style="margin-bottom: 24px;">
-        <div class="bento-card col-6">
-          <div class="card-icon" style="background: rgba(168, 85, 247, 0.12); color: #a855f7;">🎮</div>
-          <h3 class="card-title">Moteurs 3D & Next-Gen Gaming</h3>
-          <p class="card-desc">Suivi des innovations Unreal Engine 5, ray-tracing matériel et optimisation des pipelines graphiques temps réel.</p>
-        </div>
-        <div class="bento-card col-6">
-          <div class="card-icon" style="background: rgba(59, 130, 246, 0.12); color: #3b82f6;">⚡</div>
-          <h3 class="card-title">Performance & Matériel</h3>
-          <p class="card-desc">Tests de fréquence d'images, architecture GPU et architectures de streaming gaming basse latence.</p>
-        </div>
-      </div>
-      <div style="text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun jeu ou projet 3D ajouté dans le catalogue pour le moment. Vous pouvez en publier librement depuis l'espace administrateur.</p>
+      <div style="text-align: center; padding: 56px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
+        <div style="font-size: 3rem; margin-bottom: 14px;">🎮</div>
+        <h4 style="font-weight: 700; margin-bottom: 8px; color: #fff; font-size: 1.2rem;">Univers Gaming & Moteurs 3D</h4>
+        <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto;">
+          Aucun titre pour le moment dans cette section. Vous pouvez publier des jeux, tests et démonstrations 3D en un clic depuis l'espace admin.
+        </p>
+        <button class="btn btn-primary btn-sm" onclick="if(window.openAdminTab) window.openAdminTab('gaming'); else adminManager.openLoginOrDashboard();">
+          ➕ Ajouter un Titre Gaming
+        </button>
       </div>
     `;
     return;

@@ -87,16 +87,49 @@ img, picture, video, canvas, svg {
   height: auto;
 }
 
-/* Ambient glow - Warm golden amber cosmic solar flare (Mockup Standard) */
+/* Ambient glow - Dark obsidian with deep atmosphere */
 .ambient-glow {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   background: 
-    radial-gradient(circle at 84% 12%, rgba(245, 158, 11, 0.20) 0%, rgba(245, 158, 11, 0.05) 45%, transparent 70%),
-    radial-gradient(circle at 14% 18%, rgba(59, 130, 246, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 75% 85%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+    radial-gradient(ellipse 90% 70% at 75% 0%, rgba(245, 158, 11, 0.16) 0%, rgba(217, 119, 6, 0.06) 35%, transparent 65%),
+    radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+    #07090e;
+}
+
+/* Solar Radiant LED Néon Flare (Scriptix Standard - Top Right Golden Beam) */
+.solar-neon-light {
+  position: fixed;
+  top: -100px;
+  right: -50px;
+  width: 780px;
+  height: 720px;
+  pointer-events: none;
+  z-index: 0;
+  background: 
+    conic-gradient(from 190deg at 78% 12%, transparent 0deg, rgba(245, 158, 11, 0.15) 15deg, rgba(251, 191, 36, 0.5) 32deg, rgba(245, 158, 11, 0.2) 50deg, transparent 68deg),
+    radial-gradient(circle at 78% 12%, rgba(254, 240, 138, 0.8) 0%, rgba(251, 191, 36, 0.5) 25%, rgba(245, 158, 11, 0.25) 50%, transparent 75%);
+  filter: blur(36px);
+  opacity: 0.85;
+  animation: solarPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes solarPulse {
+  0% { opacity: 0.75; transform: scale(0.98); }
+  100% { opacity: 0.95; transform: scale(1.02); }
+}
+
+@media (max-width: 768px) {
+  .solar-neon-light {
+    width: 100vw;
+    height: 420px;
+    right: 0;
+    top: -50px;
+    filter: blur(28px);
+    opacity: 0.65;
+  }
 }
 
 .wrapper {
@@ -1686,21 +1719,19 @@ main {
     background: transparent;
     border-bottom: none;
     pointer-events: none;
-    padding-top: 14px;
+    padding-top: 16px;
     transition: all 0.3s ease;
   }
 
   .nav-container {
     pointer-events: auto;
-    padding: 6px 14px 6px 18px;
-    background: rgba(12, 16, 26, 0.82);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-full);
+    padding: 0 var(--page-padding);
+    background: transparent;
+    border: none;
+    border-radius: 0;
     margin: 0 auto;
-    max-width: 1180px;
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.03);
+    max-width: 1240px;
+    box-shadow: none;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1709,22 +1740,28 @@ main {
   .brand {
     flex-shrink: 0;
     white-space: nowrap;
-    margin-right: 14px;
+    margin-right: 18px;
   }
 
   .desktop-nav {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1;
-    min-width: 0;
+    background: rgba(14, 18, 28, 0.82);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-full);
+    padding: 4px 6px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    flex-shrink: 0;
   }
 
   .nav-links {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 2px;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -1740,7 +1777,7 @@ main {
     text-decoration: none;
     font-size: 0.82rem;
     font-weight: 500;
-    padding: 6px 10px;
+    padding: 6px 11px;
     border-radius: var(--radius-full);
     border: 1px solid transparent;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1755,15 +1792,15 @@ main {
 
   .nav-links a.active {
     color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.14) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.16) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
     font-weight: 600;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
 
   .nav-actions {
     flex-shrink: 0;
-    margin-left: 12px;
+    margin-left: 18px;
     display: flex;
     align-items: center;
   }
@@ -2004,66 +2041,81 @@ main {
   box-shadow: 0 0 28px var(--neon-primary);
 }
 
-/* 3. CATEGORY HERO BANNER */
+/* 3. CATEGORY HEADER (Dark Luxury Architectural Standard) */
+.category-header-clean,
 .category-hero {
   position: relative;
   border-radius: var(--radius-xl);
   overflow: hidden;
-  margin-bottom: 32px;
-  min-height: 220px;
+  margin-bottom: 28px;
+  min-height: auto;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: clamp(24px, 4vw, 40px);
-  border: 1px solid var(--border-subtle);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: background-image 0.5s ease;
+  padding: clamp(24px, 4vw, 36px);
+  background: linear-gradient(135deg, rgba(16, 22, 34, 0.7) 0%, rgba(10, 14, 22, 0.5) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.category-header-clean::before,
+.category-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--neon-primary, #3b82f6) 30%, #fbbf24 70%, transparent 100%);
 }
 
 .category-hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(6, 8, 13, 0.45) 0%, rgba(6, 8, 13, 0.85) 75%, rgba(6, 8, 13, 0.98) 100%);
-  backdrop-filter: blur(2px);
-  z-index: 1;
+  display: none !important;
 }
 
-.category-hero-content {
-  position: relative;
-  z-index: 2;
+.category-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
+.category-badge,
 .category-hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 4px 10px;
+  letter-spacing: 0.06em;
+  padding: 5px 12px;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--border-subtle);
-  color: var(--neon-primary);
-  margin-bottom: 12px;
-}
-
-.category-hero-title {
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--neon-primary, #60a5fa);
   margin-bottom: 8px;
 }
 
+.category-title,
+.category-hero-title {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.category-desc,
 .category-hero-desc {
-  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  font-size: clamp(0.88rem, 1.8vw, 1rem);
   color: var(--text-secondary);
-  max-width: 650px;
+  max-width: 680px;
   line-height: 1.6;
+  margin: 0;
 }
 
 /* 4. DEDICATED CONTACT PAGE */

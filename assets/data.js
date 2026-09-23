@@ -67,14 +67,250 @@ const DEFAULT_DATA = {
     { name: "Cybersécurité & Réseaux", level: "85%", icon: "shield" },
     { name: "Intelligence Artificielle & Outils 2026", level: "90%", icon: "sparkles" }
   ],
-  news: [],
-  techTips: [],
-  cinema: [],
-  projects: [],
-  gaming: [],
-  documents: [],
-  code: [],
-  portfolio: [],
+  news: [
+    {
+      id: "news-1",
+      title: "Lancement Officiel d'Outlook Studio 2026",
+      category: "Tech & IA",
+      summary: "Découvrez la nouvelle version de la plateforme technologique créée par Auberson.",
+      content: "Outlook Studio inaugure sa nouvelle version dédiée aux ressources numériques, astuces et découvertes technologiques avec synchronisation cloud temps réel.",
+      image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800",
+      date: "23 Septembre 2026",
+      source: "Outlook Studio"
+    },
+    {
+      id: "news-2",
+      title: "L'essor des architectures temps réel et du Cloud Serverless",
+      category: "Programmation",
+      summary: "Analyse des nouvelles tendances d'ingénierie logicielle pour des applications web ultra-réactives.",
+      content: "Les architectures serverless et les bases de données temps réel transforment l'expérience utilisateur avec des temps de latence quasi nuls.",
+      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800",
+      date: "22 Septembre 2026",
+      source: "Tech Insights"
+    }
+  ],
+  techTips: [
+    {
+      id: "tip-1",
+      title: "Optimisation de la mémoire et accélération Windows",
+      category: "Système & PowerShell",
+      badge: "Windows 11 / 10",
+      summary: "Libérer le cache mémoire et optimiser les services superflus en une ligne de commande PowerShell.",
+      code: "Clear-BcdrCache ; Get-Process | Where-Object WorkingSet -gt 500MB | Sort-Object WorkingSet -Descending",
+      explanation: "Permet de visualiser immédiatement les processus gourmands et d'alléger la mémoire vive.",
+      date: "Septembre 2026"
+    },
+    {
+      id: "tip-2",
+      title: "Nettoyage rapide du cache DNS et des sockets réseau",
+      category: "Réseaux",
+      badge: "Tous OS",
+      summary: "Résoudre instantanément les problèmes de résolution de noms et de lenteur de connexion.",
+      code: "ipconfig /flushdns ; netsh winsock reset",
+      explanation: "Vide la table locale de résolution DNS et réinitialise le catalogue Winsock.",
+      date: "Septembre 2026"
+    }
+  ],
+  cinema: [
+    {
+      id: "cine-1",
+      title: "Dune: Deuxième Partie",
+      rating: "9.2/10",
+      category: "Science-Fiction",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800",
+      summary: "Paul Atreides s'unit à Chani et aux Fremen pour mener la révolte contre ceux qui ont détruit sa famille.",
+      trailerUrl: "https://www.youtube.com/watch?v=Way9Dexny3w"
+    },
+    {
+      id: "cine-2",
+      title: "Oppenheimer",
+      rating: "9.0/10",
+      category: "Biopic / Histoire",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=800",
+      summary: "L'histoire captivante de J. Robert Oppenheimer et du développement de l'arme atomique.",
+      trailerUrl: "https://www.youtube.com/watch?v=uYPbbksJxIg"
+    },
+    {
+      id: "cine-3",
+      title: "Interstellar",
+      rating: "9.5/10",
+      category: "Science-Fiction",
+      year: "2014",
+      image: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=800",
+      summary: "Une équipe d'explorateurs franchit un trou de ver dans l'espace pour sauver l'humanité.",
+      trailerUrl: "https://www.youtube.com/watch?v=zSWdZVtXT7E"
+    }
+  ],
+  projects: [
+    {
+      id: "proj-1",
+      title: "Laboratoire d'Automatisation & Scripting",
+      category: "Automatisation",
+      description: "Collection d'outils et de scripts pour automatiser les tâches d'administration et de déploiement.",
+      fileName: "laboratoire_automatisation.pdf",
+      fileSize: "1.8 MB",
+      fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      tags: ["PowerShell", "Bash", "Automatisation"]
+    }
+  ],
+  gaming: [
+    {
+      id: "game-1",
+      title: "Cyberpunk 2077: Phantom Liberty",
+      rating: "9.8/10",
+      platform: "PC / RTX",
+      category: "Action RPG",
+      summary: "Immersion cyberpunk poussée avec ray-tracing complet (Path Tracing) et optimisation DLSS 3.5.",
+      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800",
+      trailerUrl: "https://www.youtube.com/watch?v=PbVKBoDuhZ0",
+      tags: ["Path Tracing", "Cyberpunk", "RTX"]
+    },
+    {
+      id: "game-2",
+      title: "Elden Ring: Shadow of the Erdtree",
+      rating: "9.9/10",
+      platform: "PC / Console",
+      category: "Action RPG",
+      summary: "Chef-d'œuvre de direction artistique et de level design en monde ouvert.",
+      image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800",
+      trailerUrl: "https://www.youtube.com/watch?v=qLZenOn7WUo",
+      tags: ["Dark Fantasy", "FromSoftware", "Open World"]
+    },
+    {
+      id: "game-3",
+      title: "Unreal Engine 5: Next-Gen Tech Demo",
+      rating: "9.7/10",
+      platform: "Unreal Engine 5.4",
+      category: "Moteur 3D",
+      summary: "Démonstrations des technologies Nanite, Lumen et Substrate pour un rendu cinématique photoréaliste.",
+      image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800",
+      trailerUrl: "https://www.youtube.com/watch?v=d1ZnM7CH-v4",
+      tags: ["UE5", "Lumen", "Nanite", "Temps Réel"]
+    }
+  ],
+  documents: [
+    {
+      id: "doc-1",
+      title: "Guide Pratique : Architecture des Systèmes Modernes (2026)",
+      category: "Architecture & DevOps",
+      description: "Manuel complet sur la conception de systèmes distribués, microservices et haute disponibilité.",
+      fileName: "guide_architecture_systemes_2026.pdf",
+      fileSize: "4.8 MB",
+      fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      tags: ["Architecture", "Systèmes", "Cloud"]
+    },
+    {
+      id: "doc-2",
+      title: "Fascicule : Bonnes Pratiques en Cybersécurité & Réseaux",
+      category: "Cybersécurité",
+      description: "Méthodologie de sécurisation des infrastructures, analyse de vulnérabilités et protocoles sécurisés.",
+      fileName: "fascicule_cybersecurite_reseaux.pdf",
+      fileSize: "3.2 MB",
+      fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      tags: ["Sécurité", "Réseau", "DevSecOps"]
+    },
+    {
+      id: "doc-3",
+      title: "Programme Pédagogique : Programmation & Algorithmique Avancée",
+      category: "Pédagogie & Cours",
+      description: "Support de cours pour enseignants et étudiants : structures de données et algorithmes modernes.",
+      fileName: "programme_algorithmique_auberson.pdf",
+      fileSize: "2.1 MB",
+      fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      tags: ["Pédagogie", "Algorithmique", "Formation"]
+    }
+  ],
+  code: [
+    {
+      id: "code-1",
+      title: "Script PowerShell : Automatisation & Surveillance Système",
+      language: "PowerShell",
+      category: "DevOps",
+      description: "Script de monitoring en temps réel des ressources serveur (CPU, RAM, Disque) avec alertes automatiques.",
+      code: `# Surveillance Proactive des Ressources Serveur
+$threshold = 85
+$cpu = (Get-Counter '\\Processor(_Total)\\% Processor Time').CounterSamples.CookedValue
+$ram = Get-CimInstance Win32_OperatingSystem | 
+       ForEach-Object { [math]::Round(($_.TotalVisibleMemorySize - $_.FreePhysicalMemory) / $_.TotalVisibleMemorySize * 100, 2) }
+
+if ($cpu -gt $threshold -or $ram -gt $threshold) {
+    Write-Warning "[ALERTE] Surcharge détectée : CPU $cpu% | RAM $ram%"
+} else {
+    Write-Host "[OK] Système stable : CPU $cpu% | RAM $ram%" -ForegroundColor Green
+}`,
+      tags: ["PowerShell", "Automation", "SysAdmin"]
+    },
+    {
+      id: "code-2",
+      title: "Microservice Node.js / Express avec Cache Redis",
+      language: "JavaScript",
+      category: "Backend",
+      description: "Architecture d'API haute performance avec mise en cache et gestion des flux asynchrones.",
+      code: `import express from "express";
+import { createClient } from "redis";
+
+const app = express();
+const redis = createClient({ url: process.env.REDIS_URL });
+await redis.connect();
+
+app.get("/api/data/:id", async (req, res) => {
+  const { id } = req.params;
+  const cached = await redis.get(id);
+  if (cached) return res.json(JSON.parse(cached));
+
+  const result = await fetchDbData(id);
+  await redis.setEx(id, 3600, JSON.stringify(result));
+  res.json(result);
+});`,
+      tags: ["Node.js", "Redis", "Backend"]
+    },
+    {
+      id: "code-3",
+      title: "Pipeline CI/CD Docker multi-étages",
+      language: "Docker",
+      category: "DevOps",
+      description: "Dockerfile optimisé pour les applications web avec build multi-stage et image Alpine légère.",
+      code: `# Multi-stage Build ultra-léger
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]`,
+      tags: ["Docker", "CI/CD", "DevOps"]
+    }
+  ],
+  portfolio: [
+    {
+      id: "port-1",
+      title: "Outlook Studio — Plateforme Numérique Globale",
+      category: "Plateforme Web",
+      role: "Concepteur & Développeur Principal",
+      description: "Conception intégrale de l'écosystème numérique Outlook Studio : SPA moderne, télémétrie en temps réel et architecture cloud.",
+      technologies: "JavaScript Moderne, Cloud Firestore, CSS3 Glassmorphism, Architecture SPA",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800",
+      demoUrl: "https://nicaisseauberson-alt.github.io/",
+      githubUrl: "https://github.com"
+    },
+    {
+      id: "port-2",
+      title: "Plateforme Pédagogique & E-Learning Auberson",
+      category: "Système Éducatif",
+      role: "Architecte Solutions",
+      description: "Système de transmission des connaissances technologiques et de gestion de ressources pour étudiants et professionnels.",
+      technologies: "Architecture Modulaire, Cloud Storage, Pédagogie Numérique",
+      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800",
+      demoUrl: "",
+      githubUrl: ""
+    }
+  ],
   customCategories: [],
   visitors: []
 };
@@ -132,14 +368,15 @@ class StorageService {
         theme: { ...DEFAULT_DATA.theme, ...(parsed.theme || {}) },
         backgrounds: { ...DEFAULT_DATA.backgrounds, ...(parsed.backgrounds || {}) },
         categories: Array.isArray(parsed.categories) && parsed.categories.length > 0 ? parsed.categories : DEFAULT_DATA.categories,
-        news: Array.isArray(parsed.news) ? parsed.news : [],
-        cinema: Array.isArray(parsed.cinema) ? parsed.cinema : [],
-        projects: Array.isArray(parsed.projects) ? parsed.projects : [],
-        techTips: Array.isArray(parsed.techTips) ? parsed.techTips : [],
-        gaming: Array.isArray(parsed.gaming) ? parsed.gaming : [],
-        documents: Array.isArray(parsed.documents) ? parsed.documents : [],
-        code: Array.isArray(parsed.code) ? parsed.code : [],
-        portfolio: Array.isArray(parsed.portfolio) ? parsed.portfolio : [],
+        emptyCollections: parsed.emptyCollections || {},
+        news: (Array.isArray(parsed.news) && parsed.news.length > 0) ? parsed.news : (parsed.emptyCollections?.news ? [] : DEFAULT_DATA.news),
+        cinema: (Array.isArray(parsed.cinema) && parsed.cinema.length > 0) ? parsed.cinema : (parsed.emptyCollections?.cinema ? [] : DEFAULT_DATA.cinema),
+        projects: (Array.isArray(parsed.projects) && parsed.projects.length > 0) ? parsed.projects : (parsed.emptyCollections?.projects ? [] : DEFAULT_DATA.projects),
+        techTips: (Array.isArray(parsed.techTips) && parsed.techTips.length > 0) ? parsed.techTips : (parsed.emptyCollections?.techTips ? [] : DEFAULT_DATA.techTips),
+        gaming: (Array.isArray(parsed.gaming) && parsed.gaming.length > 0) ? parsed.gaming : (parsed.emptyCollections?.gaming ? [] : DEFAULT_DATA.gaming),
+        documents: (Array.isArray(parsed.documents) && parsed.documents.length > 0) ? parsed.documents : (parsed.emptyCollections?.documents ? [] : DEFAULT_DATA.documents),
+        code: (Array.isArray(parsed.code) && parsed.code.length > 0) ? parsed.code : (parsed.emptyCollections?.code ? [] : DEFAULT_DATA.code),
+        portfolio: (Array.isArray(parsed.portfolio) && parsed.portfolio.length > 0) ? parsed.portfolio : (parsed.emptyCollections?.portfolio ? [] : DEFAULT_DATA.portfolio),
         customCategories: Array.isArray(parsed.customCategories) ? parsed.customCategories : [],
         profile: { ...DEFAULT_DATA.profile, ...(parsed.profile || {}) }
       };
