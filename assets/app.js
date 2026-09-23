@@ -440,7 +440,7 @@ function renderCinema(films, searchTerm = "") {
         <div style="font-size: 2.8rem; margin-bottom: 12px;">🎬</div>
         <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Catalogue Cinéma</h4>
         <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
-          ${searchTerm ? `Aucun film ne correspond à « ${escapeHTML(searchTerm)} ».` : "Aucun film dans le catalogue pour le moment. Vous pouvez en ajouter depuis l'espace administrateur."}
+          ${searchTerm ? `Aucun film ne correspond à « ${escapeHTML(searchTerm)} ».` : "Aucun film disponible dans le catalogue pour le moment."}
         </p>
       </div>
     `;
@@ -484,7 +484,7 @@ function renderNews(news) {
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
         <div style="font-size: 2.8rem; margin-bottom: 12px;">📰</div>
         <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Actualités Outlook Studio</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune actualité publiée pour le moment. Vous pouvez en publier depuis l'espace administrateur.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune actualité publiée pour le moment.</p>
       </div>
     `;
     return;
@@ -532,7 +532,7 @@ function renderProjects(projects) {
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
         <div style="font-size: 2.8rem; margin-bottom: 12px;">📁</div>
         <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Projets & Documents</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun projet affiché pour le moment. Vous pouvez en ajouter depuis l'espace administrateur.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun projet affiché pour le moment.</p>
       </div>
     `;
     return;
@@ -584,7 +584,7 @@ function renderTechTips(tips, searchTerm = "") {
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
         <div style="font-size: 2.8rem; margin-bottom: 12px;">💡</div>
         <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Astuces Tech</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune astuce publiée pour le moment. Vous pouvez en ajouter depuis l'espace administrateur.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune astuce publiée pour le moment.</p>
       </div>
     `;
     return;
@@ -660,7 +660,7 @@ function renderCode(codeSnippets, techTips) {
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
         <div style="font-size: 2.8rem; margin-bottom: 12px;">💻</div>
         <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Scripts & Extraits de Code</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun extrait de code pour le moment. Vous pouvez en publier depuis l'espace administrateur.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun extrait de code pour le moment.</p>
       </div>
     `;
     return;
@@ -711,12 +711,9 @@ function renderGaming(gamingItems) {
       <div style="text-align: center; padding: 56px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
         <div style="font-size: 3rem; margin-bottom: 14px;">🎮</div>
         <h4 style="font-weight: 700; margin-bottom: 8px; color: #fff; font-size: 1.2rem;">Univers Gaming & Moteurs 3D</h4>
-        <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px; max-width: 500px; margin-left: auto; margin-right: auto;">
-          Aucun titre pour le moment dans cette section. Vous pouvez publier des jeux, tests et démonstrations 3D en un clic depuis l'espace admin.
+        <p style="color: var(--text-muted); font-size: 0.92rem; margin: 0; max-width: 500px; margin-left: auto; margin-right: auto;">
+          Aucun titre disponible pour le moment dans cette section.
         </p>
-        <button class="btn btn-primary btn-sm" onclick="if(window.openAdminTab) window.openAdminTab('gaming'); else adminManager.openLoginOrDashboard();">
-          ➕ Ajouter un Titre Gaming
-        </button>
       </div>
     `;
     return;
@@ -791,7 +788,7 @@ function renderDocuments(documents, projects) {
       <div style="text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle);">
         <div style="font-size: 2.8rem; margin-bottom: 12px;">📚</div>
         <h4 style="font-weight: 700; margin-bottom: 6px; color: #fff;">Bibliothèque de Documents & Ressources</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun document disponible pour le moment. Vous pouvez en déposer depuis l'espace administrateur.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucun document disponible pour le moment.</p>
       </div>
     `;
     return;
@@ -842,7 +839,7 @@ function renderPortfolio(portfolioItems, profile) {
   if (validItems.length === 0) {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.02); border-radius: var(--radius-xl); border: 1px dashed var(--border-subtle); margin-top: 24px;">
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune réalisation supplémentaire ajoutée pour le moment. Vous pouvez en publier depuis l'espace administrateur.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune réalisation supplémentaire pour le moment.</p>
       </div>
     `;
     return;

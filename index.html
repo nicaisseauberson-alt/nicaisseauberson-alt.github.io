@@ -40,7 +40,7 @@
   <!-- NAVIGATION FLOTTANTE ULTRA-MODERNE (Glassmorphism & Sliding Glow Indicator) -->
   <nav class="floating" id="main-navbar" aria-label="Navigation principale">
     <a href="#/" class="brand" title="Outlook Studio — Accueil" data-route="home">
-      <span class="dot"></span>
+      <img src="assets/logo.jpg" alt="Outlook Studio" class="brand-logo" style="width: 28px; height: 28px; border-radius: 7px; object-fit: cover; border: 1px solid rgba(255,255,255,0.18); flex-shrink: 0;">
       <span class="brand-title">Outlook Studio</span>
     </a>
 
@@ -57,10 +57,6 @@
       <li><a href="#/portfolio" class="nav-route-link" data-route="portfolio">Portfolio</a></li>
       <li><a href="#/contact" class="nav-route-link" data-route="contact">Contact</a></li>
     </ul>
-
-    <button class="cta" onclick="adminManager.openLoginOrDashboard()" title="Accéder à l'espace administrateur">
-      <span>🔐</span> Admin
-    </button>
 
     <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu" aria-expanded="false">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -83,9 +79,6 @@
       <li><a href="#/portfolio" class="mobile-route-link" data-route="portfolio">💼 Portfolio Auberson</a></li>
       <li><a href="#/contact" class="mobile-route-link" data-route="contact">✉️ Contact direct</a></li>
     </ul>
-    <button class="cta" onclick="adminManager.openLoginOrDashboard(); if(window.closeMobileMenu) window.closeMobileMenu();">
-      <span>🔐</span> Espace Administrateur
-    </button>
   </div>
 
   <!-- CONTENEUR PRINCIPAL SPA MULTI-PAGES -->
@@ -100,11 +93,6 @@
         <div class="hero">
           <div class="hero-grid">
             <div class="hero-text-content">
-              <div class="neon-badge" id="home-neon-badge">
-                <span class="pulse-dot"></span>
-                <span>✦ Plateforme Technologique & Ressources • 2026</span>
-              </div>
-
               <h1 class="hero-title">
                 OUTLOOK STUDIO
               </h1>

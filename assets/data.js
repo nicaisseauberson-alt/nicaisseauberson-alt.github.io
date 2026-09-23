@@ -358,14 +358,51 @@ class StorageService {
     return clean === activePass;
   }
 
+  static DELETED_KEY = "nicaisse_deleted_item_ids";
+
+  static getDeletedIds() {
+    try {
+      const raw = localStorage.getItem(this.DELETED_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  static recordDeletedId(id) {
+    if (!id) return;
+    try {
+      const list = this.getDeletedIds();
+      if (!list.includes(id)) {
+        list.push(id);
+        localStorage.setItem(this.DELETED_KEY, JSON.stringify(list));
+      }
+    } catch (e) {}
+  }
+
   static get() {
     try {
+      const deletedIds = this.getDeletedIds();
+      const filterDeleted = (list) => {
+        if (!Array.isArray(list)) return [];
+        return list.filter(item => item && item.id && !deletedIds.includes(item.id));
+      };
+
       const data = localStorage.getItem(this.KEY);
       if (!data) {
         this.save(DEFAULT_DATA, false);
         return JSON.parse(JSON.stringify(DEFAULT_DATA));
       }
       const parsed = JSON.parse(data);
+      const empty = parsed.emptyCollections || {};
+
+      const resolveList = (parsedList, defaultList, colKey) => {
+        const cleanParsed = filterDeleted(parsedList);
+        if (cleanParsed.length > 0) return cleanParsed;
+        if (empty[colKey]) return [];
+        return filterDeleted(defaultList);
+      };
+
       return {
         ...DEFAULT_DATA,
         ...parsed,
@@ -373,16 +410,16 @@ class StorageService {
         theme: { ...DEFAULT_DATA.theme, ...(parsed.theme || {}) },
         backgrounds: { ...DEFAULT_DATA.backgrounds, ...(parsed.backgrounds || {}) },
         categories: Array.isArray(parsed.categories) && parsed.categories.length > 0 ? parsed.categories : DEFAULT_DATA.categories,
-        emptyCollections: parsed.emptyCollections || {},
-        news: (Array.isArray(parsed.news) && parsed.news.length > 0) ? parsed.news : (parsed.emptyCollections?.news ? [] : DEFAULT_DATA.news),
-        cinema: (Array.isArray(parsed.cinema) && parsed.cinema.length > 0) ? parsed.cinema : (parsed.emptyCollections?.cinema ? [] : DEFAULT_DATA.cinema),
-        projects: (Array.isArray(parsed.projects) && parsed.projects.length > 0) ? parsed.projects : (parsed.emptyCollections?.projects ? [] : DEFAULT_DATA.projects),
-        techTips: (Array.isArray(parsed.techTips) && parsed.techTips.length > 0) ? parsed.techTips : (parsed.emptyCollections?.techTips ? [] : DEFAULT_DATA.techTips),
-        gaming: (Array.isArray(parsed.gaming) && parsed.gaming.length > 0) ? parsed.gaming : (parsed.emptyCollections?.gaming ? [] : DEFAULT_DATA.gaming),
-        documents: (Array.isArray(parsed.documents) && parsed.documents.length > 0) ? parsed.documents : (parsed.emptyCollections?.documents ? [] : DEFAULT_DATA.documents),
-        code: (Array.isArray(parsed.code) && parsed.code.length > 0) ? parsed.code : (parsed.emptyCollections?.code ? [] : DEFAULT_DATA.code),
-        portfolio: (Array.isArray(parsed.portfolio) && parsed.portfolio.length > 0) ? parsed.portfolio : (parsed.emptyCollections?.portfolio ? [] : DEFAULT_DATA.portfolio),
-        customCategories: Array.isArray(parsed.customCategories) ? parsed.customCategories : [],
+        emptyCollections: empty,
+        news: resolveList(parsed.news, DEFAULT_DATA.news, "news"),
+        cinema: resolveList(parsed.cinema, DEFAULT_DATA.cinema, "cinema"),
+        projects: resolveList(parsed.projects, DEFAULT_DATA.projects, "projects"),
+        techTips: resolveList(parsed.techTips, DEFAULT_DATA.techTips, "techTips"),
+        gaming: resolveList(parsed.gaming, DEFAULT_DATA.gaming, "gaming"),
+        documents: resolveList(parsed.documents, DEFAULT_DATA.documents, "documents"),
+        code: resolveList(parsed.code, DEFAULT_DATA.code, "code"),
+        portfolio: resolveList(parsed.portfolio, DEFAULT_DATA.portfolio, "portfolio"),
+        customCategories: filterDeleted(parsed.customCategories || []),
         cloudinary: { ...DEFAULT_DATA.cloudinary, ...(parsed.cloudinary || {}) },
         profile: { ...DEFAULT_DATA.profile, ...(parsed.profile || {}) }
       };
@@ -409,25 +446,27 @@ class StorageService {
 
     window.FirebaseBridge.initRealtimeSync((collectionName, items) => {
       const current = StorageService.get();
+      const deletedIds = StorageService.getDeletedIds();
+      const cleanItems = Array.isArray(items) ? items.filter(it => it && it.id && !deletedIds.includes(it.id)) : [];
 
       if (collectionName === "cinema") {
-        current.cinema = Array.isArray(items) ? items : [];
+        current.cinema = cleanItems;
       } else if (collectionName === "projects") {
-        current.projects = Array.isArray(items) ? items : [];
+        current.projects = cleanItems;
       } else if (collectionName === "techTips") {
-        current.techTips = Array.isArray(items) ? items : [];
+        current.techTips = cleanItems;
       } else if (collectionName === "news") {
-        current.news = Array.isArray(items) ? items : [];
+        current.news = cleanItems;
       } else if (collectionName === "gaming") {
-        current.gaming = Array.isArray(items) ? items : [];
+        current.gaming = cleanItems;
       } else if (collectionName === "documents") {
-        current.documents = Array.isArray(items) ? items : [];
+        current.documents = cleanItems;
       } else if (collectionName === "codeSnippets" || collectionName === "code") {
-        current.code = Array.isArray(items) ? items : [];
+        current.code = cleanItems;
       } else if (collectionName === "portfolioItems" || collectionName === "portfolio") {
-        current.portfolio = Array.isArray(items) ? items : [];
+        current.portfolio = cleanItems;
       } else if (collectionName === "customCategories") {
-        current.customCategories = Array.isArray(items) ? items : [];
+        current.customCategories = cleanItems;
       } else if (collectionName === "categories") {
         current.categories = Array.isArray(items) && items.length > 0 ? items : DEFAULT_DATA.categories;
       } else if (collectionName === "theme") {
@@ -449,9 +488,6 @@ class StorageService {
       // Notification en direct pour mettre à jour l'affichage sur la page
       window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: current }));
     });
-
-    // Optionnel : premier seed si la base est neuve
-    window.FirebaseBridge.seedInitialDataIfEmpty(DEFAULT_DATA);
   }
 
   /* Cloud Synchronization Trigger */

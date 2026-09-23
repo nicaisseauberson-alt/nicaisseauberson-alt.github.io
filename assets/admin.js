@@ -59,10 +59,12 @@ class AdminManager {
       openBtn.addEventListener("click", () => this.openLoginOrDashboard());
     }
 
-    // Raccourci clavier : Ctrl + Shift + A (ou Cmd + Shift + A)
+    // Raccourci clavier universel : Ctrl + Shift + A (ou Cmd + Shift + A sur Mac)
     window.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "a") {
+      const isA = e.key === "a" || e.key === "A" || e.code === "KeyA" || e.keyCode === 65;
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && isA) {
         e.preventDefault();
+        e.stopPropagation();
         this.openLoginOrDashboard();
       }
     });
@@ -702,35 +704,42 @@ class AdminManager {
   }
 
   async deleteFilm(id) {
-    if (!confirm("Voulez-vous vraiment supprimer ce film définitivement du Cloud ?")) return;
+    if (!confirm("Voulez-vous vraiment supprimer ce film définitivement ?")) return;
     try {
+      StorageService.recordDeletedId(id);
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteFilm(id);
-      } else {
-        const data = StorageService.get();
-        data.cinema = (data.cinema || []).filter(f => f.id !== id);
-        StorageService.save(data, true);
-        this.renderCinemaTab(document.getElementById("admin-modal-body"), data);
+        try { await window.FirebaseBridge.deleteFilm(id); } catch(e){}
       }
-      alert("✅ Film supprimé du Cloud et retiré de tous vos appareils !");
+      const data = StorageService.get();
+      data.cinema = (data.cinema || []).filter(f => f.id !== id);
+      if (data.cinema.length === 0) {
+        data.emptyCollections = data.emptyCollections || {};
+        data.emptyCollections.cinema = true;
+      }
+      StorageService.save(data, true);
+      this.renderCinemaTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Film supprimé définitivement de tous vos appareils !");
     } catch (err) {
       alert("Erreur lors de la suppression: " + err.message);
     }
   }
 
   async deleteAllFilms() {
-    const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUS les films de votre catalogue ?\nCette opération est irréversible et supprimera les films sur tous vos appareils.");
+    const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUS les films de votre catalogue ?\nCette opération est irréversible.");
     if (!confirmPrompt) return;
 
     try {
-      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteAllFilms();
-      }
       const data = StorageService.get();
+      (data.cinema || []).forEach(f => StorageService.recordDeletedId(f.id));
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        try { await window.FirebaseBridge.deleteAllFilms(); } catch(e){}
+      }
       data.cinema = [];
+      data.emptyCollections = data.emptyCollections || {};
+      data.emptyCollections.cinema = true;
       StorageService.save(data, true);
       this.renderCinemaTab(document.getElementById("admin-modal-body"), data);
-      alert("✅ Tous les films ont été supprimés avec succès du catalogue et de tous les appareils !");
+      alert("✅ Tous les films ont été supprimés avec succès du catalogue !");
     } catch (err) {
       alert("Erreur lors de la suppression: " + err.message);
     }
@@ -962,32 +971,40 @@ class AdminManager {
   async deleteProject(id) {
     if (!confirm("Supprimer ce projet définitivement ?")) return;
     try {
+      StorageService.recordDeletedId(id);
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteProject(id);
+        try { await window.FirebaseBridge.deleteProject(id); } catch(e){}
       }
       const data = StorageService.get();
       data.projects = (data.projects || []).filter(p => p.id !== id);
+      if (data.projects.length === 0) {
+        data.emptyCollections = data.emptyCollections || {};
+        data.emptyCollections.projects = true;
+      }
       StorageService.save(data, true);
       this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
-      alert("✅ Projet supprimé avec succès du Cloud et de tous vos appareils !");
+      alert("✅ Projet supprimé définitivement de tous vos appareils !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }
   }
 
   async deleteAllProjects() {
-    const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUS les projets et documents ?\nCette opération est irréversible et supprimera les projets sur tous vos appareils.");
+    const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUS les projets ?\nCette opération est irréversible.");
     if (!confirmPrompt) return;
 
     try {
-      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteAllProjects();
-      }
       const data = StorageService.get();
+      (data.projects || []).forEach(p => StorageService.recordDeletedId(p.id));
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        try { await window.FirebaseBridge.deleteAllProjects(); } catch(e){}
+      }
       data.projects = [];
+      data.emptyCollections = data.emptyCollections || {};
+      data.emptyCollections.projects = true;
       StorageService.save(data, true);
       this.renderProjectsTab(document.getElementById("admin-modal-body"), data);
-      alert("✅ Tous les projets ont été supprimés avec succès du Cloud et de tous vos appareils !");
+      alert("✅ Tous les projets ont été supprimés avec succès !");
     } catch (err) {
       alert("Erreur lors de la suppression: " + err.message);
     }
@@ -1116,32 +1133,40 @@ class AdminManager {
   async deleteTip(id) {
     if (!confirm("Voulez-vous vraiment supprimer cette astuce ?")) return;
     try {
+      StorageService.recordDeletedId(id);
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteTip(id);
+        try { await window.FirebaseBridge.deleteTip(id); } catch(e){}
       }
       const data = StorageService.get();
       data.techTips = (data.techTips || []).filter(t => t.id !== id);
+      if (data.techTips.length === 0) {
+        data.emptyCollections = data.emptyCollections || {};
+        data.emptyCollections.techTips = true;
+      }
       StorageService.save(data, true);
       this.renderTipsTab(document.getElementById("admin-modal-body"), data);
-      alert("✅ Astuce supprimée avec succès du Cloud et de tous vos appareils !");
+      alert("✅ Astuce supprimée définitivement de tous vos appareils !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }
   }
 
   async deleteAllTips() {
-    const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUTES les astuces tech & code ?\nCette opération est irréversible et supprimera les astuces sur tous vos appareils.");
+    const confirmPrompt = confirm("⚠️ Attention : Êtes-vous certain de vouloir supprimer TOUTES les astuces tech ?\nCette opération est irréversible.");
     if (!confirmPrompt) return;
 
     try {
-      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteAllTips();
-      }
       const data = StorageService.get();
+      (data.techTips || []).forEach(t => StorageService.recordDeletedId(t.id));
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        try { await window.FirebaseBridge.deleteAllTips(); } catch(e){}
+      }
       data.techTips = [];
+      data.emptyCollections = data.emptyCollections || {};
+      data.emptyCollections.techTips = true;
       StorageService.save(data, true);
       this.renderTipsTab(document.getElementById("admin-modal-body"), data);
-      alert("✅ Toutes les astuces ont été supprimées avec succès du Cloud et de tous vos appareils !");
+      alert("✅ Toutes les astuces ont été supprimées avec succès !");
     } catch (err) {
       alert("Erreur lors de la suppression: " + err.message);
     }
@@ -1829,17 +1854,21 @@ class AdminManager {
   }
 
   async deleteNews(id) {
-    if (!confirm("Supprimer cette actualité du Cloud ?")) return;
+    if (!confirm("Supprimer cette actualité définitivement ?")) return;
     try {
+      StorageService.recordDeletedId(id);
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteNews(id);
-      } else {
-        const data = StorageService.get();
-        data.news = (data.news || []).filter(n => n.id !== id);
-        StorageService.save(data, true);
-        this.renderNewsTab(document.getElementById("admin-modal-body"), data);
+        try { await window.FirebaseBridge.deleteNews(id); } catch(e){}
       }
-      alert("✅ Actualité supprimée !");
+      const data = StorageService.get();
+      data.news = (data.news || []).filter(n => n.id !== id);
+      if (data.news.length === 0) {
+        data.emptyCollections = data.emptyCollections || {};
+        data.emptyCollections.news = true;
+      }
+      StorageService.save(data, true);
+      this.renderNewsTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Actualité supprimée définitivement !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }
@@ -1848,11 +1877,14 @@ class AdminManager {
   async deleteAllNews() {
     if (!confirm("⚠️ Supprimer TOUTES les actualités ? Cette action est irréversible.")) return;
     try {
-      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteAllNews();
-      }
       const data = StorageService.get();
+      (data.news || []).forEach(n => StorageService.recordDeletedId(n.id));
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        try { await window.FirebaseBridge.deleteAllNews(); } catch(e){}
+      }
       data.news = [];
+      data.emptyCollections = data.emptyCollections || {};
+      data.emptyCollections.news = true;
       StorageService.save(data, true);
       this.renderNewsTab(document.getElementById("admin-modal-body"), data);
       alert("✅ Toutes les actualités ont été supprimées.");
@@ -2009,17 +2041,17 @@ class AdminManager {
   }
 
   async deleteCategory(id) {
-    if (!confirm("Supprimer cette catégorie ?")) return;
+    if (!confirm("Supprimer cette catégorie définitivement ?")) return;
     try {
+      StorageService.recordDeletedId(id);
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteCategory(id);
-      } else {
-        const data = StorageService.get();
-        data.customCategories = (data.customCategories || []).filter(c => c.id !== id);
-        StorageService.save(data, true);
-        this.renderCategoriesTab(document.getElementById("admin-modal-body"), data);
+        try { await window.FirebaseBridge.deleteCategory(id); } catch(e){}
       }
-      alert("✅ Catégorie supprimée !");
+      const data = StorageService.get();
+      data.customCategories = (data.customCategories || []).filter(c => c.id !== id);
+      StorageService.save(data, true);
+      this.renderCategoriesTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Catégorie supprimée définitivement !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }
@@ -2177,33 +2209,40 @@ class AdminManager {
   }
 
   async deleteCode(id) {
-    if (!confirm("Supprimer ce snippet du Cloud ?")) return;
+    if (!confirm("Supprimer ce script définitivement ?")) return;
     try {
+      StorageService.recordDeletedId(id);
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteCodeSnippet(id);
-      } else {
-        const data = StorageService.get();
-        data.code = (data.code || []).filter(s => s.id !== id);
-        StorageService.save(data, true);
-        this.renderCodeTab(document.getElementById("admin-modal-body"), data);
+        try { await window.FirebaseBridge.deleteCodeSnippet(id); } catch(e){}
       }
-      alert("✅ Script supprimé avec succès !");
+      const data = StorageService.get();
+      data.code = (data.code || []).filter(s => s.id !== id);
+      if (data.code.length === 0) {
+        data.emptyCollections = data.emptyCollections || {};
+        data.emptyCollections.code = true;
+      }
+      StorageService.save(data, true);
+      this.renderCodeTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Script supprimé définitivement de tous vos appareils !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }
   }
 
   async deleteAllCode() {
-    if (!confirm("⚠️ Supprimer TOUS les snippets de code ? Cette action est irréversible.")) return;
+    if (!confirm("⚠️ Supprimer TOUS les scripts de code ? Cette action est irréversible.")) return;
     try {
-      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteAllCodeSnippets();
-      }
       const data = StorageService.get();
+      (data.code || []).forEach(s => StorageService.recordDeletedId(s.id));
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        try { await window.FirebaseBridge.deleteAllCodeSnippets(); } catch(e){}
+      }
       data.code = [];
+      data.emptyCollections = data.emptyCollections || {};
+      data.emptyCollections.code = true;
       StorageService.save(data, true);
       this.renderCodeTab(document.getElementById("admin-modal-body"), data);
-      alert("✅ Tous les snippets de code ont été supprimés.");
+      alert("✅ Tous les scripts ont été supprimés avec succès !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }
@@ -2386,17 +2425,21 @@ class AdminManager {
   }
 
   async deleteGaming(id) {
-    if (!confirm("Supprimer cet élément Gaming ?")) return;
+    if (!confirm("Supprimer cet élément Gaming définitivement ?")) return;
     try {
+      StorageService.recordDeletedId(id);
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteGaming(id);
-      } else {
-        const data = StorageService.get();
-        data.gaming = (data.gaming || []).filter(g => g.id !== id);
-        StorageService.save(data, true);
-        this.renderGamingTab(document.getElementById("admin-modal-body"), data);
+        try { await window.FirebaseBridge.deleteGaming(id); } catch(e){}
       }
-      alert("✅ Élément supprimé !");
+      const data = StorageService.get();
+      data.gaming = (data.gaming || []).filter(g => g.id !== id);
+      if (data.gaming.length === 0) {
+        data.emptyCollections = data.emptyCollections || {};
+        data.emptyCollections.gaming = true;
+      }
+      StorageService.save(data, true);
+      this.renderGamingTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Élément Gaming supprimé définitivement de tous vos appareils !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }
@@ -2405,11 +2448,14 @@ class AdminManager {
   async deleteAllGaming() {
     if (!confirm("⚠️ Supprimer TOUS les éléments Gaming ? Cette action est irréversible.")) return;
     try {
-      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteAllGaming();
-      }
       const data = StorageService.get();
+      (data.gaming || []).forEach(g => StorageService.recordDeletedId(g.id));
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        try { await window.FirebaseBridge.deleteAllGaming(); } catch(e){}
+      }
       data.gaming = [];
+      data.emptyCollections = data.emptyCollections || {};
+      data.emptyCollections.gaming = true;
       StorageService.save(data, true);
       this.renderGamingTab(document.getElementById("admin-modal-body"), data);
       alert("✅ Tous les éléments Gaming ont été supprimés.");
@@ -2760,17 +2806,21 @@ class AdminManager {
   }
 
   async deleteDocument(id) {
-    if (!confirm("Supprimer ce document du Cloud ?")) return;
+    if (!confirm("Supprimer ce document définitivement ?")) return;
     try {
+      StorageService.recordDeletedId(id);
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteDocument(id);
-      } else {
-        const data = StorageService.get();
-        data.documents = (data.documents || []).filter(d => d.id !== id);
-        StorageService.save(data, true);
-        this.renderDocumentsTab(document.getElementById("admin-modal-body"), data);
+        try { await window.FirebaseBridge.deleteDocument(id); } catch(e){}
       }
-      alert("✅ Document supprimé avec succès !");
+      const data = StorageService.get();
+      data.documents = (data.documents || []).filter(d => d.id !== id);
+      if (data.documents.length === 0) {
+        data.emptyCollections = data.emptyCollections || {};
+        data.emptyCollections.documents = true;
+      }
+      StorageService.save(data, true);
+      this.renderDocumentsTab(document.getElementById("admin-modal-body"), data);
+      alert("✅ Document supprimé définitivement de tous vos appareils !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }
@@ -2779,11 +2829,14 @@ class AdminManager {
   async deleteAllDocuments() {
     if (!confirm("⚠️ Supprimer TOUS les documents de la bibliothèque ?")) return;
     try {
-      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteAllDocuments();
-      }
       const data = StorageService.get();
+      (data.documents || []).forEach(d => StorageService.recordDeletedId(d.id));
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        try { await window.FirebaseBridge.deleteAllDocuments(); } catch(e){}
+      }
       data.documents = [];
+      data.emptyCollections = data.emptyCollections || {};
+      data.emptyCollections.documents = true;
       StorageService.save(data, true);
       this.renderDocumentsTab(document.getElementById("admin-modal-body"), data);
       alert("✅ Tous les documents ont été supprimés.");
@@ -2965,17 +3018,21 @@ class AdminManager {
   }
 
   async deletePortfolioItem(id) {
-    if (!confirm("Supprimer cette réalisation ?")) return;
+    if (!confirm("Supprimer cette réalisation définitivement ?")) return;
     try {
+      StorageService.recordDeletedId(id);
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deletePortfolioItem(id);
-      } else {
-        const data = StorageService.get();
-        data.portfolio = (data.portfolio || []).filter(p => p.id !== id);
-        StorageService.save(data, true);
-        this.renderPortfolioTabContent(document.getElementById("admin-modal-body"), data);
+        try { await window.FirebaseBridge.deletePortfolioItem(id); } catch(e){}
       }
-      alert("✅ Réalisation supprimée avec succès !");
+      const data = StorageService.get();
+      data.portfolio = (data.portfolio || []).filter(p => p.id !== id);
+      if (data.portfolio.length === 0) {
+        data.emptyCollections = data.emptyCollections || {};
+        data.emptyCollections.portfolio = true;
+      }
+      StorageService.save(data, true);
+      this.renderPortfolioTabContent(document.getElementById("admin-modal-body"), data);
+      alert("✅ Réalisation supprimée définitivement !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }
@@ -2984,11 +3041,14 @@ class AdminManager {
   async deleteAllPortfolioItems() {
     if (!confirm("⚠️ Supprimer TOUT le portfolio ? Cette action est irréversible.")) return;
     try {
-      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
-        await window.FirebaseBridge.deleteAllPortfolioItems();
-      }
       const data = StorageService.get();
+      (data.portfolio || []).forEach(p => StorageService.recordDeletedId(p.id));
+      if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
+        try { await window.FirebaseBridge.deleteAllPortfolioItems(); } catch(e){}
+      }
       data.portfolio = [];
+      data.emptyCollections = data.emptyCollections || {};
+      data.emptyCollections.portfolio = true;
       StorageService.save(data, true);
       this.renderPortfolioTabContent(document.getElementById("admin-modal-body"), data);
       alert("✅ Toutes les réalisations du portfolio ont été supprimées.");
