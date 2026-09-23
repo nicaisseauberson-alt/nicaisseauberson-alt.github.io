@@ -265,6 +265,8 @@ class AdminManager {
     this.updateSyncStatusBar();
     this.renderTabs();
     this.renderActiveTabContent();
+    const modalBody = document.getElementById("admin-modal-body");
+    if (modalBody) modalBody.scrollTop = 0;
   }
 
   renderTabs() {
@@ -285,11 +287,11 @@ class AdminManager {
 
     const tabsContainer = document.getElementById("admin-tabs");
     tabsContainer.innerHTML = tabs.map(t => `
-      <button class="admin-tab-btn ${this.activeTab === t.id ? 'active' : ''}" onclick="adminManager.switchTab('${t.id}')">
+      <button class="admin-tab-btn ${this.activeTab === t.id ? 'active' : ''}" data-tab="${t.id}" onclick="adminManager.switchTab('${t.id}')">
         ${t.label}
       </button>
     `).join("") + `
-      <button class="admin-tab-btn" style="margin-left: auto; color: #ef4444;" onclick="adminManager.logout()" title="Se déconnecter">
+      <button class="admin-tab-btn" style="margin-left: 8px; color: #f87171; border-color: rgba(239, 68, 68, 0.28); background: rgba(239, 68, 68, 0.08);" onclick="adminManager.logout()" title="Se déconnecter de l'administration">
         🚪 Déconnexion
       </button>
     `;
@@ -303,6 +305,14 @@ class AdminManager {
     }
     this.renderTabs();
     this.renderActiveTabContent();
+    const modalBody = document.getElementById("admin-modal-body");
+    if (modalBody) {
+      modalBody.scrollTop = 0;
+    }
+    const activeBtn = document.querySelector(`.admin-tab-btn[data-tab="${tabId}"]`);
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
     if (tabId === "analytics") {
       this.refreshAnalytics();
     }

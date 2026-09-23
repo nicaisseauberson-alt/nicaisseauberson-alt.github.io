@@ -75,7 +75,7 @@ body {
   min-height: -webkit-fill-available;
   position: relative;
   /* Safe area & Fixed Navbar spacing */
-  padding-top: calc(64px + env(safe-area-inset-top, 0));
+  padding-top: calc(84px + env(safe-area-inset-top, 0));
   padding-left: env(safe-area-inset-left, 0);
   padding-right: env(safe-area-inset-right, 0);
 }
@@ -157,9 +157,9 @@ main {
   right: 0;
   width: 100%;
   z-index: 90;
-  background: rgba(6, 8, 13, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(6, 8, 14, 0.72);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
   border-bottom: 1px solid var(--border-subtle);
   padding-top: env(safe-area-inset-top, 0);
   transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -280,9 +280,9 @@ main {
 .drawer-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(3, 5, 10, 0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   z-index: 200;
   opacity: 0;
   pointer-events: none;
@@ -300,15 +300,17 @@ main {
   right: 0;
   bottom: 0;
   width: min(85vw, 360px);
-  background: #090c14;
-  border-left: 1px solid var(--border-subtle);
+  background: rgba(10, 14, 24, 0.94);
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
   z-index: 201;
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   padding: max(20px, env(safe-area-inset-top, 20px)) 20px max(24px, env(safe-area-inset-bottom, 24px));
-  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.7);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.85);
 }
 
 .drawer-sheet.open {
@@ -1302,16 +1304,16 @@ main {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(3, 5, 10, 0.78);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
   z-index: 1000;
   display: flex;
   align-items: flex-end; /* Mobile: slides from bottom */
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-overlay.active {
@@ -1320,15 +1322,18 @@ main {
 }
 
 .modal-container {
-  background: #090c14;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(10, 14, 24, 0.94);
+  backdrop-filter: blur(36px) saturate(190%);
+  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 20px 20px 0 0; /* Bottom sheet rounded top */
   width: 100%;
   max-width: 100%;
+  height: 92vh;
   max-height: 92vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.85);
   overflow: hidden;
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1343,12 +1348,11 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border-subtle);
-  position: sticky;
-  top: 0;
-  background: #090c14;
-  z-index: 10;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 14, 24, 0.98);
+  z-index: 20;
+  flex-shrink: 0; /* NEVER SHRINK */
 }
 
 .modal-close {
@@ -1363,6 +1367,13 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transform: scale(1.05);
 }
 
 /* Persistent Cloud Sync Bar in Admin Modal */
@@ -1370,11 +1381,13 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
-  background: rgba(56, 189, 248, 0.06);
-  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
-  flex-wrap: wrap;
-  gap: 8px;
+  padding: 9px 24px;
+  background: rgba(56, 189, 248, 0.05);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.14);
+  flex-wrap: nowrap;
+  gap: 12px;
+  flex-shrink: 0; /* NEVER SHRINK */
+  z-index: 15;
 }
 
 .sync-status {
@@ -1467,37 +1480,98 @@ main {
 
 .admin-tabs {
   display: flex;
-  gap: 6px;
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid var(--border-subtle);
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: rgba(8, 11, 18, 0.98);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow-y: hidden;
   white-space: nowrap;
+  flex-shrink: 0; /* CRITICAL: NEVER SHRINK TABS */
+  min-height: 52px;
+  z-index: 10;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.admin-tabs::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+}
+
+.admin-tabs::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+}
+
+.admin-tabs::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.45);
 }
 
 .admin-tab-btn {
-  background: none;
-  border: none;
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
   color: var(--text-secondary);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   cursor: pointer;
-  min-height: 38px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+.admin-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
 }
 
 .admin-tab-btn.active {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(6, 182, 212, 0.22));
+  border-color: rgba(59, 130, 246, 0.65);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.3);
 }
 
 .modal-body {
-  padding: 20px;
+  padding: 24px;
   overflow-y: auto;
-  flex-grow: 1;
+  overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: 0; /* CRITICAL: Enables clean scrolling within flex child */
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 /* 12. RESPONSIVE FORMS */
@@ -1704,6 +1778,11 @@ main {
 }
 
 @media (min-width: 1024px) {
+  /* Generous vertical breathing space for floating desktop navbar */
+  body {
+    padding-top: calc(112px + env(safe-area-inset-top, 0));
+  }
+
   /* Show Desktop Floating Pill Navbar (Scriptix / Iconly Standard) */
   .mobile-menu-toggle {
     display: none;
@@ -1747,13 +1826,13 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(14, 18, 28, 0.82);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(10, 14, 24, 0.65);
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: var(--radius-full);
     padding: 4px 6px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
     flex-shrink: 0;
   }
 
@@ -1863,15 +1942,22 @@ main {
   /* Desktop Modal (Centered Dialog) */
   .modal-overlay {
     align-items: center;
-    padding: 24px;
+    padding: 32px 24px;
+    background: rgba(4, 6, 12, 0.78);
+    backdrop-filter: blur(32px) saturate(190%);
+    -webkit-backdrop-filter: blur(32px) saturate(190%);
   }
 
   .modal-container {
     border-radius: var(--radius-xl);
-    max-width: 860px;
-    max-height: 85vh;
-    transform: scale(0.95);
-    transition: transform 0.25s ease, opacity 0.25s ease;
+    max-width: 940px;
+    width: 90vw;
+    height: 86vh;
+    max-height: 86vh;
+    transform: scale(0.96);
+    box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    padding-bottom: 0;
   }
 
   .modal-overlay.active .modal-container {
@@ -2047,15 +2133,16 @@ main {
   position: relative;
   border-radius: var(--radius-xl);
   overflow: hidden;
-  margin-bottom: 28px;
+  margin-top: 14px;
+  margin-bottom: 32px;
   min-height: auto;
   display: flex;
   flex-direction: column;
   padding: clamp(24px, 4vw, 36px);
   background: linear-gradient(135deg, rgba(16, 22, 34, 0.7) 0%, rgba(10, 14, 22, 0.5) 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
