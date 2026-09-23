@@ -24,7 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="assets/style.css?v=2026.7">
+  <link rel="stylesheet" href="assets/style.css?v=2026.8">
 </head>
 <body>
 
@@ -139,35 +139,47 @@
            VUE 1 : ACCUEIL IMMERSIF (OUTLOOK STUDIO)
            ========================================================= -->
       <section id="view-home" class="spa-view active">
-        <!-- Hero Section -->
+        <!-- Hero Section (Style Éditorial Moderne & Visuel Organique Inspiré de la Référence) -->
         <div class="hero">
           <div class="hero-grid">
+            <!-- Colonne Gauche : Typographie d'Impact, Recherche & Social Proof -->
             <div class="hero-text-content">
-              <h1 class="hero-title">
-                OUTLOOK STUDIO
+              <div class="hero-badge-pill scroll-reveal" data-delay="0.05s">
+                <span class="badge-icon">✨</span>
+                <span class="badge-text">PLATEFORME TECHNOLOGIQUE & CRÉATIVE</span>
+              </div>
+
+              <h1 class="hero-main-title scroll-reveal" data-delay="0.12s">
+                Explorer le Futur,<br>
+                Vivre la <span class="hero-accent-text">Culture.</span>
               </h1>
-              <div class="hero-bracket-subtitle">
-                <span class="curly-bracket">{</span> DIGITAL CULTURE <span class="curly-bracket">}</span>
-              </div>
 
-              <div class="hero-subtitle">
-                <span class="hero-pill accent" id="home-neon-pill">⚡ Powered by Auberson</span>
-                <span class="hero-pill">🎬 Cinéma</span>
-                <span class="hero-pill">💻 Code</span>
-                <span class="hero-pill">🎮 Gaming</span>
-                <span class="hero-pill">📚 Docs</span>
-              </div>
-
-              <p class="hero-desc" id="platform-tagline">
-                Plateforme technologique de référence : astuces informatiques, ressources éducatives, développement de programmes, cinéma et culture gaming.
+              <p class="hero-main-desc scroll-reveal" data-delay="0.18s" id="platform-tagline">
+                Plateforme technologique de référence rassemblant cinéma haute définition, ingénierie logicielle, astuces informatiques et culture gaming au sein d'une expérience fluide et unifiée.
               </p>
 
-              <div class="hero-cta">
-                <a href="#/projets" class="hero-btn-white">Explorer les Projets →</a>
-                <a href="#/cinema" class="hero-btn-glass">Découvrir les Univers</a>
+              <!-- Barre d'exploration Rapide -->
+              <div class="hero-action-row scroll-reveal" data-delay="0.25s">
+                <div class="hero-input-pill">
+                  <input type="text" id="hero-quick-search" placeholder="Rechercher un film, une astuce, un code..." autocomplete="off">
+                  <button type="button" class="hero-search-submit" onclick="location.hash='#/cinema'">Explorer →</button>
+                </div>
               </div>
 
-              <div class="hero-social-dock">
+              <!-- Social Proof / Créateur Signature -->
+              <div class="hero-social-proof scroll-reveal" data-delay="0.32s">
+                <div class="avatar-stack">
+                  <span class="avatar-circle">🎬</span>
+                  <span class="avatar-circle">💻</span>
+                  <span class="avatar-circle">🎮</span>
+                </div>
+                <div class="proof-text">
+                  <span>Plateforme indépendante développée par <strong>Auberson</strong></span>
+                </div>
+              </div>
+
+              <!-- Lignes Directes de Contact -->
+              <div class="hero-social-dock scroll-reveal" data-delay="0.38s">
                 <a href="https://wa.me/50931849385" id="hero-whatsapp-link" target="_blank" rel="noopener noreferrer" class="hero-social-pill" title="WhatsApp direct">
                   <span>💬</span> WhatsApp
                 </a>
@@ -180,58 +192,76 @@
               </div>
             </div>
 
-            <!-- Visualisation Droite : Terminal macOS & Widget Flottant (Standard Scriptix) -->
-            <div class="hero-visual-container">
-              <div class="macos-terminal-window">
-                <div class="terminal-titlebar">
-                  <div class="traffic-lights">
-                    <span class="traffic-dot dot-red"></span>
-                    <span class="traffic-dot dot-yellow"></span>
-                    <span class="traffic-dot dot-green"></span>
+            <!-- Colonne Droite : Vitrine Visuelle Organique avec Cartes Flottantes (Inspirée de la Maquette) -->
+            <div class="hero-visual-showcase scroll-reveal" data-delay="0.2s">
+              <div class="showcase-card-frame">
+                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80" alt="Outlook Studio Architecture" class="showcase-bg-img" loading="eager">
+                <div class="showcase-gradient-overlay"></div>
+
+                <!-- 1. Carte Flottante : Cinéma -->
+                <div class="floating-showcase-card card-cinema" onclick="location.hash='#/cinema'">
+                  <div class="card-thumb">
+                    <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=160&q=80" alt="Cinéma">
                   </div>
-                  <div class="terminal-filename">outlook_studio_core.ts</div>
-                  <div class="terminal-actions">
-                    <span class="terminal-tab-btn active">TS</span>
+                  <div class="card-text">
+                    <strong>Cinéma & Séries</strong>
+                    <span>Streaming HD & Avis critiques</span>
                   </div>
                 </div>
-                <div class="terminal-code-body">
-                  <pre><code><span class="t-kw">import</span> { <span class="t-type">OutlookStudio</span> } <span class="t-kw">from</span> <span class="t-str">"@os/core"</span>;
 
-<span class="t-kw">const</span> studio = <span class="t-kw">new</span> <span class="t-type">OutlookStudio</span>({
-  <span class="t-prop">platform</span>: <span class="t-str">"Outlook Studio"</span>,
-  <span class="t-prop">creator</span>: <span class="t-str">"Auberson"</span>,
-  <span class="t-prop">edition</span>: <span class="t-num">2026</span>,
-  <span class="t-prop">modules</span>: [<span class="t-str">"Cinema"</span>, <span class="t-str">"News"</span>, <span class="t-str">"Code"</span>, <span class="t-str">"Gaming"</span>, <span class="t-str">"Docs"</span>],
-  <span class="t-prop">cloudSync</span>: <span class="t-bool">true</span>
-});
-
-<span class="t-kw">await</span> studio.<span class="t-func">launch</span>();
-<span class="t-comment">// 🚀 100% Dynamic Cloud CMS Online</span></code></pre>
-                </div>
-                <div class="terminal-footer">
-                  <span class="status-indicator">●</span>
-                  <span>TypeScript 5.8 • Cloud Firestore Live</span>
-                </div>
-
-                <!-- Overlapping Floating Glass Card -->
-                <div class="floating-glass-card">
-                  <div class="glass-card-header">
-                    <span style="font-size: 0.75rem; color: #fbbf24; font-weight: 700;">⚡ Real-time Architecture</span>
+                <!-- 2. Carte Flottante : Astuces Tech & Code -->
+                <div class="floating-showcase-card card-tips" onclick="location.hash='#/astuces'">
+                  <div class="card-thumb">
+                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=160&q=80" alt="Astuces Tech">
                   </div>
-                  <code>.studio { realtime: true; sync: cloud; }</code>
+                  <div class="card-text">
+                    <strong>Astuces & Code</strong>
+                    <span>Guides, Windows & Scripts</span>
+                  </div>
                 </div>
 
-                <!-- Floating Amber Glowing Security Badge -->
-                <div class="floating-amber-badge">
-                  <span class="amber-glow-dot"></span>
-                  <span>Cloud Firebase 2026</span>
+                <!-- 3. Carte Flottante : Gaming & Moteurs 3D -->
+                <div class="floating-showcase-card card-gaming" onclick="location.hash='#/gaming'">
+                  <div class="card-thumb">
+                    <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=160&q=80" alt="Gaming">
+                  </div>
+                  <div class="card-text">
+                    <strong>Gaming & 3D</strong>
+                    <span>Moteurs Unreal, RTX & Démos</span>
+                  </div>
                 </div>
+
+                <!-- Bouton Interactif Flottant "Découvrir l'univers" (Style Watch Story) -->
+                <a href="#/cinema" class="hero-watch-pill">
+                  <span class="hero-play-icon">▶</span>
+                  <span>Découvrir l'univers</span>
+                </a>
               </div>
             </div>
           </div>
 
+          <!-- Barre de 4 Statistiques Clés (Directement Inspirée de la Maquette) -->
+          <div class="hero-stats-row scroll-reveal" data-delay="0.45s">
+            <div class="hero-stat-card">
+              <span class="stat-number">100+</span>
+              <span class="stat-label">Films & Séries HD</span>
+            </div>
+            <div class="hero-stat-card">
+              <span class="stat-number">50+</span>
+              <span class="stat-label">Astuces & Scripts</span>
+            </div>
+            <div class="hero-stat-card">
+              <span class="stat-number">100%</span>
+              <span class="stat-label">Gratuit & Libre</span>
+            </div>
+            <div class="hero-stat-card">
+              <span class="stat-number">Cloud</span>
+              <span class="stat-label">Temps Réel</span>
+            </div>
+          </div>
+
           <!-- Indicateur de défilement mobile centré au pixel près -->
-          <div class="hero-scroll-indicator" aria-label="Faire défiler vers le bas" onclick="document.getElementById('bento-categories')?.scrollIntoView({ behavior: 'smooth' })">
+          <div class="hero-scroll-indicator scroll-reveal" data-delay="0.5s" aria-label="Faire défiler vers le bas" onclick="document.getElementById('bento-categories')?.scrollIntoView({ behavior: 'smooth' })">
             <div class="scroll-mouse-pill">
               <span class="scroll-wheel-dot"></span>
             </div>
@@ -243,14 +273,14 @@
         </div>
 
         <!-- Grille de découverte des catégories principales -->
-        <div id="bento-categories" style="margin-top: 48px; margin-bottom: 24px;">
+        <div id="bento-categories" class="scroll-reveal" style="margin-top: 48px; margin-bottom: 24px;">
           <div class="section-tag">Navigation & Modules</div>
           <h2 class="section-title">Explorez les Univers d'Outlook Studio</h2>
         </div>
 
         <div class="bento-grid">
           <!-- Carte 1 : Cinéma -->
-          <div class="bento-card col-4" style="cursor: pointer;" onclick="location.hash='#/cinema'">
+          <div class="bento-card col-4 scroll-reveal" data-delay="0.1s" style="cursor: pointer;" onclick="location.hash='#/cinema'">
             <div class="card-icon" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #ef4444;">🎬</div>
             <h3 class="card-title">Espace Cinéma</h3>
             <p class="card-desc">Fiches, affiches officielles, notes et bandes-annonces sélectionnées.</p>
@@ -258,7 +288,7 @@
           </div>
 
           <!-- Carte 2 : Actualités -->
-          <div class="bento-card col-4" style="cursor: pointer;" onclick="location.hash='#/actualites'">
+          <div class="bento-card col-4 scroll-reveal" data-delay="0.2s" style="cursor: pointer;" onclick="location.hash='#/actualites'">
             <div class="card-icon" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #3b82f6;">📰</div>
             <h3 class="card-title">Actualités & News</h3>
             <p class="card-desc">Suivez les innovations numériques, sorties ciné, updates et tendances tech.</p>
@@ -266,7 +296,7 @@
           </div>
 
           <!-- Carte 3 : Astuces Tech & Code -->
-          <div class="bento-card col-4" style="cursor: pointer;" onclick="location.hash='#/astuces'">
+          <div class="bento-card col-4 scroll-reveal" data-delay="0.3s" style="cursor: pointer;" onclick="location.hash='#/astuces'">
             <div class="card-icon" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #10b981;">💡</div>
             <h3 class="card-title">Astuces Tech & Code</h3>
             <p class="card-desc">Commandes terminal, bonnes pratiques et scripts d'optimisation prêts à l'emploi.</p>
@@ -274,7 +304,7 @@
           </div>
 
           <!-- Carte 4 : Projets & Fichiers -->
-          <div class="bento-card col-6" style="cursor: pointer;" onclick="location.hash='#/projets'">
+          <div class="bento-card col-6 scroll-reveal" data-delay="0.15s" style="cursor: pointer;" onclick="location.hash='#/projets'">
             <div class="card-icon" style="background: rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); color: #a855f7;">📁</div>
             <h3 class="card-title">Projets & Téléchargements</h3>
             <p class="card-desc">Téléchargez les supports pédagogiques, documentations et architectures logicielles.</p>
@@ -282,7 +312,7 @@
           </div>
 
           <!-- Carte 5 : Contact Auberson -->
-          <div class="bento-card col-6" style="cursor: pointer;" onclick="location.hash='#/contact'">
+          <div class="bento-card col-6 scroll-reveal" data-delay="0.25s" style="cursor: pointer;" onclick="location.hash='#/contact'">
             <div class="card-icon" style="background: rgba(37, 211, 102, 0.1); border-color: rgba(37, 211, 102, 0.3); color: #25d366;">✉️</div>
             <h3 class="card-title">Contact & Messagerie Directe</h3>
             <p class="card-desc">Joindre Auberson par WhatsApp (+509 31 84 93 85), appel direct ou e-mail.</p>
@@ -647,15 +677,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.7"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.8"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.7"></script>
+  <script src="assets/data.js?v=2026.8"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.7"></script>
+  <script src="assets/cloudinary-service.js?v=2026.8"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.7"></script>
+  <script src="assets/app.js?v=2026.8"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.7"></script>
+  <script src="assets/admin.js?v=2026.8"></script>
 
 </body>
 </html>

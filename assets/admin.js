@@ -1346,6 +1346,20 @@ class AdminManager {
               <input type="text" id="prof-avail" class="form-control" value="${escapeHTML(prof.availability || '')}">
             </div>
           </div>
+          <div class="form-group form-row-2">
+            <div>
+              <label class="form-label">WhatsApp Direct</label>
+              <input type="text" id="prof-whatsapp" class="form-control" value="${escapeHTML(prof.whatsapp || (data.platform && data.platform.whatsapp) || '+509 31 84 93 85')}">
+            </div>
+            <div>
+              <label class="form-label">Téléphone Direct</label>
+              <input type="text" id="prof-phone" class="form-control" value="${escapeHTML(prof.phone || (data.platform && data.platform.phone) || '+509 55 55 85 50')}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Officiel</label>
+            <input type="email" id="prof-email" class="form-control" value="${escapeHTML(prof.email || (data.platform && data.platform.email) || 'contact@nicaisseauberson.ch')}">
+          </div>
           <div class="form-group">
             <label class="form-label">Phrase d'accroche (Tagline)</label>
             <input type="text" id="prof-tagline" class="form-control" value="${escapeHTML(prof.tagline || '')}">
@@ -1437,17 +1451,40 @@ class AdminManager {
     if (!this.requireAuth("modifier le profil")) return;
     e.preventDefault();
     const data = StorageService.get();
+    data.profile = data.profile || {};
     data.profile.name = document.getElementById("prof-name").value.trim();
     data.profile.availability = document.getElementById("prof-avail").value.trim();
     data.profile.tagline = document.getElementById("prof-tagline").value.trim();
     data.profile.bio = document.getElementById("prof-bio").value.trim();
 
+    const profPhone = document.getElementById("prof-phone");
+    const profWa = document.getElementById("prof-whatsapp");
+    const profEmail = document.getElementById("prof-email");
+
+    data.platform = data.platform || {};
+    if (profPhone) {
+      const pVal = profPhone.value.trim();
+      data.profile.phone = pVal;
+      data.platform.phone = pVal;
+    }
+    if (profWa) {
+      const wVal = profWa.value.trim();
+      data.profile.whatsapp = wVal;
+      data.platform.whatsapp = wVal;
+    }
+    if (profEmail) {
+      const eVal = profEmail.value.trim();
+      data.profile.email = eVal;
+      data.platform.email = eVal;
+    }
+
     try {
       if (window.FirebaseBridge && window.FirebaseBridge.isConfigured) {
         await window.FirebaseBridge.updateProfile(data.profile);
+        await window.FirebaseBridge.updatePlatform(data.platform);
       }
       StorageService.save(data, true);
-      alert("✅ Profil mis à jour et synchronisé sur le Cloud !");
+      alert("✅ Profil et coordonnées mis à jour et synchronisés sur le Cloud !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }

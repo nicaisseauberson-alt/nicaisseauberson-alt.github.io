@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initVisitorTelemetry();
   initRouter();
   initFloatingNavbar();
+  initHeroSearch();
+  initScrollReveal();
   renderApp();
   setupEventListeners();
   setupNavbarScroll();
@@ -42,6 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Listen for real-time DB changes
   window.addEventListener("nicaisse_db_updated", () => {
     renderApp();
+    if (window.initScrollReveal) {
+      setTimeout(() => window.initScrollReveal(), 80);
+    }
   });
 });
 
@@ -135,6 +140,13 @@ function switchView(routeKey) {
   if (window.closeMobileDrawer) {
     window.closeMobileDrawer();
   }
+
+  // 6. Refresh scroll reveal for active view
+  if (window.initScrollReveal) {
+    setTimeout(() => {
+      window.initScrollReveal();
+    }, 60);
+  }
 }
 
 /* -------------------------------------------------------------
@@ -150,6 +162,10 @@ function initFloatingNavbar() {
 
   function moveGlowTo(link, animate) {
     if (!link || !glowPill || !navLinks) return;
+    if (link.classList.contains("nav-icon-only")) {
+      glowPill.style.display = "none";
+      return;
+    }
     glowPill.style.display = "block";
     const linkRect = link.getBoundingClientRect();
     const parentRect = navLinks.getBoundingClientRect();
@@ -171,7 +187,11 @@ function initFloatingNavbar() {
     if (!navLinks || !glowPill) return;
     const activeLink = navLinks.querySelector(".nav-route-link.active");
     if (activeLink) {
-      moveGlowTo(activeLink, animate);
+      if (activeLink.classList.contains("nav-icon-only")) {
+        glowPill.style.display = "none";
+      } else {
+        moveGlowTo(activeLink, animate);
+      }
     } else if (navMoreBtn && navMoreBtn.classList.contains("has-active-child")) {
       moveGlowTo(navMoreBtn, animate);
     } else {
@@ -187,7 +207,11 @@ function initFloatingNavbar() {
         links.forEach(l => l.classList.remove("active"));
         link.classList.add("active");
         if (navMoreBtn) navMoreBtn.classList.remove("has-active-child");
-        moveGlowTo(link, true);
+        if (link.classList.contains("nav-icon-only")) {
+          if (glowPill) glowPill.style.display = "none";
+        } else {
+          moveGlowTo(link, true);
+        }
       });
     });
   }
@@ -279,6 +303,93 @@ function initFloatingNavbar() {
     window.updateFloatingGlowPill(false);
   });
 }
+
+/* -------------------------------------------------------------
+ * 1.bis JAVASCRIPT SCROLL REVEAL ENGINE (SMOOTH UPWARD TEXT RISE)
+ * ----------------------------------------------------------- */
+let scrollRevealObserver = null;
+
+function initScrollReveal() {
+  const elements = document.querySelectorAll(".scroll-reveal:not(.revealed), .category-header-clean:not(.revealed)");
+  if (!elements || elements.length === 0) return;
+
+  if (!("IntersectionObserver" in window)) {
+    elements.forEach(el => el.classList.add("revealed"));
+    return;
+  }
+
+  if (!scrollRevealObserver) {
+    scrollRevealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          if (el.dataset.delay) {
+            el.style.transitionDelay = el.dataset.delay;
+          }
+          el.classList.add("revealed");
+          observer.unobserve(el);
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: "0px 0px -35px 0px",
+      threshold: 0.08
+    });
+  }
+
+  elements.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      if (el.dataset.delay) {
+        el.style.transitionDelay = el.dataset.delay;
+      }
+      setTimeout(() => {
+        el.classList.add("revealed");
+      }, 40);
+    } else {
+      scrollRevealObserver.observe(el);
+    }
+  });
+}
+window.initScrollReveal = initScrollReveal;
+
+/* -------------------------------------------------------------
+ * 1.ter HERO QUICK SEARCH HELPER
+ * ----------------------------------------------------------- */
+function initHeroSearch() {
+  const input = document.getElementById("hero-quick-search");
+  const submitBtn = document.querySelector(".hero-search-submit");
+  if (!input) return;
+
+  function doSearch() {
+    const q = input.value.trim();
+    location.hash = "#/cinema";
+    if (q) {
+      setTimeout(() => {
+        const cinemaInput = document.getElementById("cinema-search");
+        if (cinemaInput) {
+          cinemaInput.value = q;
+          cinemaInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }, 120);
+    }
+  }
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      doSearch();
+    }
+  });
+
+  if (submitBtn) {
+    submitBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      doSearch();
+    });
+  }
+}
+window.initHeroSearch = initHeroSearch;
 
 /* -------------------------------------------------------------
  * 2. VISITOR TELEMETRY & PRESENCE ENGINE
@@ -409,6 +520,11 @@ function renderApp() {
   renderGaming(data.gaming);
   renderDocuments(data.documents, data.projects);
   renderPortfolio(data.portfolio, data.profile);
+
+  // Refresh scroll reveal animations
+  if (window.initScrollReveal) {
+    setTimeout(() => window.initScrollReveal(), 60);
+  }
 }
 
 /* -------------------------------------------------------------
