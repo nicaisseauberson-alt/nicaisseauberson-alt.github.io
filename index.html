@@ -24,18 +24,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="assets/style.css?v=2026.8">
+  <link rel="stylesheet" href="assets/style.css?v=2026.9">
 </head>
 <body>
 
-  <!-- Ambiance dynamique & Éclairage Néon Solaire -->
+  <!-- Ambiance dynamique : Fond noir absolu & Lueur bleue animée -->
   <div class="ambient-glow" id="ambient-glow"></div>
-  <div class="solar-neon-light" id="solar-neon-light" aria-hidden="true"></div>
-
-  <!-- Decorative background orbs for ultra-deep glassmorphism blur -->
-  <div class="bg-orb a" aria-hidden="true"></div>
-  <div class="bg-orb b" aria-hidden="true"></div>
-  <div class="bg-orb c" aria-hidden="true"></div>
 
   <!-- NAVIGATION FLOTTANTE ULTRA-MODERNE (Glassmorphism & Sliding Glow Indicator) -->
   <nav class="floating" id="main-navbar" aria-label="Navigation principale">
@@ -150,8 +144,8 @@
               </div>
 
               <h1 class="hero-main-title scroll-reveal" data-delay="0.12s">
-                Explorer le Futur,<br>
-                Vivre la <span class="hero-accent-text">Culture.</span>
+                Découvrir, Explorer,<br>
+                <span class="hero-accent-text">Inspirez-vous.</span>
               </h1>
 
               <p class="hero-main-desc scroll-reveal" data-delay="0.18s" id="platform-tagline">
@@ -192,42 +186,45 @@
               </div>
             </div>
 
-            <!-- Colonne Droite : Vitrine Visuelle Organique avec Cartes Flottantes (Inspirée de la Maquette) -->
+            <!-- Colonne Droite : Vitrine Visuelle Organique avec Cartes Centrées au Milieu de l'Image -->
             <div class="hero-visual-showcase scroll-reveal" data-delay="0.2s">
               <div class="showcase-card-frame">
                 <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80" alt="Outlook Studio Architecture" class="showcase-bg-img" loading="eager">
                 <div class="showcase-gradient-overlay"></div>
 
-                <!-- 1. Carte Flottante : Cinéma -->
-                <div class="floating-showcase-card card-cinema" onclick="location.hash='#/cinema'">
-                  <div class="card-thumb">
-                    <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=160&q=80" alt="Cinéma">
+                <!-- Conteneur centré au milieu de l'image -->
+                <div class="showcase-cards-center">
+                  <!-- 1. Carte Flottante : Cinéma -->
+                  <div class="floating-showcase-card card-cinema" onclick="location.hash='#/cinema'">
+                    <div class="card-thumb">
+                      <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=160&q=80" alt="Cinéma">
+                    </div>
+                    <div class="card-text">
+                      <strong>Cinéma & Séries</strong>
+                      <span>Streaming HD & Avis critiques</span>
+                    </div>
                   </div>
-                  <div class="card-text">
-                    <strong>Cinéma & Séries</strong>
-                    <span>Streaming HD & Avis critiques</span>
-                  </div>
-                </div>
 
-                <!-- 2. Carte Flottante : Astuces Tech & Code -->
-                <div class="floating-showcase-card card-tips" onclick="location.hash='#/astuces'">
-                  <div class="card-thumb">
-                    <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=160&q=80" alt="Astuces Tech">
+                  <!-- 2. Carte Flottante : Astuces Tech & Code -->
+                  <div class="floating-showcase-card card-tips" onclick="location.hash='#/astuces'">
+                    <div class="card-thumb">
+                      <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=160&q=80" alt="Astuces Tech">
+                    </div>
+                    <div class="card-text">
+                      <strong>Astuces & Code</strong>
+                      <span>Guides, Windows & Scripts</span>
+                    </div>
                   </div>
-                  <div class="card-text">
-                    <strong>Astuces & Code</strong>
-                    <span>Guides, Windows & Scripts</span>
-                  </div>
-                </div>
 
-                <!-- 3. Carte Flottante : Gaming & Moteurs 3D -->
-                <div class="floating-showcase-card card-gaming" onclick="location.hash='#/gaming'">
-                  <div class="card-thumb">
-                    <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=160&q=80" alt="Gaming">
-                  </div>
-                  <div class="card-text">
-                    <strong>Gaming & 3D</strong>
-                    <span>Moteurs Unreal, RTX & Démos</span>
+                  <!-- 3. Carte Flottante : Gaming & Moteurs 3D -->
+                  <div class="floating-showcase-card card-gaming" onclick="location.hash='#/gaming'">
+                    <div class="card-thumb">
+                      <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=160&q=80" alt="Gaming">
+                    </div>
+                    <div class="card-text">
+                      <strong>Gaming & 3D</strong>
+                      <span>Moteurs Unreal, RTX & Démos</span>
+                    </div>
                   </div>
                 </div>
 
@@ -517,10 +514,10 @@
             <div class="contact-card-icon">📞</div>
             <div>
               <div class="contact-card-title">Téléphone</div>
-              <div class="contact-card-detail" id="contact-phone-detail">+509 55 55 85 50</div>
+              <div class="contact-card-detail" id="contact-phone-detail">+509 31 84 93 85</div>
               <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Appel direct sur mobile et appareils compatibles.</p>
             </div>
-            <a href="tel:+50955558550" id="contact-phone-btn" class="contact-btn phone">
+            <a href="tel:+50931849385" id="contact-phone-btn" class="contact-btn phone">
               <span>📞</span> Appeler directement
             </a>
           </div>
@@ -630,7 +627,7 @@
           <h4 class="footer-block-title">Contact direct</h4>
           <ul class="footer-links-list">
             <li><a href="https://wa.me/50931849385" id="footer-whatsapp-link" target="_blank" rel="noopener noreferrer" class="footer-contact-link footer-contact-whatsapp">💬 WhatsApp : <span id="footer-whatsapp-text">+509 31 84 93 85</span></a></li>
-            <li><a href="tel:+50955558550" id="footer-phone-link" class="footer-contact-link">📞 Tél : <span id="footer-phone-text">+509 55 55 85 50</span></a></li>
+            <li><a href="tel:+50931849385" id="footer-phone-link" class="footer-contact-link">📞 Tél : <span id="footer-phone-text">+509 31 84 93 85</span></a></li>
             <li><a href="mailto:contact@nicaisseauberson.ch" id="footer-email-link" class="footer-contact-link">✉️ <span id="footer-email-text">contact@nicaisseauberson.ch</span></a></li>
             <li><a href="#/portfolio" class="footer-contact-link">💼 Portfolio du Créateur</a></li>
           </ul>
@@ -677,15 +674,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.8"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.9"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.8"></script>
+  <script src="assets/data.js?v=2026.9"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.8"></script>
+  <script src="assets/cloudinary-service.js?v=2026.9"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.8"></script>
+  <script src="assets/app.js?v=2026.9"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.8"></script>
+  <script src="assets/admin.js?v=2026.9"></script>
 
 </body>
 </html>

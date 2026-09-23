@@ -1353,7 +1353,7 @@ class AdminManager {
             </div>
             <div>
               <label class="form-label">Téléphone Direct</label>
-              <input type="text" id="prof-phone" class="form-control" value="${escapeHTML(prof.phone || (data.platform && data.platform.phone) || '+509 55 55 85 50')}">
+              <input type="text" id="prof-phone" class="form-control" value="${escapeHTML(prof.phone || (data.platform && data.platform.phone) || '+509 31 84 93 85')}">
             </div>
           </div>
           <div class="form-group">
@@ -1515,7 +1515,7 @@ class AdminManager {
       creator: "Auberson",
       tagline: "Plateforme technologique, cinéma & ressources",
       whatsapp: "+509 31 84 93 85",
-      phone: "+509 55 55 85 50",
+      phone: "+509 31 84 93 85",
       email: "contact@nicaisseauberson.ch"
     };
 
@@ -1658,7 +1658,7 @@ class AdminManager {
 
               <div class="form-group" style="margin: 0;">
                 <label class="form-label" style="font-size: 0.82rem;">Téléphone Direct</label>
-                <input type="text" id="plat-phone" class="form-control" value="${escapeHTML(platform.phone || '+509 55 55 85 50')}" required>
+                <input type="text" id="plat-phone" class="form-control" value="${escapeHTML(platform.phone || '+509 31 84 93 85')}" required>
               </div>
 
               <div class="form-group" style="margin: 0; grid-column: 1 / -1;">

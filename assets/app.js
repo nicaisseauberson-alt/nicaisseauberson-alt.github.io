@@ -532,9 +532,12 @@ function renderApp() {
  * ----------------------------------------------------------- */
 function renderPlatformAndContact(platform, profile) {
   if (!platform) platform = {};
-  const phone = (platform.phone !== undefined && platform.phone !== null && platform.phone !== "")
+  let phone = (platform.phone !== undefined && platform.phone !== null && platform.phone !== "")
     ? platform.phone
     : (profile && profile.phone ? profile.phone : "+509 31 84 93 85");
+  if (phone.includes("55 55 85 50") || phone.includes("55 55 80 50")) {
+    phone = (profile && profile.phone && !profile.phone.includes("55 55")) ? profile.phone : "+509 31 84 93 85";
+  }
   const whatsapp = platform.whatsapp || (profile && profile.whatsapp) || "+509 31 84 93 85";
   const email = platform.email || (profile && profile.email) || "contact@nicaisseauberson.ch";
   const creator = platform.creator || (profile && profile.name) || "Auberson";
