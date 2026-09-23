@@ -860,9 +860,15 @@ class AdminManager {
       let fileSize = "";
 
       if (urlInput && urlInput.value.trim()) {
-        fileUrl = urlInput.value.trim();
+        const rawUrl = urlInput.value.trim();
+        const driveMatch = rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/id=([a-zA-Z0-9_-]+)/);
+        if (driveMatch && driveMatch[1]) {
+          fileUrl = `https://drive.google.com/uc?export=download&id=${driveMatch[1]}`;
+        } else {
+          fileUrl = rawUrl;
+        }
         fileName = (customNameInput && customNameInput.value.trim()) || "document.pdf";
-        fileSize = "Document Cloud (Web)";
+        fileSize = "Document Cloud (Direct)";
       } else if (fileInput && fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
         fileName = file.name;
@@ -873,9 +879,11 @@ class AdminManager {
           fileUrl = uploadRes.downloadUrl;
           fileName = uploadRes.fileName;
           fileSize = uploadRes.fileSize;
+        } else if (window.FirebaseBridge && window.FirebaseBridge.isConfigured && window.FirebaseBridge.storage) {
+          fileUrl = await window.FirebaseBridge.uploadFile(file, "projects");
         } else {
           if (file.size > 750 * 1024) {
-            throw new Error(`Le fichier « ${fileName} » fait ${fileSize}.\n\n💡 Activez Cloudinary dans « Paramètres & Profil » pour héberger vos fichiers sans contrainte de taille !`);
+            throw new Error(`Le fichier « ${fileName} » fait ${fileSize}.\n\n💡 Activez Storage dans votre console Firebase ou collez un lien Google Drive !`);
           }
           fileUrl = await new Promise((resolve) => {
             const reader = new FileReader();
@@ -2632,12 +2640,32 @@ class AdminManager {
           fileName = uploadResult.fileName || fileName;
           fileSize = uploadResult.fileSize || fileSize;
           publicId = uploadResult.public_id || "";
+        } else if (window.FirebaseBridge && window.FirebaseBridge.isConfigured && window.FirebaseBridge.storage) {
+          // Alternative native : Firebase Storage (Disponible sans restriction de pays)
+          const progressBox = document.getElementById("doc-upload-progress");
+          const progressBar = document.getElementById("doc-upload-progress-bar");
+          const percentText = document.getElementById("doc-upload-percent");
+          const statusText = document.getElementById("doc-upload-status-text");
+
+          if (progressBox) progressBox.style.display = "block";
+          if (statusText) statusText.textContent = `Téléversement de « ${fileName} » vers Firebase Storage...`;
+
+          const fbDownloadUrl = await window.FirebaseBridge.uploadFile(file, "documents", (pct) => {
+            if (progressBar) progressBar.style.width = `${pct}%`;
+            if (percentText) percentText.textContent = `${pct}%`;
+          });
+
+          if (statusText) statusText.textContent = "✅ Téléversement Firebase réussi !";
+          fileUrl = fbDownloadUrl;
+          downloadUrl = fbDownloadUrl;
         } else {
-          // Si Cloudinary non configuré, vérifier si < 750 Ko pour stockage base64
+          // Si ni Cloudinary ni Firebase Storage activé
           if (file.size > 750 * 1024) {
             throw new Error(
               `Le fichier « ${fileName} » fait ${fileSize}.\n\n` +
-              `👉 Pour héberger vos documents sans restriction de taille, configurez Cloudinary dans l'onglet « Paramètres & Profil » !`
+              `💡 Cloudinary n'étant pas accessible dans votre région, 2 solutions 100% gratuites sont disponibles :\n\n` +
+              `1️⃣ Activez « Storage » dans votre console Firebase (auberson-26) en 2 clics : le téléversement se fera alors directement sans aucune limite !\n` +
+              `2️⃣ Ou déposez votre fichier sur votre Google Drive, copiez le lien de partage et collez-le ci-dessous : notre site le convertit automatiquement en téléchargement direct sans compte pour vos visiteurs !`
             );
           }
           fileUrl = await new Promise((resolve) => {
@@ -2648,10 +2676,19 @@ class AdminManager {
           downloadUrl = fileUrl;
         }
       } else if (urlInput && urlInput.value.trim()) {
-        fileUrl = urlInput.value.trim();
-        downloadUrl = window.CloudinaryService ? window.CloudinaryService.formatDirectDownloadUrl(fileUrl) : fileUrl;
+        const rawUrl = urlInput.value.trim();
+        // Conversion automatique Google Drive vers Téléchargement Direct sans compte
+        const driveMatch = rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/id=([a-zA-Z0-9_-]+)/);
+        if (driveMatch && driveMatch[1]) {
+          const fileId = driveMatch[1];
+          downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+          fileUrl = downloadUrl;
+        } else {
+          fileUrl = rawUrl;
+          downloadUrl = window.CloudinaryService ? window.CloudinaryService.formatDirectDownloadUrl(fileUrl) : fileUrl;
+        }
         fileName = (customNameInput && customNameInput.value.trim()) || "document.pdf";
-        fileSize = "Ressource Cloud";
+        fileSize = "Document Cloud (Téléchargement direct)";
       } else {
         throw new Error("Veuillez sélectionner un fichier à téléverser ou renseigner une URL de document.");
       }

@@ -34,6 +34,7 @@ import {
   getStorage,
   ref,
   uploadBytes,
+  uploadBytesResumable,
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
 
@@ -125,15 +126,39 @@ class FirebaseBridgeService {
   }
 
   // --- CLOUD STORAGE : TÉLÉVERSEMENT DE DOCUMENTS SANS LIMITE DE TAILLE ---
-  async uploadFile(file, folder = "projects") {
+  async uploadFile(file, folder = "documents", onProgress) {
     if (!this.storage) {
-      throw new Error("Firebase Storage n'est pas encore activé dans votre console.");
+      throw new Error("Firebase Storage n'est pas encore activé dans votre console Firebase.");
     }
     const cleanName = (file.name || "document").replace(/[^a-zA-Z0-9._-]/g, "_");
     const uniquePath = `${folder}/${Date.now()}_${cleanName}`;
     const fileRef = ref(this.storage, uniquePath);
-    const snapshot = await uploadBytes(fileRef, file);
-    return await getDownloadURL(snapshot.ref);
+
+    return new Promise((resolve, reject) => {
+      const uploadTask = uploadBytesResumable(fileRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          if (snapshot.totalBytes > 0 && typeof onProgress === "function") {
+            const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+            onProgress(pct, snapshot.bytesTransferred, snapshot.totalBytes);
+          }
+        },
+        (error) => {
+          console.error("❌ [Firebase Storage] Erreur upload:", error);
+          reject(error);
+        },
+        async () => {
+          try {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadUrl);
+          } catch (urlErr) {
+            reject(urlErr);
+          }
+        }
+      );
+    });
   }
 
   // --- AUTHENTIFICATION ---
