@@ -241,6 +241,7 @@ nav.floating .brand {
   font-family: inherit;
   padding: 0;
   text-decoration: none;
+  line-height: 1;
 }
 
 nav.floating .brand-logo {
@@ -514,6 +515,9 @@ nav.floating button:focus-visible {
   border-radius: 50%;
   padding: 0;
   margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  line-height: 1;
   -webkit-tap-highlight-color: transparent !important;
   outline: none !important;
 }
@@ -528,6 +532,10 @@ nav.floating button:focus-visible {
 }
 
 .menu-toggle svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
   transition: transform 0.25s ease;
 }
 .menu-toggle.open svg {
@@ -610,10 +618,52 @@ nav.floating button:focus-visible {
   .nav-links { display: none; }
   .menu-toggle { display: flex; }
   nav.floating {
-    gap: 16px;
-    padding: 7px 16px 7px 18px;
-    max-width: calc(100vw - 32px);
+    gap: 12px;
+    padding: 6px 20px 6px 18px;
+    max-width: calc(100vw - 32px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
     width: auto;
+    align-items: center;
+    justify-content: space-between;
+  }
+  nav.floating .brand {
+    gap: 8px;
+    line-height: 1;
+    min-width: 0;
+  }
+  nav.floating .brand-logo {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+  nav.floating .brand-title {
+    line-height: 1;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 380px) {
+  nav.floating {
+    gap: 8px;
+    padding: 5px 16px 5px 14px;
+    max-width: calc(100vw - 20px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+  }
+  nav.floating .brand {
+    gap: 6px;
+  }
+  nav.floating .brand-logo {
+    width: 32px;
+    height: 32px;
+  }
+  nav.floating .brand-title {
+    font-size: 13.5px;
+  }
+  .menu-toggle {
+    width: 30px;
+    height: 30px;
+  }
+  .menu-toggle svg {
+    width: 18px;
+    height: 18px;
   }
 }
 
