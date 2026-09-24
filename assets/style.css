@@ -223,6 +223,7 @@ nav.floating {
   max-width: calc(100vw - 24px);
   width: auto;
   transition: all 0.25s ease;
+  overflow: hidden;
 }
 
 nav.floating .brand {
@@ -276,6 +277,7 @@ nav.floating .brand .dot {
   margin: 0;
   padding: 0;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE */
   -webkit-overflow-scrolling: touch;
@@ -623,7 +625,7 @@ nav.floating button:focus-visible {
     max-width: calc(100vw - 32px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
     width: auto;
     align-items: center;
-    justify-content: space-between;
+    overflow: hidden;
   }
   nav.floating .brand {
     gap: 8px;
@@ -2893,6 +2895,7 @@ nav.floating button:focus-visible {
   align-items: center;
   gap: 8px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 24px rgba(59, 130, 246, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {
