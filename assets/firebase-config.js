@@ -492,6 +492,78 @@ class FirebaseBridgeService {
     }
   }
 
+  // --- SYNCHRONISATION FORCÉE MULTI-APPAREILS (PULL ON-DEMAND DU CLOUD) ---
+  async fetchAllData() {
+    if (!this.isConfigured || !this.db) return null;
+    try {
+      const results = {};
+
+      const fetchCol = async (colName) => {
+        try {
+          const snap = await getDocs(collection(this.db, colName));
+          const list = [];
+          snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+          list.sort((a, b) => {
+            const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.timestamp || 0);
+            const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.timestamp || 0);
+            return timeB - timeA;
+          });
+          return list;
+        } catch (e) {
+          console.warn(`⚠️ [Firestore] fetchCol (${colName}):`, e.message);
+          return null;
+        }
+      };
+
+      const fetchDoc = async (colName, docId) => {
+        try {
+          const snap = await getDoc(doc(this.db, colName, docId));
+          return snap.exists() ? snap.data() : null;
+        } catch (e) {
+          console.warn(`⚠️ [Firestore] fetchDoc (${colName}/${docId}):`, e.message);
+          return null;
+        }
+      };
+
+      const [cinema, projects, techTips, news, gaming, documents, codeSnippets, portfolioItems, platform, profile, theme, backgrounds, cloudinary, customCategories] = await Promise.all([
+        fetchCol("cinema"),
+        fetchCol("projects"),
+        fetchCol("techTips"),
+        fetchCol("news"),
+        fetchCol("gaming"),
+        fetchCol("documents"),
+        fetchCol("codeSnippets"),
+        fetchCol("portfolioItems"),
+        fetchDoc("settings", "platform"),
+        fetchDoc("settings", "profile"),
+        fetchDoc("settings", "theme"),
+        fetchDoc("settings", "backgrounds"),
+        fetchDoc("settings", "cloudinary"),
+        fetchCol("customCategories")
+      ]);
+
+      if (cinema) results.cinema = cinema;
+      if (projects) results.projects = projects;
+      if (techTips) results.techTips = techTips;
+      if (news) results.news = news;
+      if (gaming) results.gaming = gaming;
+      if (documents) results.documents = documents;
+      if (codeSnippets) results.code = codeSnippets;
+      if (portfolioItems) results.portfolio = portfolioItems;
+      if (platform) results.platform = platform;
+      if (profile) results.profile = profile;
+      if (theme) results.theme = theme;
+      if (backgrounds) results.backgrounds = backgrounds;
+      if (cloudinary) results.cloudinary = cloudinary;
+      if (customCategories) results.customCategories = customCategories;
+
+      return results;
+    } catch (err) {
+      console.warn("⚠️ [Firestore] fetchAllData failed:", err);
+      return null;
+    }
+  }
+
   // --- CRUD CINÉMA ---
   async addFilm(filmData) {
     if (!this.isConfigured || !this.db) throw new Error("Firestore n'est pas encore configuré.");

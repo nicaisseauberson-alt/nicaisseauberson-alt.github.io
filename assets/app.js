@@ -34,12 +34,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Background auto-refresh every 15s to keep all devices live-synced
+  // Re-sync when reconnecting to network
+  window.addEventListener("online", () => {
+    StorageService.syncCloudContent().then(updated => {
+      if (updated) renderApp();
+    });
+  });
+
+  // Background auto-refresh every 20s to keep all devices live-synced
   setInterval(() => {
     StorageService.syncCloudContent().then(updated => {
       if (updated) renderApp();
     });
-  }, 15000);
+  }, 20000);
 
   // Listen for real-time DB changes
   window.addEventListener("nicaisse_db_updated", () => {
@@ -133,13 +140,16 @@ function switchView(routeKey) {
   // 4. Scroll smoothly to top
   window.scrollTo({ top: 0, behavior: "smooth" });
 
-  // 5. Close mobile menus if open
+  // 5. Close mobile menus and unlock scrolling
   if (window.closeMobileMenu) {
     window.closeMobileMenu();
   }
   if (window.closeMobileDrawer) {
     window.closeMobileDrawer();
   }
+  document.body.classList.remove("modal-open");
+  document.body.style.overflow = "";
+  document.documentElement.style.overflow = "";
 
   // 6. Refresh scroll reveal for active view
   if (window.initScrollReveal) {
@@ -1302,11 +1312,19 @@ window.openTrailer = function(title, url) {
   const modal = document.createElement("div");
   modal.className = "modal-overlay active";
   modal.style.zIndex = "2000";
+
+  const closeVideoModal = () => {
+    document.body.classList.remove("modal-open");
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+    modal.remove();
+  };
+
   modal.innerHTML = `
     <div class="modal-container" style="max-width: 760px; width: 100%; padding: 0; overflow: hidden; border-radius: var(--radius-xl);">
       <div class="modal-header" style="padding: 14px 20px;">
         <h3 style="font-weight: 700; font-size: 1.05rem;">🎬 ${escapeHTML(title)}</h3>
-        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+        <button class="modal-close" id="trailer-close-btn">&times;</button>
       </div>
       <div style="position: relative; width: 100%; padding-top: 56.25%; background: #000;">
         <iframe src="${escapeHTML(embedUrl)}?autoplay=1" style="position: absolute; top:0; left:0; width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -1314,8 +1332,12 @@ window.openTrailer = function(title, url) {
     </div>
   `;
   modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.remove();
+    if (e.target === modal) closeVideoModal();
   });
+  const closeBtn = modal.querySelector("#trailer-close-btn");
+  if (closeBtn) closeBtn.addEventListener("click", closeVideoModal);
+
+  document.body.classList.add("modal-open");
   document.body.appendChild(modal);
 };
 

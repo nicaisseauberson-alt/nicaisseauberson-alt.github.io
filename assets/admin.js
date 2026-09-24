@@ -88,6 +88,16 @@ class AdminManager {
       openBtn.addEventListener("click", () => this.openLoginOrDashboard());
     }
 
+    // Clic en dehors du conteneur pour fermer la modale
+    const adminModal = document.getElementById("admin-modal");
+    if (adminModal) {
+      adminModal.addEventListener("click", (e) => {
+        if (e.target === adminModal) {
+          this.closeModal();
+        }
+      });
+    }
+
     // Raccourci clavier universel : Ctrl + Shift + A (ou Cmd + Shift + A sur Mac)
     window.addEventListener("keydown", (e) => {
       const isA = e.key === "a" || e.key === "A" || e.code === "KeyA" || e.keyCode === 65;
@@ -129,6 +139,7 @@ class AdminManager {
     if (!modal) return;
 
     modal.classList.add("active");
+    document.body.classList.add("modal-open");
     this.updateSyncStatusBar();
 
     if (!this.isAuthenticated) {
@@ -141,6 +152,9 @@ class AdminManager {
   closeModal() {
     const modal = document.getElementById("admin-modal");
     if (modal) modal.classList.remove("active");
+    document.body.classList.remove("modal-open");
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
     if (this.analyticsPollTimer) {
       clearInterval(this.analyticsPollTimer);
       this.analyticsPollTimer = null;

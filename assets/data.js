@@ -477,8 +477,18 @@ class StorageService {
         current.cloudinary = { ...current.cloudinary, ...(items || {}) };
       } else if (collectionName === "platform") {
         current.platform = { ...current.platform, ...(items || {}) };
+        if (current.profile && items) {
+          if (items.phone) current.profile.phone = items.phone;
+          if (items.whatsapp) current.profile.whatsapp = items.whatsapp;
+          if (items.email) current.profile.email = items.email;
+        }
       } else if (collectionName === "profile") {
         current.profile = { ...current.profile, ...(items || {}) };
+        if (current.platform && items) {
+          if (!current.platform.phone && items.phone) current.platform.phone = items.phone;
+          if (!current.platform.whatsapp && items.whatsapp) current.platform.whatsapp = items.whatsapp;
+          if (!current.platform.email && items.email) current.platform.email = items.email;
+        }
       }
 
       // Sauvegarde dans le cache local (mode offline transparent)
@@ -490,12 +500,73 @@ class StorageService {
     });
   }
 
-  /* Cloud Synchronization Trigger */
+  /* Cloud Synchronization Trigger (Active Multi-Device Sync Engine) */
   static async syncCloudContent() {
-    if (this.isFirebaseActive()) {
-      return true;
+    if (!window.FirebaseBridge || !window.FirebaseBridge.isConfigured || typeof window.FirebaseBridge.fetchAllData !== "function") {
+      return false;
     }
-    return false;
+    try {
+      const cloudData = await window.FirebaseBridge.fetchAllData();
+      if (!cloudData) return false;
+
+      const current = StorageService.get();
+      const deletedIds = StorageService.getDeletedIds();
+      let hasChanges = false;
+
+      const listKeys = ["cinema", "projects", "techTips", "news", "gaming", "documents", "code", "portfolio"];
+      listKeys.forEach(key => {
+        if (Array.isArray(cloudData[key])) {
+          current[key] = cloudData[key].filter(it => it && it.id && !deletedIds.includes(it.id));
+          hasChanges = true;
+        }
+      });
+
+      if (cloudData.platform) {
+        current.platform = { ...current.platform, ...cloudData.platform };
+        if (current.profile) {
+          if (cloudData.platform.phone) current.profile.phone = cloudData.platform.phone;
+          if (cloudData.platform.whatsapp) current.profile.whatsapp = cloudData.platform.whatsapp;
+          if (cloudData.platform.email) current.profile.email = cloudData.platform.email;
+        }
+        hasChanges = true;
+      }
+
+      if (cloudData.profile) {
+        current.profile = { ...current.profile, ...cloudData.profile };
+        hasChanges = true;
+      }
+
+      if (cloudData.theme) {
+        current.theme = { ...current.theme, ...cloudData.theme };
+        hasChanges = true;
+      }
+
+      if (cloudData.backgrounds) {
+        current.backgrounds = { ...current.backgrounds, ...cloudData.backgrounds };
+        hasChanges = true;
+      }
+
+      if (cloudData.cloudinary) {
+        current.cloudinary = { ...current.cloudinary, ...cloudData.cloudinary };
+        hasChanges = true;
+      }
+
+      if (cloudData.customCategories) {
+        current.customCategories = cloudData.customCategories;
+        hasChanges = true;
+      }
+
+      if (hasChanges) {
+        localStorage.setItem(StorageService.KEY, JSON.stringify(current));
+        localStorage.setItem(StorageService.LAST_SYNC_KEY, String(Date.now()));
+        window.dispatchEvent(new CustomEvent("nicaisse_db_updated", { detail: current }));
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.warn("⚠️ [StorageService] Erreur syncCloudContent:", e);
+      return false;
+    }
   }
 
   /* Live Presence Engine: Send heartbeat ping */
