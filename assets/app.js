@@ -5,6 +5,20 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Multi-device Cache Busting & Version Verification
+  const APP_VERSION = "2026.20";
+  try {
+    const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
+    if (cachedVersion && cachedVersion !== APP_VERSION) {
+      localStorage.setItem("outlook_studio_build_ver", APP_VERSION);
+      if ('caches' in window) {
+        caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
+      }
+    } else {
+      localStorage.setItem("outlook_studio_build_ver", APP_VERSION);
+    }
+  } catch (e) {}
+
   initVisitorTelemetry();
   initRouter();
   initFloatingNavbar();
