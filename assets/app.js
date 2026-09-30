@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.30";
+  const APP_VERSION = "2026.35";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -130,7 +130,7 @@ function switchView(routeKey) {
   }
 
   // 3. Update active states on nav links
-  const allNavLinks = document.querySelectorAll(".nav-route-link, .mobile-route-link, .drawer-nav-link, .bottom-nav-item, .nav-more-item");
+  const allNavLinks = document.querySelectorAll(".nav-route-link, .mobile-route-link, .drawer-nav-link, .bottom-nav-item, .nav-more-item, .dropdown-link");
   allNavLinks.forEach(link => {
     if (link.getAttribute("data-route") === routeKey) {
       link.classList.add("active");
@@ -140,9 +140,9 @@ function switchView(routeKey) {
   });
 
   const navMoreBtn = document.getElementById("navMoreBtn");
-  const moreRoutes = ["projects", "tips", "code", "gaming", "portfolio", "contact"];
+  const dropdownRoutes = ["home", "projects", "tips", "code", "gaming", "contact"];
   if (navMoreBtn) {
-    if (moreRoutes.includes(routeKey)) {
+    if (dropdownRoutes.includes(routeKey)) {
       navMoreBtn.classList.add("has-active-child");
     } else {
       navMoreBtn.classList.remove("has-active-child");
@@ -156,7 +156,10 @@ function switchView(routeKey) {
   // 4. Scroll smoothly to top
   window.scrollTo({ top: 0, behavior: "smooth" });
 
-  // 5. Close mobile menus and unlock scrolling
+  // 5. Close mobile menus and dropdowns, unlock scrolling
+  if (window.closeNavMoreDropdown) {
+    window.closeNavMoreDropdown();
+  }
   if (window.closeMobileMenu) {
     window.closeMobileMenu();
   }
@@ -233,6 +236,45 @@ function initFloatingNavbar() {
     }, { passive: false });
   }
 
+  // 3-Bars Menu Dropdown Controls (Autres options du site)
+  const navMoreBtn = document.getElementById("navMoreBtn");
+  const navMoreDropdown = document.getElementById("navMoreDropdown");
+
+  function closeNavMoreDropdown() {
+    if (navMoreDropdown) {
+      navMoreDropdown.classList.remove("open");
+      navMoreDropdown.setAttribute("aria-hidden", "true");
+    }
+    if (navMoreBtn) {
+      navMoreBtn.classList.remove("open");
+      navMoreBtn.setAttribute("aria-expanded", "false");
+    }
+  }
+  window.closeNavMoreDropdown = closeNavMoreDropdown;
+
+  function toggleNavMoreDropdown() {
+    if (!navMoreDropdown || !navMoreBtn) return;
+    const isOpen = navMoreDropdown.classList.toggle("open");
+    navMoreBtn.classList.toggle("open", isOpen);
+    navMoreBtn.setAttribute("aria-expanded", String(isOpen));
+    navMoreDropdown.setAttribute("aria-hidden", String(!isOpen));
+  }
+
+  if (navMoreBtn) {
+    navMoreBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleNavMoreDropdown();
+    });
+  }
+
+  if (navMoreDropdown) {
+    navMoreDropdown.querySelectorAll("a").forEach(a => {
+      a.addEventListener("click", () => {
+        closeNavMoreDropdown();
+      });
+    });
+  }
+
   // Mobile Dropdown Menu Controls
   function closeMobileMenu() {
     if (mobileMenu) mobileMenu.classList.remove("open");
@@ -266,30 +308,22 @@ function initFloatingNavbar() {
   }
 
   document.addEventListener("click", (e) => {
+    if (navMoreDropdown && navMoreDropdown.classList.contains("open") &&
+        !navMoreDropdown.contains(e.target) &&
+        navMoreBtn && !navMoreBtn.contains(e.target)) {
+      closeNavMoreDropdown();
+    }
     if (mobileMenu && mobileMenu.classList.contains("open") &&
         !mobileMenu.contains(e.target) &&
         menuToggle && !menuToggle.contains(e.target)) {
       closeMobileMenu();
     }
-    if (navMoreMenu && navMoreMenu.classList.contains("open") &&
-        !navMoreMenu.contains(e.target) &&
-        navMoreBtn && !navMoreBtn.contains(e.target)) {
-      navMoreMenu.classList.remove("open");
-      navMoreBtn.classList.remove("open");
-      navMoreBtn.setAttribute("aria-expanded", "false");
-    }
   });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
+      closeNavMoreDropdown();
       closeMobileMenu();
-      if (navMoreMenu) {
-        navMoreMenu.classList.remove("open");
-        if (navMoreBtn) {
-          navMoreBtn.classList.remove("open");
-          navMoreBtn.setAttribute("aria-expanded", "false");
-        }
-      }
     }
   });
 
@@ -743,6 +777,12 @@ function applyBackgrounds(bgs) {
   setBg("hero-banner-documents", bgs.documents);
   setBg("hero-banner-portfolio", bgs.portfolio);
   setBg("hero-banner-contact", bgs.contact);
+
+  // Image d'arrière-plan de la vitrine d'accueil (Cinéma, Astuces, Gaming)
+  const heroShowcaseImg = document.getElementById("hero-showcase-bg-img");
+  if (heroShowcaseImg && (bgs.heroShowcase || bgs.showcase)) {
+    heroShowcaseImg.src = bgs.heroShowcase || bgs.showcase;
+  }
 }
 
 /* -------------------------------------------------------------

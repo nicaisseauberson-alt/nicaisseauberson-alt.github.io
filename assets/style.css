@@ -99,23 +99,24 @@ img, picture, video, canvas, svg {
   height: auto;
 }
 
-/* Ambient glow - Fond immersif nature/forêt cinématique avec auras vivantes */
+/* Ambient glow - Fond immersif nature/forêt cinématique avec verdure vivante & auras */
 .ambient-glow {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  background-color: #020406;
+  background-color: #020706;
   background-image: 
-    radial-gradient(ellipse at 50% 12%, rgba(16, 185, 129, 0.09) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 45%, rgba(14, 165, 233, 0.07) 0%, transparent 50%),
-    linear-gradient(180deg, rgba(2, 5, 8, 0.68) 0%, rgba(2, 5, 8, 0.82) 45%, rgba(2, 5, 8, 0.95) 100%),
-    url('https://images.unsplash.com/photo-1511497584788-87676104235f?w=2560&auto=format&fit=crop&q=85');
+    radial-gradient(ellipse at 50% 12%, rgba(16, 185, 129, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 45%, rgba(14, 165, 233, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(2, 8, 8, 0.30) 0%, rgba(2, 6, 8, 0.46) 45%, rgba(2, 4, 6, 0.66) 100%),
+    url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=2560&auto=format&fit=crop&q=85');
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
   background-attachment: fixed;
   overflow: hidden;
+  filter: saturate(125%) contrast(106%);
 }
 
 .ambient-glow::before {
@@ -216,6 +217,49 @@ main {
 /* -------------------------------------------------------------
  * 3. FLOATING GLASSMORPHISM NAVBAR (Exact Site 2 Architecture)
  * ----------------------------------------------------------- */
+
+/* BOUTON BASCULE MODE NUIT / CLAIR (Totalement au côté droit de l'écran) */
+.theme-toggle-floating-btn {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: 24px;
+  z-index: 1001;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 14, 22, 0.65);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
+}
+
+.theme-toggle-floating-btn:hover {
+  background: rgba(20, 26, 38, 0.85);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: scale(1.08);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
+}
+
+.theme-toggle-floating-btn .theme-icon-sun {
+  display: block;
+  stroke: #fbbf24;
+}
+
+.theme-toggle-floating-btn .theme-icon-moon {
+  display: none;
+  stroke: #38bdf8;
+}
+
+/* En-tête centré contenant la capsule flottante */
 header.main-header {
   position: fixed;
   top: calc(16px + env(safe-area-inset-top, 0px));
@@ -223,15 +267,17 @@ header.main-header {
   right: 0;
   margin-left: auto;
   margin-right: auto;
-  z-index: 100;
+  z-index: 1000;
   width: -moz-fit-content;
   width: fit-content;
-  max-width: min(840px, calc(100vw - 24px));
+  max-width: min(720px, calc(100vw - 110px));
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   pointer-events: none;
 }
 
+/* Capsule flottante centrée (Design Exact Site 2) */
 nav.floating,
 .navbar {
   pointer-events: auto;
@@ -240,17 +286,17 @@ nav.floating,
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 100px;
-  padding: 6px 10px;
+  padding: 6px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   width: -moz-fit-content;
   width: fit-content;
   max-width: 100%;
-  overflow: hidden;
+  position: relative;
 }
 
 nav.floating:hover,
@@ -259,13 +305,13 @@ nav.floating:hover,
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
 }
 
-/* Bouton Logo Circulaire (Exact Site 2) */
+/* 1. Bouton Logo Circulaire Outlook Studio (Exact Site 2) */
 .nav-logo-btn {
   width: 38px;
   height: 38px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -275,11 +321,12 @@ nav.floating:hover,
   flex-shrink: 0;
   text-decoration: none;
   padding: 0;
+  overflow: hidden;
 }
 
 .nav-logo-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  transform: rotate(15deg) scale(1.05);
+  background: rgba(255, 255, 255, 0.14);
+  transform: rotate(15deg) scale(1.08);
 }
 
 .nav-logo-img {
@@ -290,7 +337,7 @@ nav.floating:hover,
   display: block;
 }
 
-/* Nav links + Défilement horizontal fluide sans barre apparente */
+/* 2. Liens de navigation principaux (Portfolio, Cinéma, Actualités, Documents) */
 .nav-links {
   position: relative;
   list-style: none;
@@ -304,7 +351,6 @@ nav.floating:hover,
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
-  max-width: min(560px, 58vw);
 }
 
 .nav-links::-webkit-scrollbar {
@@ -364,125 +410,179 @@ nav.floating:hover,
   100% { box-shadow: 0 0 10px 2px rgba(56, 189, 248, 0.25); }
 }
 
-/* Right Actions Container */
-.nav-right-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-/* Theme Toggle Button (Light/Dark Switch) */
-.theme-toggle-btn {
+/* 3. Bouton des 3 Barres de Défilement (Révèle les autres options) */
+.nav-more-btn {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  color: #000000;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-primary, #ffffff);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  flex-shrink: 0;
-  padding: 0;
-  outline: none;
-}
-
-.theme-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  transform: scale(1.06);
-}
-
-.theme-toggle-btn .theme-icon-sun {
-  display: block;
-  stroke: #fbbf24;
-}
-
-.theme-toggle-btn .theme-icon-moon {
-  display: none;
-  stroke: #38bdf8;
-}
-
-/* Download / CTA Button (White Pill Exact Site 2) */
-.download-btn,
-nav.floating .cta {
-  flex-shrink: 0;
-  background: #ffffff !important;
-  color: #000000 !important;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 100px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15);
-  text-decoration: none;
-}
-
-.download-btn:hover,
-nav.floating .cta:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 6px 22px rgba(255, 255, 255, 0.35);
-  background: #ffffff !important;
-  color: #000000 !important;
-}
-
-nav.floating a:focus-visible,
-nav.floating button:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-.menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--text-primary, #f8fafc);
-  width: 32px;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
   position: relative;
+  padding: 0;
+}
+
+.nav-more-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+}
+
+.nav-more-btn.has-active-child::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  padding: 0;
-  margin: 0;
-  -webkit-appearance: none;
-  appearance: none;
-  line-height: 1;
-  -webkit-tap-highlight-color: transparent !important;
-  outline: none !important;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
 }
 
-.menu-toggle:focus,
-.menu-toggle:focus-visible,
-.menu-toggle:active {
-  outline: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  background: transparent !important;
+.three-bars-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5px;
+  width: 15px;
+  height: 13px;
+  justify-content: center;
+  align-items: center;
 }
 
-.menu-toggle svg {
+.three-bars-icon .bar {
   display: block;
-  position: relative;
-  top: -1px;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  transition: transform 0.25s ease;
+  width: 100%;
+  height: 2px;
+  background-color: #000000;
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
 }
-.menu-toggle.open svg {
-  transform: rotate(90deg);
+
+.nav-more-btn.open .bar-1 {
+  transform: translateY(5.5px) rotate(45deg);
+}
+
+.nav-more-btn.open .bar-2 {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.nav-more-btn.open .bar-3 {
+  transform: translateY(-5.5px) rotate(-45deg);
+}
+
+/* 4. Menu Déroulant Glassmorphic des Autres Options du Site */
+.nav-more-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 260px;
+  background: rgba(10, 14, 24, 0.94);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  padding: 10px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.97);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 1002;
+}
+
+.nav-more-dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 6px;
+}
+
+.dropdown-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dropdown-badge {
+  font-size: 0.7rem;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.dropdown-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dropdown-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(3px);
+}
+
+.dropdown-link.active {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+}
+
+.dropdown-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.dropdown-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dropdown-info strong {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: inherit;
+}
+
+.dropdown-info small {
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
 /* -------------------------------------------------------------
@@ -558,66 +658,68 @@ nav.floating button:focus-visible {
 }
 
 @media (max-width: 768px) {
-  .nav-links { display: none; }
-  .menu-toggle { display: flex; }
-  nav.floating {
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    width: -moz-fit-content;
-    width: fit-content;
-    gap: 12px;
-    padding: 6px 18px;
-    max-width: calc(100vw - 32px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
-    align-items: center;
-    overflow: hidden;
+  header.main-header {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    left: 12px;
+    right: auto;
+    margin: 0;
+    max-width: calc(100vw - 72px);
   }
-  nav.floating .brand {
-    gap: 8px;
-    line-height: 1;
-    min-width: 0;
+
+  nav.floating,
+  .navbar {
+    padding: 4px 6px;
+    gap: 4px;
   }
-  nav.floating .brand-logo {
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
+
+  .nav-logo-btn {
+    width: 34px;
+    height: 34px;
   }
-  nav.floating .brand-title {
-    line-height: 1;
-    white-space: nowrap;
+
+  .nav-logo-img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2px;
+    padding: 0 2px;
+    max-width: calc(100vw - 165px);
+  }
+
+  .nav-links a {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+
+  .nav-more-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .nav-more-dropdown {
+    right: -10px;
+    min-width: 250px;
+    max-width: calc(100vw - 32px);
   }
 }
 
 @media (max-width: 380px) {
-  nav.floating {
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    width: -moz-fit-content;
-    width: fit-content;
-    gap: 8px;
-    padding: 5px 16px 5px 14px;
-    max-width: calc(100vw - 20px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+  header.main-header {
+    left: 8px;
+    max-width: calc(100vw - 64px);
   }
-  nav.floating .brand {
-    gap: 6px;
+
+  .nav-links a {
+    font-size: 11px;
+    padding: 4px 6px;
   }
-  nav.floating .brand-logo {
-    width: 32px;
-    height: 32px;
-  }
-  nav.floating .brand-title {
-    font-size: 13.5px;
-  }
-  .menu-toggle {
-    width: 30px;
-    height: 30px;
-  }
-  .menu-toggle svg {
-    width: 18px;
-    height: 18px;
+
+  .nav-more-dropdown {
+    right: -15px;
+    min-width: 230px;
   }
 }
 
@@ -3434,12 +3536,13 @@ body.light {
 
 html.light .ambient-glow,
 body.light .ambient-glow {
-  background-color: #f8fafc;
+  background-color: #f1f5f9;
   background-image: 
-    radial-gradient(ellipse at 50% 10%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 45%, rgba(16, 185, 129, 0.06) 0%, transparent 50%),
-    linear-gradient(180deg, rgba(248, 250, 252, 0.75) 0%, rgba(241, 245, 249, 0.86) 45%, rgba(248, 250, 252, 0.96) 100%),
-    url('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=2560&auto=format&fit=crop&q=85');
+    radial-gradient(ellipse at 50% 10%, rgba(16, 185, 129, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 45%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(245, 250, 246, 0.44) 45%, rgba(240, 245, 242, 0.62) 100%),
+    url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=2560&auto=format&fit=crop&q=85');
+  filter: saturate(115%) contrast(104%);
 }
 
 html.light .ambient-glow::before {
@@ -3455,16 +3558,29 @@ html.light nav.floating,
 html.light .navbar,
 body.light nav.floating,
 body.light .navbar {
-  background: rgba(255, 255, 255, 0.78) !important;
+  background: rgba(255, 255, 255, 0.82) !important;
   border: 1px solid rgba(15, 23, 42, 0.08) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
 }
 
+/* Logo en Mode Jour: Blanc sur du Noir (Pastille noire contrastée) */
 html.light .nav-logo-btn,
 body.light .nav-logo-btn {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.08);
-  color: #0f172a;
+  background: #090d16 !important;
+  border: 1px solid rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
+}
+
+html.light .nav-logo-btn:hover,
+body.light .nav-logo-btn:hover {
+  background: #000000 !important;
+  transform: rotate(15deg) scale(1.08) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) !important;
+}
+
+html.light .nav-logo-img,
+body.light .nav-logo-img {
+  filter: none !important;
 }
 
 html.light .nav-links a,
@@ -3489,22 +3605,85 @@ body.light .glow-pill {
   border-color: rgba(2, 132, 199, 0.35);
 }
 
-html.light .theme-toggle-btn,
-body.light .theme-toggle-btn {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.08);
-  color: #0f172a;
+/* Theme Toggle Floating Button in Light Mode (Totalement à droite) */
+html.light .theme-toggle-floating-btn,
+body.light .theme-toggle-floating-btn {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  color: #0f172a !important;
 }
 
-html.light .theme-toggle-btn .theme-icon-sun,
-body.light .theme-toggle-btn .theme-icon-sun {
+html.light .theme-toggle-floating-btn:hover,
+body.light .theme-toggle-floating-btn:hover {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.2) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12) !important;
+}
+
+html.light .theme-toggle-floating-btn .theme-icon-sun,
+body.light .theme-toggle-floating-btn .theme-icon-sun {
   display: none;
 }
 
-html.light .theme-toggle-btn .theme-icon-moon,
-body.light .theme-toggle-btn .theme-icon-moon {
+html.light .theme-toggle-floating-btn .theme-icon-moon,
+body.light .theme-toggle-floating-btn .theme-icon-moon {
   display: block;
-  stroke: #0f172a;
+  stroke: #0284c7;
+}
+
+/* Bouton des 3 Barres en Mode Clair */
+html.light .nav-more-btn,
+body.light .nav-more-btn {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2) !important;
+}
+
+html.light .nav-more-btn:hover,
+body.light .nav-more-btn:hover {
+  background: #000000 !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.3) !important;
+}
+
+html.light .three-bars-icon .bar,
+body.light .three-bars-icon .bar {
+  background-color: #ffffff !important;
+}
+
+/* Menu Déroulant des Autres Options en Mode Clair */
+html.light .nav-more-dropdown,
+body.light .nav-more-dropdown {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.14) !important;
+}
+
+html.light .dropdown-header,
+body.light .dropdown-header {
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+html.light .dropdown-title,
+body.light .dropdown-title {
+  color: #0f172a !important;
+}
+
+html.light .dropdown-link,
+body.light .dropdown-link {
+  color: #334155 !important;
+}
+
+html.light .dropdown-link:hover,
+body.light .dropdown-link:hover {
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: #0f172a !important;
+}
+
+html.light .dropdown-link.active,
+body.light .dropdown-link.active {
+  background: rgba(2, 132, 199, 0.1) !important;
+  color: #0284c7 !important;
 }
 
 /* Buttons in Light Mode */

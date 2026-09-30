@@ -26,6 +26,7 @@ const DEFAULT_DATA = {
     neonAnimation: "pulse"
   },
   backgrounds: {
+    heroShowcase: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1400&auto=format&fit=crop&q=80",
     cinema: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&q=80",
     projects: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80",
     tips: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1920&q=80",
@@ -33,7 +34,8 @@ const DEFAULT_DATA = {
     news: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1920&q=80",
     gaming: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1920&q=80",
     documents: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1920&q=80",
-    portfolio: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1920&q=80"
+    portfolio: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1920&q=80",
+    contact: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1920&q=80"
   },
   cloudinary: {
     cloudName: "",

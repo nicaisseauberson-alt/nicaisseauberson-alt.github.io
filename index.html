@@ -29,84 +29,122 @@
   <meta http-equiv="Expires" content="0">
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="assets/style.css?v=2026.30">
+  <link rel="stylesheet" href="assets/style.css?v=2026.35">
 </head>
 <body>
 
-  <!-- Ambiance dynamique : Fond noir absolu & Lueur bleue animée -->
+  <!-- Ambiance dynamique : Fond forêt immersif & Lueur vivante -->
   <div class="ambient-glow" id="ambient-glow"></div>
 
-  <!-- NAVIGATION FLOTTANTE STYLE SITE 2 (Glassmorphism, Capsule Centrée & Défilement Fluide) -->
+  <!-- BOUTON BASCULE MODE NUIT / CLAIR (Totalement au côté droit de l'écran) -->
+  <button type="button" class="theme-toggle-floating-btn" id="themeToggleBtn" aria-label="Basculer le mode clair/sombre" title="Basculer Mode Clair / Sombre">
+    <svg class="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg class="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+
+  <!-- NAVIGATION CAPSULE FLOTTANTE STYLE SITE 2 (Centrée) -->
   <header class="main-header" id="main-header">
     <nav class="navbar floating" id="main-navbar" aria-label="Navigation principale">
-      <!-- Bouton Logo Circulaire (Exact Site 2) -->
-      <a href="#/portfolio" class="nav-logo-btn" id="navLogoBtn" title="Portfolio Auberson" data-route="portfolio">
+      <!-- 1. Bouton Logo Circulaire Outlook Studio (Clic -> Redirige sur Accueil) -->
+      <a href="#/" class="nav-logo-btn" id="navLogoBtn" title="Accueil Outlook Studio" data-route="home">
         <img src="assets/logo.png" alt="Outlook Studio" class="nav-logo-img">
       </a>
 
-      <!-- Liens de navigation défilables (Portfolio, Cinéma, Actualités, Documents en premier, puis les autres) -->
+      <!-- 2. Liens principaux ordonnés : Portfolio, Cinéma, Actualités, Documents -->
       <ul class="nav-links" id="navLinks">
         <span class="glow-pill" id="glowPill" aria-hidden="true"></span>
         <li><a href="#/portfolio" class="nav-route-link active" data-route="portfolio">Portfolio</a></li>
         <li><a href="#/cinema" class="nav-route-link" data-route="cinema">Cinéma</a></li>
         <li><a href="#/actualites" class="nav-route-link" data-route="news">Actualités</a></li>
         <li><a href="#/documents" class="nav-route-link" data-route="documents">Documents</a></li>
-        <li><a href="#/" class="nav-route-link" data-route="home">Accueil</a></li>
-        <li><a href="#/projets" class="nav-route-link" data-route="projects">Projets</a></li>
-        <li><a href="#/astuces" class="nav-route-link" data-route="tips">Astuces</a></li>
-        <li><a href="#/code" class="nav-route-link" data-route="code">Code</a></li>
-        <li><a href="#/gaming" class="nav-route-link" data-route="gaming">Gaming</a></li>
-        <li><a href="#/contact" class="nav-route-link" data-route="contact">Contact</a></li>
       </ul>
 
-      <!-- Actions de droite : Toggle Mode Clair/Sombre + Bouton Pilule Blanc (Exact Site 2) -->
-      <div class="nav-right-actions">
-        <!-- Bouton Bascule Mode Sombre / Mode Clair -->
-        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Basculer le mode clair/sombre" title="Mode Clair / Sombre">
-          <svg class="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-          <svg class="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-        </button>
-
-        <!-- Bouton d'action pilule blanc (Style Site 2) -->
-        <button type="button" class="download-btn cta" onclick="location.hash='#/contact'">Contact</button>
-
-        <!-- Bouton hamburger mobile -->
-        <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu" aria-expanded="false">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
+      <!-- 3. Bouton des 3 barres de défilement (Révèle les autres options du site) -->
+      <button type="button" class="nav-more-btn" id="navMoreBtn" aria-label="Autres options du site" aria-expanded="false" title="Voir les autres rubriques (3 barres)">
+        <span class="three-bars-icon" aria-hidden="true">
+          <span class="bar bar-1"></span>
+          <span class="bar bar-2"></span>
+          <span class="bar bar-3"></span>
+        </span>
+      </button>
     </nav>
-  </header>
 
-  <!-- Mobile Dropdown Menu (Glassmorphism Floating Dropdown) -->
-  <div class="mobile-menu" id="mobileMenu" aria-label="Menu mobile">
-    <ul>
-      <li><a href="#/portfolio" class="mobile-route-link active" data-route="portfolio">💼 Portfolio Auberson</a></li>
-      <li><a href="#/cinema" class="mobile-route-link" data-route="cinema">🎬 Cinéma & Séries</a></li>
-      <li><a href="#/actualites" class="mobile-route-link" data-route="news">📰 Actualités</a></li>
-      <li><a href="#/documents" class="mobile-route-link" data-route="documents">📚 Documents & Fichiers</a></li>
-      <li><a href="#/" class="mobile-route-link" data-route="home">🏠 Accueil</a></li>
-      <li><a href="#/projets" class="mobile-route-link" data-route="projects">📁 Projets</a></li>
-      <li><a href="#/astuces" class="mobile-route-link" data-route="tips">💡 Astuces Tech</a></li>
-      <li><a href="#/code" class="mobile-route-link" data-route="code">💻 Code & Scripts</a></li>
-      <li><a href="#/gaming" class="mobile-route-link" data-route="gaming">🎮 Gaming & 3D</a></li>
-      <li><a href="#/contact" class="mobile-route-link" data-route="contact">✉️ Contact direct</a></li>
-    </ul>
-  </div>
+    <!-- Menu Déroulant Glassmorphic des Autres Options du Site (Révélé par les 3 barres) -->
+    <div class="nav-more-dropdown" id="navMoreDropdown" aria-hidden="true">
+      <div class="dropdown-header">
+        <span class="dropdown-title">Autres Options</span>
+        <span class="dropdown-badge">Outlook Studio</span>
+      </div>
+      <ul class="dropdown-menu-list">
+        <li>
+          <a href="#/" class="dropdown-link" data-route="home">
+            <span class="dropdown-icon">🏠</span>
+            <div class="dropdown-info">
+              <strong>Accueil</strong>
+              <small>Page principale & vitrine</small>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="#/projets" class="dropdown-link" data-route="projects">
+            <span class="dropdown-icon">📁</span>
+            <div class="dropdown-info">
+              <strong>Projets</strong>
+              <small>Ingénierie & réalisations</small>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="#/astuces" class="dropdown-link" data-route="tips">
+            <span class="dropdown-icon">💡</span>
+            <div class="dropdown-info">
+              <strong>Astuces Tech</strong>
+              <small>Guides & tutoriels</small>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="#/code" class="dropdown-link" data-route="code">
+            <span class="dropdown-icon">💻</span>
+            <div class="dropdown-info">
+              <strong>Code & Scripts</strong>
+              <small>Snippets & outils dev</small>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="#/gaming" class="dropdown-link" data-route="gaming">
+            <span class="dropdown-icon">🎮</span>
+            <div class="dropdown-info">
+              <strong>Gaming & 3D</strong>
+              <small>Moteurs 3D & univers</small>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="#/contact" class="dropdown-link" data-route="contact">
+            <span class="dropdown-icon">✉️</span>
+            <div class="dropdown-info">
+              <strong>Contact direct</strong>
+              <small>Échanger avec Auberson</small>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
 
   <!-- CONTENEUR PRINCIPAL SPA MULTI-PAGES -->
   <main class="wrapper">
@@ -172,7 +210,7 @@
             <!-- Colonne Droite : Vitrine Visuelle Organique avec Cartes Centrées au Milieu de l'Image -->
             <div class="hero-visual-showcase scroll-reveal" data-delay="0.2s">
               <div class="showcase-card-frame">
-                <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1400&auto=format&fit=crop&q=80" alt="Outlook Studio Architecture" class="showcase-bg-img" loading="eager">
+                <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1400&auto=format&fit=crop&q=80" alt="Outlook Studio Architecture" class="showcase-bg-img" id="hero-showcase-bg-img" loading="eager">
                 <div class="showcase-gradient-overlay"></div>
 
                 <!-- Conteneur centré au milieu de l'image -->
@@ -657,15 +695,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.30"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.35"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.30"></script>
+  <script src="assets/data.js?v=2026.35"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.30"></script>
+  <script src="assets/cloudinary-service.js?v=2026.35"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.30"></script>
+  <script src="assets/app.js?v=2026.35"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.30"></script>
+  <script src="assets/admin.js?v=2026.35"></script>
 
 </body>
 </html>
