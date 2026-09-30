@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.25";
+  const APP_VERSION = "2026.30";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initVisitorTelemetry();
   initRouter();
   initFloatingNavbar();
+  initThemeMode();
   initHeroSearch();
   initCardSpotlight();
   initScrollReveal();
@@ -182,15 +183,9 @@ function initFloatingNavbar() {
   const glowPill = document.getElementById("glowPill");
   const menuToggle = document.getElementById("menuToggle");
   const mobileMenu = document.getElementById("mobileMenu");
-  const navMoreBtn = document.getElementById("navMoreBtn");
-  const navMoreMenu = document.getElementById("navMoreMenu");
 
   function moveGlowTo(link, animate) {
     if (!link || !glowPill || !navLinks) return;
-    if (link.classList.contains("nav-icon-only")) {
-      glowPill.style.display = "none";
-      return;
-    }
     glowPill.style.display = "block";
     const linkRect = link.getBoundingClientRect();
     const parentRect = navLinks.getBoundingClientRect();
@@ -212,51 +207,30 @@ function initFloatingNavbar() {
     if (!navLinks || !glowPill) return;
     const activeLink = navLinks.querySelector(".nav-route-link.active");
     if (activeLink) {
-      if (activeLink.classList.contains("nav-icon-only")) {
-        glowPill.style.display = "none";
-      } else {
-        moveGlowTo(activeLink, animate);
-      }
-    } else if (navMoreBtn && navMoreBtn.classList.contains("has-active-child")) {
-      moveGlowTo(navMoreBtn, animate);
+      moveGlowTo(activeLink, animate);
     } else {
       glowPill.style.display = "none";
     }
   };
 
-  // Wire up desktop navigation links
+  // Wire up desktop navigation links & smooth click centering
   if (navLinks) {
     const links = navLinks.querySelectorAll(".nav-route-link");
     links.forEach(link => {
       link.addEventListener("click", () => {
         links.forEach(l => l.classList.remove("active"));
         link.classList.add("active");
-        if (navMoreBtn) navMoreBtn.classList.remove("has-active-child");
-        if (link.classList.contains("nav-icon-only")) {
-          if (glowPill) glowPill.style.display = "none";
-        } else {
-          moveGlowTo(link, true);
-        }
+        moveGlowTo(link, true);
       });
     });
-  }
 
-  // Navbar "Plus" Dropdown Logic
-  if (navMoreBtn && navMoreMenu) {
-    navMoreBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const isOpen = navMoreMenu.classList.toggle("open");
-      navMoreBtn.classList.toggle("open", isOpen);
-      navMoreBtn.setAttribute("aria-expanded", String(isOpen));
-    });
-
-    navMoreMenu.querySelectorAll("a").forEach(item => {
-      item.addEventListener("click", () => {
-        navMoreMenu.classList.remove("open");
-        navMoreBtn.classList.remove("open");
-        navMoreBtn.setAttribute("aria-expanded", "false");
-      });
-    });
+    // Horizontal wheel scroll support (défilement horizontal à la molette)
+    navLinks.addEventListener("wheel", (e) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        navLinks.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
   }
 
   // Mobile Dropdown Menu Controls
@@ -433,6 +407,47 @@ function initCardSpotlight() {
   }, { passive: true });
 }
 window.initCardSpotlight = initCardSpotlight;
+
+/* -------------------------------------------------------------
+ * 1.quinquies LIGHT / DARK MODE THEME SWITCHER ENGINE
+ * ----------------------------------------------------------- */
+function initThemeMode() {
+  const toggleBtn = document.getElementById("themeToggleBtn");
+  const savedTheme = localStorage.getItem("outlook_studio_theme") || "dark";
+
+  function applyThemeMode(theme) {
+    if (theme === "light") {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+      document.body.classList.remove("dark");
+      document.body.classList.add("light");
+      if (toggleBtn) {
+        toggleBtn.setAttribute("title", "Passer en mode sombre");
+        toggleBtn.setAttribute("aria-label", "Passer en mode sombre");
+      }
+    } else {
+      document.documentElement.classList.remove("light");
+      document.documentElement.classList.add("dark");
+      document.body.classList.remove("light");
+      document.body.classList.add("dark");
+      if (toggleBtn) {
+        toggleBtn.setAttribute("title", "Passer en mode clair");
+        toggleBtn.setAttribute("aria-label", "Passer en mode clair");
+      }
+    }
+    localStorage.setItem("outlook_studio_theme", theme);
+  }
+
+  applyThemeMode(savedTheme);
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      const isCurrentlyLight = document.documentElement.classList.contains("light");
+      applyThemeMode(isCurrentlyLight ? "dark" : "light");
+    });
+  }
+}
+window.initThemeMode = initThemeMode;
 
 /* -------------------------------------------------------------
  * 2. VISITOR TELEMETRY & PRESENCE ENGINE

@@ -29,103 +29,81 @@
   <meta http-equiv="Expires" content="0">
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="assets/style.css?v=2026.25">
+  <link rel="stylesheet" href="assets/style.css?v=2026.30">
 </head>
 <body>
 
   <!-- Ambiance dynamique : Fond noir absolu & Lueur bleue animée -->
   <div class="ambient-glow" id="ambient-glow"></div>
 
-  <!-- NAVIGATION FLOTTANTE ULTRA-MODERNE (Glassmorphism & Sliding Glow Indicator) -->
-  <nav class="floating" id="main-navbar" aria-label="Navigation principale">
-    <a href="#/" class="brand" title="Outlook Studio — Accueil" data-route="home">
-      <img src="assets/logo.png" alt="Outlook Studio" class="brand-logo">
-      <span class="brand-title">Outlook Studio</span>
-    </a>
+  <!-- NAVIGATION FLOTTANTE STYLE SITE 2 (Glassmorphism, Capsule Centrée & Défilement Fluide) -->
+  <header class="main-header" id="main-header">
+    <nav class="navbar floating" id="main-navbar" aria-label="Navigation principale">
+      <!-- Bouton Logo Circulaire (Exact Site 2) -->
+      <a href="#/portfolio" class="nav-logo-btn" id="navLogoBtn" title="Portfolio Auberson" data-route="portfolio">
+        <img src="assets/logo.png" alt="Outlook Studio" class="nav-logo-img">
+      </a>
 
-    <ul class="nav-links" id="navLinks">
-      <span class="glow-pill" id="glowPill" aria-hidden="true"></span>
-      <!-- 4 Sections Principales Visibles -->
-      <li><a href="#/" class="nav-route-link active" data-route="home">Accueil</a></li>
-      <li><a href="#/cinema" class="nav-route-link" data-route="cinema">Cinéma</a></li>
-      <li><a href="#/actualites" class="nav-route-link" data-route="news">Actualités</a></li>
-      <li><a href="#/documents" class="nav-route-link" data-route="documents">Documents</a></li>
+      <!-- Liens de navigation défilables (Portfolio, Cinéma, Actualités, Documents en premier, puis les autres) -->
+      <ul class="nav-links" id="navLinks">
+        <span class="glow-pill" id="glowPill" aria-hidden="true"></span>
+        <li><a href="#/portfolio" class="nav-route-link active" data-route="portfolio">Portfolio</a></li>
+        <li><a href="#/cinema" class="nav-route-link" data-route="cinema">Cinéma</a></li>
+        <li><a href="#/actualites" class="nav-route-link" data-route="news">Actualités</a></li>
+        <li><a href="#/documents" class="nav-route-link" data-route="documents">Documents</a></li>
+        <li><a href="#/" class="nav-route-link" data-route="home">Accueil</a></li>
+        <li><a href="#/projets" class="nav-route-link" data-route="projects">Projets</a></li>
+        <li><a href="#/astuces" class="nav-route-link" data-route="tips">Astuces</a></li>
+        <li><a href="#/code" class="nav-route-link" data-route="code">Code</a></li>
+        <li><a href="#/gaming" class="nav-route-link" data-route="gaming">Gaming</a></li>
+        <li><a href="#/contact" class="nav-route-link" data-route="contact">Contact</a></li>
+      </ul>
 
-      <!-- Séparateur vertical discret -->
-      <li class="nav-divider" aria-hidden="true"></li>
+      <!-- Actions de droite : Toggle Mode Clair/Sombre + Bouton Pilule Blanc (Exact Site 2) -->
+      <div class="nav-right-actions">
+        <!-- Bouton Bascule Mode Sombre / Mode Clair -->
+        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Basculer le mode clair/sombre" title="Mode Clair / Sombre">
+          <svg class="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
 
-      <!-- Navigation Secondaire : Uniquement des icônes professionnelles avec infobulles -->
-      <li>
-        <a href="#/projets" class="nav-route-link nav-icon-only" data-route="projects" title="Projets & Laboratoires" aria-label="Projets">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a href="#/astuces" class="nav-route-link nav-icon-only" data-route="tips" title="Astuces Technologiques" aria-label="Astuces">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 18h6"/>
-            <path d="M10 22h4"/>
-            <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a href="#/code" class="nav-route-link nav-icon-only" data-route="code" title="Code & Scripts" aria-label="Code">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="16 18 22 12 16 6"/>
-            <polyline points="8 6 2 12 8 18"/>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a href="#/gaming" class="nav-route-link nav-icon-only" data-route="gaming" title="Gaming & Moteurs 3D" aria-label="Gaming">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="6" width="20" height="12" rx="4"/>
-            <path d="M6 12h4"/>
-            <path d="M8 10v4"/>
-            <circle cx="17" cy="10" r="1" fill="currentColor"/>
-            <circle cx="15" cy="14" r="1" fill="currentColor"/>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a href="#/portfolio" class="nav-route-link nav-icon-only" data-route="portfolio" title="Portfolio du Créateur" aria-label="Portfolio">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a href="#/contact" class="nav-route-link nav-icon-only" data-route="contact" title="Contact direct" aria-label="Contact">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-        </a>
-      </li>
-    </ul>
+        <!-- Bouton d'action pilule blanc (Style Site 2) -->
+        <button type="button" class="download-btn cta" onclick="location.hash='#/contact'">Contact</button>
 
-    <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu" aria-expanded="false">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-      </svg>
-    </button>
-  </nav>
+        <!-- Bouton hamburger mobile -->
+        <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </header>
 
   <!-- Mobile Dropdown Menu (Glassmorphism Floating Dropdown) -->
   <div class="mobile-menu" id="mobileMenu" aria-label="Menu mobile">
     <ul>
-      <li><a href="#/" class="mobile-route-link active" data-route="home">🏠 Accueil</a></li>
+      <li><a href="#/portfolio" class="mobile-route-link active" data-route="portfolio">💼 Portfolio Auberson</a></li>
       <li><a href="#/cinema" class="mobile-route-link" data-route="cinema">🎬 Cinéma & Séries</a></li>
       <li><a href="#/actualites" class="mobile-route-link" data-route="news">📰 Actualités</a></li>
+      <li><a href="#/documents" class="mobile-route-link" data-route="documents">📚 Documents & Fichiers</a></li>
+      <li><a href="#/" class="mobile-route-link" data-route="home">🏠 Accueil</a></li>
       <li><a href="#/projets" class="mobile-route-link" data-route="projects">📁 Projets</a></li>
       <li><a href="#/astuces" class="mobile-route-link" data-route="tips">💡 Astuces Tech</a></li>
       <li><a href="#/code" class="mobile-route-link" data-route="code">💻 Code & Scripts</a></li>
       <li><a href="#/gaming" class="mobile-route-link" data-route="gaming">🎮 Gaming & 3D</a></li>
-      <li><a href="#/documents" class="mobile-route-link" data-route="documents">📚 Documents & Fichiers</a></li>
-      <li><a href="#/portfolio" class="mobile-route-link" data-route="portfolio">💼 Portfolio Auberson</a></li>
       <li><a href="#/contact" class="mobile-route-link" data-route="contact">✉️ Contact direct</a></li>
     </ul>
   </div>
@@ -679,15 +657,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.25"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.30"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.25"></script>
+  <script src="assets/data.js?v=2026.30"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.25"></script>
+  <script src="assets/cloudinary-service.js?v=2026.30"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.25"></script>
+  <script src="assets/app.js?v=2026.30"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.25"></script>
+  <script src="assets/admin.js?v=2026.30"></script>
 
 </body>
 </html>
