@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.20";
+  const APP_VERSION = "2026.25";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initRouter();
   initFloatingNavbar();
   initHeroSearch();
+  initCardSpotlight();
   initScrollReveal();
   renderApp();
   setupEventListeners();
@@ -414,6 +415,24 @@ function initHeroSearch() {
   }
 }
 window.initHeroSearch = initHeroSearch;
+
+/* -------------------------------------------------------------
+ * 1.quater SPOTLIGHT CURSOR ENGINE FOR GLASS CARDS
+ * ----------------------------------------------------------- */
+function initCardSpotlight() {
+  document.addEventListener("mousemove", (e) => {
+    const card = e.target.closest(
+      ".bento-card, .film-card, .news-card, .project-card, .tip-card, .gaming-card, .document-card, .hero-stat-card, .floating-showcase-card, .portfolio-item-card, .analytics-card"
+    );
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty("--mouse-x", `${x}px`);
+    card.style.setProperty("--mouse-y", `${y}px`);
+  }, { passive: true });
+}
+window.initCardSpotlight = initCardSpotlight;
 
 /* -------------------------------------------------------------
  * 2. VISITOR TELEMETRY & PRESENCE ENGINE
@@ -856,7 +875,7 @@ function renderProjects(projects) {
               <span class="download-name">📄 ${escapeHTML(p.fileName)}</span>
               <span class="download-size">${escapeHTML(p.fileSize || 'Téléchargement disponible')}</span>
             </div>
-            <button class="btn btn-outline btn-sm" onclick="downloadProjectFile('${escapeHTML(p.id)}')">Télécharger</button>
+            <button class="btn btn-primary btn-sm" onclick="downloadProjectFile('${escapeHTML(p.id)}')">Télécharger ↓</button>
           </div>
         ` : ''}
       </div>
