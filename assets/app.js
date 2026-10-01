@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.35";
+  const APP_VERSION = "2026.40";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -22,9 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initVisitorTelemetry();
   initRouter();
   initFloatingNavbar();
-  initThemeMode();
   initHeroSearch();
-  initCardSpotlight();
   initScrollReveal();
   renderApp();
   setupEventListeners();
@@ -130,7 +128,7 @@ function switchView(routeKey) {
   }
 
   // 3. Update active states on nav links
-  const allNavLinks = document.querySelectorAll(".nav-route-link, .mobile-route-link, .drawer-nav-link, .bottom-nav-item, .nav-more-item, .dropdown-link");
+  const allNavLinks = document.querySelectorAll(".nav-route-link, .mobile-route-link, .drawer-nav-link, .bottom-nav-item, .nav-more-item");
   allNavLinks.forEach(link => {
     if (link.getAttribute("data-route") === routeKey) {
       link.classList.add("active");
@@ -140,9 +138,9 @@ function switchView(routeKey) {
   });
 
   const navMoreBtn = document.getElementById("navMoreBtn");
-  const dropdownRoutes = ["home", "projects", "tips", "code", "gaming", "contact"];
+  const moreRoutes = ["projects", "tips", "code", "gaming", "portfolio", "contact"];
   if (navMoreBtn) {
-    if (dropdownRoutes.includes(routeKey)) {
+    if (moreRoutes.includes(routeKey)) {
       navMoreBtn.classList.add("has-active-child");
     } else {
       navMoreBtn.classList.remove("has-active-child");
@@ -156,10 +154,7 @@ function switchView(routeKey) {
   // 4. Scroll smoothly to top
   window.scrollTo({ top: 0, behavior: "smooth" });
 
-  // 5. Close mobile menus and dropdowns, unlock scrolling
-  if (window.closeNavMoreDropdown) {
-    window.closeNavMoreDropdown();
-  }
+  // 5. Close mobile menus and unlock scrolling
   if (window.closeMobileMenu) {
     window.closeMobileMenu();
   }
@@ -186,9 +181,15 @@ function initFloatingNavbar() {
   const glowPill = document.getElementById("glowPill");
   const menuToggle = document.getElementById("menuToggle");
   const mobileMenu = document.getElementById("mobileMenu");
+  const navMoreBtn = document.getElementById("navMoreBtn");
+  const navMoreMenu = document.getElementById("navMoreMenu");
 
   function moveGlowTo(link, animate) {
     if (!link || !glowPill || !navLinks) return;
+    if (link.classList.contains("nav-icon-only")) {
+      glowPill.style.display = "none";
+      return;
+    }
     glowPill.style.display = "block";
     const linkRect = link.getBoundingClientRect();
     const parentRect = navLinks.getBoundingClientRect();
@@ -210,67 +211,49 @@ function initFloatingNavbar() {
     if (!navLinks || !glowPill) return;
     const activeLink = navLinks.querySelector(".nav-route-link.active");
     if (activeLink) {
-      moveGlowTo(activeLink, animate);
+      if (activeLink.classList.contains("nav-icon-only")) {
+        glowPill.style.display = "none";
+      } else {
+        moveGlowTo(activeLink, animate);
+      }
+    } else if (navMoreBtn && navMoreBtn.classList.contains("has-active-child")) {
+      moveGlowTo(navMoreBtn, animate);
     } else {
       glowPill.style.display = "none";
     }
   };
 
-  // Wire up desktop navigation links & smooth click centering
+  // Wire up desktop navigation links
   if (navLinks) {
     const links = navLinks.querySelectorAll(".nav-route-link");
     links.forEach(link => {
       link.addEventListener("click", () => {
         links.forEach(l => l.classList.remove("active"));
         link.classList.add("active");
-        moveGlowTo(link, true);
+        if (navMoreBtn) navMoreBtn.classList.remove("has-active-child");
+        if (link.classList.contains("nav-icon-only")) {
+          if (glowPill) glowPill.style.display = "none";
+        } else {
+          moveGlowTo(link, true);
+        }
       });
     });
-
-    // Horizontal wheel scroll support (défilement horizontal à la molette)
-    navLinks.addEventListener("wheel", (e) => {
-      if (e.deltaY !== 0) {
-        e.preventDefault();
-        navLinks.scrollLeft += e.deltaY;
-      }
-    }, { passive: false });
   }
 
-  // 3-Bars Menu Dropdown Controls (Autres options du site)
-  const navMoreBtn = document.getElementById("navMoreBtn");
-  const navMoreDropdown = document.getElementById("navMoreDropdown");
-
-  function closeNavMoreDropdown() {
-    if (navMoreDropdown) {
-      navMoreDropdown.classList.remove("open");
-      navMoreDropdown.setAttribute("aria-hidden", "true");
-    }
-    if (navMoreBtn) {
-      navMoreBtn.classList.remove("open");
-      navMoreBtn.setAttribute("aria-expanded", "false");
-    }
-  }
-  window.closeNavMoreDropdown = closeNavMoreDropdown;
-
-  function toggleNavMoreDropdown() {
-    if (!navMoreDropdown || !navMoreBtn) return;
-    const isOpen = navMoreDropdown.classList.toggle("open");
-    navMoreBtn.classList.toggle("open", isOpen);
-    navMoreBtn.setAttribute("aria-expanded", String(isOpen));
-    navMoreDropdown.setAttribute("aria-hidden", String(!isOpen));
-  }
-
-  if (navMoreBtn) {
+  // Navbar "Plus" Dropdown Logic
+  if (navMoreBtn && navMoreMenu) {
     navMoreBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      toggleNavMoreDropdown();
+      const isOpen = navMoreMenu.classList.toggle("open");
+      navMoreBtn.classList.toggle("open", isOpen);
+      navMoreBtn.setAttribute("aria-expanded", String(isOpen));
     });
-  }
 
-  if (navMoreDropdown) {
-    navMoreDropdown.querySelectorAll("a").forEach(a => {
-      a.addEventListener("click", () => {
-        closeNavMoreDropdown();
+    navMoreMenu.querySelectorAll("a").forEach(item => {
+      item.addEventListener("click", () => {
+        navMoreMenu.classList.remove("open");
+        navMoreBtn.classList.remove("open");
+        navMoreBtn.setAttribute("aria-expanded", "false");
       });
     });
   }
@@ -308,22 +291,30 @@ function initFloatingNavbar() {
   }
 
   document.addEventListener("click", (e) => {
-    if (navMoreDropdown && navMoreDropdown.classList.contains("open") &&
-        !navMoreDropdown.contains(e.target) &&
-        navMoreBtn && !navMoreBtn.contains(e.target)) {
-      closeNavMoreDropdown();
-    }
     if (mobileMenu && mobileMenu.classList.contains("open") &&
         !mobileMenu.contains(e.target) &&
         menuToggle && !menuToggle.contains(e.target)) {
       closeMobileMenu();
     }
+    if (navMoreMenu && navMoreMenu.classList.contains("open") &&
+        !navMoreMenu.contains(e.target) &&
+        navMoreBtn && !navMoreBtn.contains(e.target)) {
+      navMoreMenu.classList.remove("open");
+      navMoreBtn.classList.remove("open");
+      navMoreBtn.setAttribute("aria-expanded", "false");
+    }
   });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      closeNavMoreDropdown();
       closeMobileMenu();
+      if (navMoreMenu) {
+        navMoreMenu.classList.remove("open");
+        if (navMoreBtn) {
+          navMoreBtn.classList.remove("open");
+          navMoreBtn.setAttribute("aria-expanded", "false");
+        }
+      }
     }
   });
 
@@ -423,65 +414,6 @@ function initHeroSearch() {
   }
 }
 window.initHeroSearch = initHeroSearch;
-
-/* -------------------------------------------------------------
- * 1.quater SPOTLIGHT CURSOR ENGINE FOR GLASS CARDS
- * ----------------------------------------------------------- */
-function initCardSpotlight() {
-  document.addEventListener("mousemove", (e) => {
-    const card = e.target.closest(
-      ".bento-card, .film-card, .news-card, .project-card, .tip-card, .gaming-card, .document-card, .hero-stat-card, .floating-showcase-card, .portfolio-item-card, .analytics-card"
-    );
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    card.style.setProperty("--mouse-x", `${x}px`);
-    card.style.setProperty("--mouse-y", `${y}px`);
-  }, { passive: true });
-}
-window.initCardSpotlight = initCardSpotlight;
-
-/* -------------------------------------------------------------
- * 1.quinquies LIGHT / DARK MODE THEME SWITCHER ENGINE
- * ----------------------------------------------------------- */
-function initThemeMode() {
-  const toggleBtn = document.getElementById("themeToggleBtn");
-  const savedTheme = localStorage.getItem("outlook_studio_theme") || "dark";
-
-  function applyThemeMode(theme) {
-    if (theme === "light") {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.classList.add("light");
-      document.body.classList.remove("dark");
-      document.body.classList.add("light");
-      if (toggleBtn) {
-        toggleBtn.setAttribute("title", "Passer en mode sombre");
-        toggleBtn.setAttribute("aria-label", "Passer en mode sombre");
-      }
-    } else {
-      document.documentElement.classList.remove("light");
-      document.documentElement.classList.add("dark");
-      document.body.classList.remove("light");
-      document.body.classList.add("dark");
-      if (toggleBtn) {
-        toggleBtn.setAttribute("title", "Passer en mode clair");
-        toggleBtn.setAttribute("aria-label", "Passer en mode clair");
-      }
-    }
-    localStorage.setItem("outlook_studio_theme", theme);
-  }
-
-  applyThemeMode(savedTheme);
-
-  if (toggleBtn) {
-    toggleBtn.addEventListener("click", () => {
-      const isCurrentlyLight = document.documentElement.classList.contains("light");
-      applyThemeMode(isCurrentlyLight ? "dark" : "light");
-    });
-  }
-}
-window.initThemeMode = initThemeMode;
 
 /* -------------------------------------------------------------
  * 2. VISITOR TELEMETRY & PRESENCE ENGINE
@@ -777,12 +709,6 @@ function applyBackgrounds(bgs) {
   setBg("hero-banner-documents", bgs.documents);
   setBg("hero-banner-portfolio", bgs.portfolio);
   setBg("hero-banner-contact", bgs.contact);
-
-  // Image d'arrière-plan de la vitrine d'accueil (Cinéma, Astuces, Gaming)
-  const heroShowcaseImg = document.getElementById("hero-showcase-bg-img");
-  if (heroShowcaseImg && (bgs.heroShowcase || bgs.showcase)) {
-    heroShowcaseImg.src = bgs.heroShowcase || bgs.showcase;
-  }
 }
 
 /* -------------------------------------------------------------
@@ -930,7 +856,7 @@ function renderProjects(projects) {
               <span class="download-name">📄 ${escapeHTML(p.fileName)}</span>
               <span class="download-size">${escapeHTML(p.fileSize || 'Téléchargement disponible')}</span>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="downloadProjectFile('${escapeHTML(p.id)}')">Télécharger ↓</button>
+            <button class="btn btn-outline btn-sm" onclick="downloadProjectFile('${escapeHTML(p.id)}')">Télécharger</button>
           </div>
         ` : ''}
       </div>

@@ -1596,25 +1596,6 @@ class AdminManager {
           </p>
 
           <form onsubmit="adminManager.saveBackgroundSettings(event)">
-            <!-- Vitrine Visuelle d'Accueil (Image Arrière-plan Cinéma, Astuces & Gaming) -->
-            <div style="background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label class="form-label" style="font-size: 0.86rem; font-weight: 700; color: #38bdf8; margin: 0; display: flex; align-items: center; gap: 6px;">
-                  <span>✨</span> Image Vitrine Accueil (Arrière-plan Cinéma, Astuces & Gaming)
-                </label>
-                <span style="font-size: 0.72rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 20px;">Côté droit Accueil</span>
-              </div>
-              <div style="display: flex; gap: 8px; align-items: center;">
-                <input type="url" id="bg-hero-showcase" class="form-control form-control-sm" value="${escapeHTML(bgs.heroShowcase || '')}" placeholder="https://images.unsplash.com/... ou URL Cloudinary" style="flex: 1;">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="adminManager.uploadBgImage('bg-hero-showcase')" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;">
-                  <span>📤</span> Téléverser
-                </button>
-              </div>
-              <small style="color: var(--text-muted); font-size: 0.75rem; margin-top: 6px; display: block;">
-                Cette image s'affiche en grand format sur la partie droite de l'accueil, en arrière-plan des 3 cartes interactives (Cinéma, Astuces, Gaming).
-              </small>
-            </div>
-
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 16px;">
               <div class="form-group" style="margin: 0;">
                 <label class="form-label" style="font-size: 0.82rem;">🎬 Cinéma & Séries</label>
@@ -1760,9 +1741,7 @@ class AdminManager {
   async saveBackgroundSettings(e) {
     if (!this.requireAuth("modifier les arrière-plans")) return;
     e.preventDefault();
-    const heroShowcaseEl = document.getElementById("bg-hero-showcase");
     const backgrounds = {
-      heroShowcase: heroShowcaseEl ? heroShowcaseEl.value.trim() : "",
       cinema: document.getElementById("bg-cinema").value.trim(),
       actualites: document.getElementById("bg-actualites").value.trim(),
       projets: document.getElementById("bg-projets").value.trim(),
@@ -1780,49 +1759,10 @@ class AdminManager {
       const data = StorageService.get();
       data.backgrounds = backgrounds;
       StorageService.save(data, true);
-
-      // Mise à jour immédiate en direct de l'image de vitrine sur la page
-      const heroShowcaseImg = document.getElementById("hero-showcase-bg-img");
-      if (heroShowcaseImg && backgrounds.heroShowcase) {
-        heroShowcaseImg.src = backgrounds.heroShowcase;
-      }
-
-      alert("✅ Arrière-plans enregistrés avec succès sur le Cloud !");
+      alert("✅ Arrière-plans des rubriques enregistrés sur le Cloud !");
     } catch (err) {
       alert("Erreur: " + err.message);
     }
-  }
-
-  uploadBgImage(targetInputId) {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "image/*";
-    fileInput.onchange = async () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-      try {
-        if (window.CloudinaryService && window.CloudinaryService.isConfigured && window.CloudinaryService.isConfigured()) {
-          const res = await window.CloudinaryService.uploadFile(file);
-          if (res && res.secure_url) {
-            const input = document.getElementById(targetInputId);
-            if (input) input.value = res.secure_url;
-            alert("✅ Image téléversée sur Cloudinary avec succès ! Cliquez sur 'Enregistrer sur le Cloud'.");
-            return;
-          }
-        }
-        // Fallback FileReader (Data URL)
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const input = document.getElementById(targetInputId);
-          if (input) input.value = e.target.result;
-          alert("✅ Image chargée ! Cliquez sur 'Enregistrer sur le Cloud' pour valider.");
-        };
-        reader.readAsDataURL(file);
-      } catch (err) {
-        alert("Erreur lors du téléversement: " + err.message);
-      }
-    };
-    fileInput.click();
   }
 
   async savePlatformSettings(e) {
