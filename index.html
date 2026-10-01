@@ -33,7 +33,8 @@
   <meta http-equiv="Expires" content="0">
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="assets/style.css?v=2026.88">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.42.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="assets/style.css?v=2026.89">
 </head>
 <body>
 
@@ -83,84 +84,14 @@
   </header>
 
   <!-- NAVIGATION FLOTTANTE ULTRA-MODERNE (Glassmorphism & Sliding Glow Indicator) -->
-  <nav class="floating" id="main-navbar" aria-label="Navigation principale">
-    <a href="#/" class="brand" title="Outlook Studio — Accueil" data-route="home">
-      <span class="brand-logo-wrap"><img src="assets/logo.png" alt="Outlook Studio" class="brand-logo"></span>
-      <span class="brand-title">Outlook Studio</span>
+  <nav class="floating pill" id="main-navbar" aria-label="Navigation principale mobile">
+    <a href="#/" class="brand pill-brand" title="Outlook Studio — Accueil" data-route="home">
+      <div class="lg"><i class="ti ti-wave-sine" aria-hidden="true"></i></div>
+      <div class="nm">Outlook Studio</div>
     </a>
-
-    <ul class="nav-links" id="navLinks">
-      <span class="glow-pill" id="glowPill" aria-hidden="true"></span>
-      <!-- 4 Sections Principales Visibles -->
-      <li><a href="#/" class="nav-route-link active" data-route="home">Accueil</a></li>
-      <li><a href="#/cinema" class="nav-route-link" data-route="cinema">Cinéma</a></li>
-      <li><a href="#/actualites" class="nav-route-link" data-route="news">Actualités</a></li>
-      <li><a href="#/documents" class="nav-route-link" data-route="documents">Documents</a></li>
-
-      <!-- Séparateur vertical discret -->
-      <li class="nav-divider" aria-hidden="true"></li>
-
-      <!-- Navigation Secondaire : Uniquement des icônes professionnelles avec infobulles -->
-      <li>
-        <a href="#/projets" class="nav-route-link nav-icon-only" data-route="projects" title="Projets & Laboratoires" aria-label="Projets">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a href="#/astuces" class="nav-route-link nav-icon-only" data-route="tips" title="Astuces Technologiques" aria-label="Astuces">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 18h6"/>
-            <path d="M10 22h4"/>
-            <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a href="#/code" class="nav-route-link nav-icon-only" data-route="code" title="Code & Scripts" aria-label="Code">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="16 18 22 12 16 6"/>
-            <polyline points="8 6 2 12 8 18"/>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a href="#/gaming" class="nav-route-link nav-icon-only" data-route="gaming" title="Gaming & Moteurs 3D" aria-label="Gaming">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="6" width="20" height="12" rx="4"/>
-            <path d="M6 12h4"/>
-            <path d="M8 10v4"/>
-            <circle cx="17" cy="10" r="1" fill="currentColor"/>
-            <circle cx="15" cy="14" r="1" fill="currentColor"/>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a href="#/portfolio" class="nav-route-link nav-icon-only" data-route="portfolio" title="Portfolio du Créateur" aria-label="Portfolio">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a href="#/contact" class="nav-route-link nav-icon-only" data-route="contact" title="Contact direct" aria-label="Contact">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-        </a>
-      </li>
-    </ul>
-
-    <span class="nav-mobile-divider" aria-hidden="true"></span>
-
-    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
-        <line class="l1" x1="4" y1="6" x2="20" y2="6"/>
-        <line class="l2" x1="4" y1="12" x2="20" y2="12"/>
-        <line class="l3" x1="4" y1="18" x2="20" y2="18"/>
-      </svg>
+    <div class="pill-divider" style="width:.5px;height:22px;background:rgba(255,255,255,.25)" aria-hidden="true"></div>
+    <button class="bt menu-toggle" id="menuToggle" type="button" aria-label="Menu des options" aria-haspopup="true" aria-expanded="false" aria-controls="mobileMenu">
+      <i class="ti ti-menu-2" aria-hidden="true"></i>
     </button>
   </nav>
 
@@ -626,15 +557,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.85"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.89"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.85"></script>
+  <script src="assets/data.js?v=2026.89"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.85"></script>
+  <script src="assets/cloudinary-service.js?v=2026.89"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.88"></script>
+  <script src="assets/app.js?v=2026.89"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.85"></script>
+  <script src="assets/admin.js?v=2026.89"></script>
 
 </body>
 </html>
