@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.86";
+  const APP_VERSION = "2026.87";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -648,14 +648,14 @@ function initGlobalCanvas() {
     w = newW;
     // Couvre toute la hauteur écran y compris en cas de repli de barre d'URL
     const screenH = (window.screen && window.screen.height) ? window.screen.height : newH;
-    h = Math.max(newH, screenH);
+    h = newH;
 
     // Use 1x DPR for full-screen fixed background canvas: provides ultra-fluid 60-120fps with zero GPU lag
     canvas.width = w;
     canvas.height = h;
 
     const isMobile = w < 768;
-    const count = isMobile ? 26 : 48;
+    const count = isMobile ? 54 : 95;
 
     const COLORS = ["96,165,250", "139,123,255", "255,255,255"];
     if (pts.length > 0 && Math.abs(pts.length - count) < 10) {
@@ -804,7 +804,7 @@ function initGlobalCanvas() {
 
     // 2. Lignes de connexion (optimisées en une seule passe de tracé)
     ctx.beginPath();
-    const linkDistSq = 110 * 110;
+    const linkDistSq = (w < 768 ? 75 : 95) * (w < 768 ? 75 : 95);
     for (let i = 0; i < pts.length; i++) {
       const a = pts[i];
       for (let j = i + 1; j < pts.length; j++) {
@@ -818,7 +818,7 @@ function initGlobalCanvas() {
         }
       }
     }
-    ctx.strokeStyle = "rgba(96, 165, 250, 0.22)";
+    ctx.strokeStyle = "rgba(96, 165, 250, 0.16)";
     ctx.lineWidth = 0.75;
     ctx.stroke();
   }

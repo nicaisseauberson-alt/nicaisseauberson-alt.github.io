@@ -117,10 +117,9 @@ img, picture, video, canvas, svg {
 .global-canvas {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  min-height: -webkit-fill-available;
+  width: 100%;
+  height: 100%;
+  /* 1:1 pixel aspect ratio prevents oval hexagon distortion */
   z-index: 0;
   pointer-events: none;
   display: block;
@@ -862,7 +861,8 @@ nav.floating button:focus-visible {
     align-items: center;
     justify-content: center;
     gap: 14px;
-    padding: 6px 14px 6px 14px !important;
+    height: 46px;
+    padding: 0 14px !important;
     border-radius: 9999px !important;
     background: rgba(10, 10, 10, 0.72) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
@@ -875,7 +875,7 @@ nav.floating button:focus-visible {
   nav.floating .brand {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     padding: 0 !important;
     margin: 0 !important;
     border-radius: 100px;
@@ -895,7 +895,8 @@ nav.floating button:focus-visible {
     display: block;
   }
   nav.floating .brand-title {
-    font-size: 15px;
+    font-size: 16px;
+    letter-spacing: -0.015em;
     font-weight: 750;
     line-height: 1;
     color: #fff;
@@ -920,8 +921,8 @@ nav.floating button:focus-visible {
     transition: transform 0.2s ease, opacity 0.2s ease;
   }
   .menu-toggle svg {
-    width: 20px;
-    height: 20px;
+    width: 19px;
+    height: 19px;
     display: block;
     margin: 0 auto;
     overflow: visible;
@@ -935,8 +936,8 @@ nav.floating button:focus-visible {
     outline: none !important;
   }
   .menu-toggle svg {
-    width: 18px;
-    height: 18px;
+    width: 19px;
+    height: 19px;
     overflow: visible;
   }
   .menu-toggle line {
@@ -2522,7 +2523,7 @@ nav.floating button:focus-visible {
 /* 14. FOOTER */
 .footer {
   border-top: 1px solid var(--border-subtle);
-  padding: 40px 0 max(32px, env(safe-area-inset-bottom, 32px));
+  padding: 36px 0 max(20px, env(safe-area-inset-bottom, 20px));
   margin-top: 48px;
   background: #000000 !important;
   position: relative;
@@ -2541,12 +2542,12 @@ nav.floating button:focus-visible {
 }
 
 .footer::after {
-  content: "";
+  content: none !important;
   position: absolute;
   top: 100%;
   left: -50vw;
   width: 200vw;
-  height: 120vh;
+  display: none !important;
   background: #000000;
   pointer-events: none;
 }
