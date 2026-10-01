@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.85";
+  const APP_VERSION = "2026.86";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -624,10 +624,31 @@ function initGlobalCanvas() {
   const HEX_RAD = 250;
   const HEX_PUSH = 46;
 
-  function resize() {
-    w = window.innerWidth;
-    h = window.innerHeight;
-    if (w === 0 || h === 0) return;
+  let lastW = window.innerWidth;
+  let lastH = window.innerHeight;
+
+  function resize(force = false) {
+    const newW = window.innerWidth;
+    const newH = window.innerHeight;
+    if (newW === 0 || newH === 0) return;
+
+    // Sur mobile, le scroll fait apparaître/disparaître la barre d'adresse du navigateur,
+    // ce qui modifie window.innerHeight de quelques dizaines de pixels.
+    // Pour éviter toute coupure ou changement brusque d'arrière-plan au scroll :
+    if (!force) {
+      const widthDiff = Math.abs(newW - lastW);
+      const heightDiff = Math.abs(newH - lastH);
+      if (widthDiff < 8 && heightDiff < 180) {
+        return; // Ignorer le scroll mobile pour conserver la continuité totale du canvas
+      }
+    }
+
+    lastW = newW;
+    lastH = newH;
+    w = newW;
+    // Couvre toute la hauteur écran y compris en cas de repli de barre d'URL
+    const screenH = (window.screen && window.screen.height) ? window.screen.height : newH;
+    h = Math.max(newH, screenH);
 
     // Use 1x DPR for full-screen fixed background canvas: provides ultra-fluid 60-120fps with zero GPU lag
     canvas.width = w;
@@ -637,15 +658,23 @@ function initGlobalCanvas() {
     const count = isMobile ? 26 : 48;
 
     const COLORS = ["96,165,250", "139,123,255", "255,255,255"];
-    pts = Array.from({ length: count }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      vx: (Math.random() - 0.5) * 0.32,
-      vy: (Math.random() - 0.5) * 0.32,
-      r: Math.random() < 0.2 ? Math.random() * 1.5 + 1.5 : Math.random() * 1.1 + 0.6,
-      c: COLORS[(Math.random() * COLORS.length) | 0],
-      a: Math.random() * 0.35 + 0.45
-    }));
+    if (pts.length > 0 && Math.abs(pts.length - count) < 10) {
+      // Ajuster sans détruire brusquement les positions existantes
+      pts.forEach(p => {
+        p.x = Math.min(p.x, w);
+        p.y = Math.min(p.y, h);
+      });
+    } else {
+      pts = Array.from({ length: count }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.32,
+        vy: (Math.random() - 0.5) * 0.32,
+        r: Math.random() < 0.2 ? Math.random() * 1.5 + 1.5 : Math.random() * 1.1 + 0.6,
+        c: COLORS[(Math.random() * COLORS.length) | 0],
+        a: Math.random() * 0.35 + 0.45
+      }));
+    }
 
     buildHexGrid(isMobile);
     draw(false);
@@ -823,8 +852,14 @@ function initGlobalCanvas() {
     window.addEventListener("resize", () => {
       clearTimeout(t);
       t = setTimeout(() => {
-        resize();
-      }, 150);
+        resize(false);
+      }, 180);
+    });
+
+    window.addEventListener("orientationchange", () => {
+      setTimeout(() => {
+        resize(true);
+      }, 250);
     });
 
     document.addEventListener("visibilitychange", () => {

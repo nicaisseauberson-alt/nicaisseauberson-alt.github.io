@@ -119,6 +119,8 @@ img, picture, video, canvas, svg {
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
   z-index: 0;
   pointer-events: none;
   display: block;
@@ -859,10 +861,10 @@ nav.floating button:focus-visible {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 4px 8px 4px 5px;
-    border-radius: 100px;
-    background: rgba(10, 10, 10, 0.65) !important;
+    gap: 14px;
+    padding: 6px 14px 6px 14px !important;
+    border-radius: 9999px !important;
+    background: rgba(10, 10, 10, 0.72) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
     backdrop-filter: blur(16px) saturate(1.2) !important;
     -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
@@ -873,8 +875,9 @@ nav.floating button:focus-visible {
   nav.floating .brand {
     display: inline-flex;
     align-items: center;
-    gap: 9px;
-    padding: 0 4px 0 0;
+    gap: 10px;
+    padding: 0 !important;
+    margin: 0 !important;
     border-radius: 100px;
     text-decoration: none;
     color: #fff;
@@ -882,25 +885,26 @@ nav.floating button:focus-visible {
     line-height: 1;
   }
   nav.floating .brand-logo {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    object-fit: cover;
-    transform: scale(1.12);
+    object-fit: contain;
+    transform: none !important;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
     flex-shrink: 0;
     display: block;
   }
   nav.floating .brand-title {
-    font-size: 15.5px;
+    font-size: 15px;
     font-weight: 750;
     line-height: 1;
     color: #fff;
     white-space: nowrap;
   }
   .menu-toggle {
-    width: 36px;
-    height: 36px;
-    border-radius: 0 !important;
+    width: 32px;
+    height: 32px;
+    border-radius: 50% !important;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -957,24 +961,25 @@ nav.floating button:focus-visible {
 
 @media (max-width: 380px) {
   nav.floating {
-    gap: 6px;
-    padding: 3px 5px 3px 5px;
+    gap: 10px;
+    padding: 5px 12px 5px 12px !important;
   }
   nav.floating .brand {
     gap: 6px;
-    padding-right: 4px;
+    padding: 0 !important;
+    margin: 0 !important;
   }
   nav.floating .brand-logo {
-    width: 32px;
-    height: 32px;
-    transform: scale(1.12);
+    width: 28px;
+    height: 28px;
+    transform: none !important;
   }
   nav.floating .brand-title {
     font-size: 14px;
   }
   .menu-toggle {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
   }
 }
 
@@ -1265,10 +1270,10 @@ nav.floating button:focus-visible {
 .hx-card {
   position: relative;
   min-height: 460px;
-  padding: 28px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   overflow: hidden;
   border: 1.5px solid rgba(255, 255, 255, 0.22);
   border-radius: 30px;
@@ -1281,7 +1286,7 @@ nav.floating button:focus-visible {
 .hx-links {
   display: grid;
   gap: 12px;
-  margin: auto 0;
+  margin: 0;
 }
 
 .hx-link {
@@ -1336,6 +1341,11 @@ nav.floating button:focus-visible {
   background: linear-gradient(145deg, rgba(139, 92, 246, 0.36), rgba(14, 165, 233, 0.08));
 }
 
+.hx-thumb.t4 {
+  color: #38bdf8;
+  background: linear-gradient(145deg, rgba(56, 189, 248, 0.36), rgba(14, 165, 233, 0.08));
+}
+
 .hx-link strong {
   display: block;
   font-size: 15px;
@@ -1351,38 +1361,7 @@ nav.floating button:focus-visible {
 }
 
 .hx-discover {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 22px 8px 8px;
-  border-radius: 100px;
-  background: #fff;
-  color: #000;
-  font: 700 15px var(--hx-font, 'Plus Jakarta Sans', system-ui, sans-serif);
-  text-decoration: none;
-  transition: transform 0.3s var(--hx-ease, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 0.3s ease;
-}
-
-.hx-discover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(255, 255, 255, 0.2);
-}
-
-.hx-discover .play {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #000;
-  color: #fff;
-}
-
-.hx-discover .play svg {
-  width: 12px;
-  height: 12px;
-  margin-left: 2px;
+  display: none !important;
 }
 
 /* Statistiques */
@@ -2545,7 +2524,31 @@ nav.floating button:focus-visible {
   border-top: 1px solid var(--border-subtle);
   padding: 40px 0 max(32px, env(safe-area-inset-bottom, 32px));
   margin-top: 48px;
-  background: rgba(6, 8, 13, 0.95);
+  background: #000000 !important;
+  position: relative;
+  z-index: 10;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: linear-gradient(to bottom, transparent, #000000);
+  pointer-events: none;
+}
+
+.footer::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: -50vw;
+  width: 200vw;
+  height: 120vh;
+  background: #000000;
+  pointer-events: none;
 }
 
 /* Footer 4-Block Grid Layout */
@@ -3215,15 +3218,15 @@ nav.floating button:focus-visible {
 
 @media (max-width: 768px) {
   .bottom-nav {
-    display: flex;
+    display: none !important;
   }
   body {
-    padding-bottom: calc(96px + env(safe-area-inset-bottom, 16px));
+    padding-bottom: 0 !important;
   }
 }
 
 .bottom-nav-item {
-  display: flex;
+  display: none !important;
   align-items: center;
   justify-content: center;
   width: 44px;
