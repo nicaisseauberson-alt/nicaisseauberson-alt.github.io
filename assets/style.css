@@ -400,10 +400,172 @@ main {
 
 /* ---------- RESPONSIVE : Desktop vs Mobile ---------- */
 @media (max-width: 768px) {
-  .os-header { display: none !important; }
-  nav.floating { display: flex !important; }
+  .nav-links { display: none !important; }
+  .menu-toggle { display: grid !important; place-items: center; }
+  nav.floating {
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    margin: 0 auto !important;
+    width: -moz-fit-content !important;
+    width: fit-content !important;
+    max-width: calc(100vw - 20px);
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    height: 56px !important;
+    padding: 0 10px 0 10px !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.22) !important;
+    backdrop-filter: blur(16px) saturate(1.2) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 28px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+  nav.floating .brand {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 999px !important;
+    text-decoration: none !important;
+    color: #fff !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+    flex: none !important;
+  }
+  nav.floating .brand-logo-wrap {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    color: #05070d !important;
+    display: grid !important;
+    place-items: center !important;
+    flex: none !important;
+    overflow: hidden !important;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.25) !important;
+  }
+  nav.floating .brand-logo {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    transform: scale(1.08) !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+    filter: none !important;
+  }
+  nav.floating .brand-title {
+    font-size: 17px !important;
+    letter-spacing: 0.01em !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    flex: none !important;
+  }
+  .nav-mobile-divider {
+    display: block !important;
+    width: 0.5px !important;
+    height: 22px !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    flex: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .menu-toggle {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    flex: none !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    outline: none !important;
+    transition: transform 0.2s ease, opacity 0.2s ease !important;
+  }
+  .menu-toggle svg {
+    width: 20px !important;
+    height: 20px !important;
+    display: block !important;
+    margin: 0 auto !important;
+    stroke: currentColor !important;
+    overflow: visible !important;
+  }
+  .menu-toggle:hover,
+  .menu-toggle:focus,
+  .menu-toggle:active {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  .menu-toggle line {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  }
+  .menu-toggle[aria-expanded="true"] .l1,
+  .menu-toggle.open .l1 {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .menu-toggle[aria-expanded="true"] .l2,
+  .menu-toggle.open .l2 {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .menu-toggle[aria-expanded="true"] .l3,
+  .menu-toggle.open .l3 {
+    transform: translateY(-6px) rotate(-45deg);
+  }
 }
+
+@media (max-width: 380px) {
+  nav.floating {
+    gap: 9px !important;
+    height: 52px !important;
+    padding: 0 8px 0 8px !important;
+  }
+  nav.floating .brand {
+    gap: 9px !important;
+  }
+  nav.floating .brand-logo-wrap {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  nav.floating .brand-title {
+    font-size: 15px !important;
+  }
+  .nav-mobile-divider {
+    height: 18px !important;
+  }
+  .menu-toggle {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .menu-toggle svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+}
+
 @media (min-width: 769px) {
+  .nav-mobile-divider { display: none !important; }
+
   nav.floating { display: none !important; }
   .os-header { display: block !important; }
 }
@@ -453,6 +615,17 @@ nav.floating .brand {
   padding: 0;
   text-decoration: none;
   line-height: 1;
+}
+
+nav.floating .brand-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nav-mobile-divider {
+  display: none;
 }
 
 nav.floating .brand-logo {
