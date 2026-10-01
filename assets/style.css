@@ -800,7 +800,7 @@ nav.floating button:focus-visible {
   left: 50%;
   transform: translateX(-50%) translateY(-10px) scale(0.98);
   width: min(92vw, 340px);
-  margin-top: 48px;
+  margin-top: 68px;
   z-index: 999;
   border-radius: 20px;
   background: rgba(10, 12, 18, 0.82);
@@ -916,28 +916,29 @@ nav.floating button:focus-visible {
   }
 
   .lg,
-  nav.floating .lg,
-  nav.floating .brand-logo-wrap {
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 50% !important;
-    background: #ffffff !important;
-    color: #05070d !important;
-    display: grid !important;
-    place-items: center !important;
-    font-size: 20px !important;
-    line-height: 1 !important;
-    flex: none !important;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.25) !important;
-  }
+nav.floating .lg,
+nav.floating .brand-logo-wrap {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  flex: none !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.25) !important;
+}
 
-  .lg i,
-  nav.floating .lg i {
-    font-size: 20px !important;
-    line-height: 1 !important;
-    color: #05070d !important;
-    display: block !important;
-  }
+.lg img,
+.lg .site-icon-in-circle {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  filter: invert(1) !important; /* Converts black bg to white and white swirl to pure black */
+  transform: scale(1.15) !important; /* Fills the entire white circle */
+  display: block !important;
+}
 
   .nm,
   nav.floating .nm,

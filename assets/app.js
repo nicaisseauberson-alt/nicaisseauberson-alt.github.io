@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.89";
+  const APP_VERSION = "2026.90";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -668,11 +668,11 @@ function initGlobalCanvas() {
       pts = Array.from({ length: count }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.32,
-        vy: (Math.random() - 0.5) * 0.32,
-        r: Math.random() < 0.2 ? Math.random() * 1.5 + 1.5 : Math.random() * 1.1 + 0.6,
+        vx: (Math.random() - 0.5) * (isMobile ? 0.45 : 0.35),
+        vy: (Math.random() - 0.5) * (isMobile ? 0.45 : 0.35),
+        r: isMobile ? (Math.random() * 1.5 + 1.2) : (Math.random() < 0.2 ? Math.random() * 1.5 + 1.5 : Math.random() * 1.1 + 0.6),
         c: COLORS[(Math.random() * COLORS.length) | 0],
-        a: Math.random() * 0.35 + 0.45
+        a: isMobile ? (Math.random() * 0.35 + 0.65) : (Math.random() * 0.35 + 0.45)
       }));
     }
 
@@ -753,7 +753,7 @@ function initGlobalCanvas() {
       }
     }
     // Opacité diminuée de 20% sur le contour de base
-    ctx.strokeStyle = "rgba(59, 130, 246, 0.12)";
+    ctx.strokeStyle = (w < 768) ? "rgba(96, 165, 250, 0.26)" : "rgba(59, 130, 246, 0.14)";
     ctx.stroke();
 
     // Trace les alvéoles actives avec opacité maîtrisée (-20%)
@@ -765,9 +765,9 @@ function initGlobalCanvas() {
 
       ctx.beginPath();
       hexPath(q.x + q.ox, q.y + q.oy, rr * (1 - 0.16 * q.k));
-      ctx.fillStyle = "rgba(37, 99, 235, " + (0.035 * intensity) + ")";
+      ctx.fillStyle = "rgba(37, 99, 235, " + ((w < 768 ? 0.07 : 0.035) * intensity) + ")";
       ctx.fill();
-      ctx.strokeStyle = "rgba(96, 165, 250, " + (0.18 + 0.18 * intensity) + ")";
+      ctx.strokeStyle = "rgba(147, 197, 253, " + ((w < 768 ? 0.32 : 0.20) + 0.35 * intensity) + ")";
       ctx.lineWidth = 1.1 + intensity * 0.4;
       ctx.stroke();
     }
@@ -818,7 +818,7 @@ function initGlobalCanvas() {
         }
       }
     }
-    ctx.strokeStyle = "rgba(96, 165, 250, 0.16)";
+    ctx.strokeStyle = (w < 768) ? "rgba(147, 197, 253, 0.32)" : "rgba(96, 165, 250, 0.18)";
     ctx.lineWidth = 0.75;
     ctx.stroke();
   }
@@ -843,9 +843,25 @@ function initGlobalCanvas() {
       mouse.y = -9999;
     }, { passive: true });
 
+    window.addEventListener("touchstart", (e) => {
+      if (e.touches && e.touches[0]) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    window.addEventListener("touchmove", (e) => {
+      if (e.touches && e.touches[0]) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
     window.addEventListener("touchend", () => {
-      mouse.x = -9999;
-      mouse.y = -9999;
+      setTimeout(() => {
+        mouse.x = -9999;
+        mouse.y = -9999;
+      }, 400);
     }, { passive: true });
 
     let t;
@@ -875,10 +891,8 @@ function initGlobalCanvas() {
   }
 
   resize();
-  if (!reduced) {
-    loop();
-    window._globalCanvasRaf = raf;
-  }
+  loop();
+  window._globalCanvasRaf = raf;
 }
 window.initGlobalCanvas = initGlobalCanvas;
 window.initHxCanvas = initGlobalCanvas;
