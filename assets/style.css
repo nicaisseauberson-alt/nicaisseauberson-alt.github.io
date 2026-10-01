@@ -1653,22 +1653,29 @@ nav.floating button:focus-visible {
 }
 
 .cinema-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
   width: 100%;
 }
 
 .film-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+.film-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(56, 189, 248, 0.38);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55), 0 0 18px rgba(56, 189, 248, 0.12);
 }
 
 .film-poster-wrap {
@@ -1687,20 +1694,22 @@ nav.floating button:focus-visible {
 
 .film-rating {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 4px 8px;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 2px 7px;
   border-radius: var(--radius-full);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: #fbbf24;
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2;
 }
 
 .film-body {
-  padding: 20px;
+  padding: 13px 14px 15px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -1710,30 +1719,51 @@ nav.floating button:focus-visible {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
-  font-size: 0.78rem;
+  gap: 4px;
+  font-size: 0.72rem;
   color: var(--text-tertiary);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  line-height: 1.3;
 }
 
 .film-title {
-  font-size: 1.18rem;
+  font-size: 1.02rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  line-height: 1.25;
+  color: #fff;
+  letter-spacing: -0.01em;
 }
 
 .film-review {
-  font-size: 0.88rem;
+  font-size: 0.80rem;
   color: var(--text-secondary);
-  line-height: 1.55;
-  margin-bottom: 16px;
+  line-height: 1.45;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .film-actions {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
   margin-top: auto;
+}
+
+.film-actions .btn {
+  font-size: 0.75rem;
+  padding: 5px 9px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+.film-actions .btn-play-trailer {
+  padding: 5px 11px;
 }
 
 /* 10. PROJECTS & DOWNLOADS */
@@ -2426,6 +2456,7 @@ nav.floating button:focus-visible {
   .cinema-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
   }
 
   .film-actions {
@@ -2443,6 +2474,12 @@ nav.floating button:focus-visible {
 }
 
 @media (min-width: 768px) {
+
+  /* Cinema Grid Tablet (3 columns) */
+  .cinema-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
 
   /* Bento Grid 12 Columns */
   .bento-grid {
@@ -2593,7 +2630,8 @@ nav.floating button:focus-visible {
   }
 
   .cinema-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
   }
 }
 
