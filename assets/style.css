@@ -202,6 +202,248 @@ main {
   overflow-x: clip;
 }
 
+/* =====================================================================
+   BARRE DE NAVIGATION ORDINATEUR – Outlook Studio
+   Glassmorphism sombre. Au clic, une pastille glisse vers la section choisie.
+   Visible uniquement au-dessus de 768 px : la version mobile n'est PAS touchée.
+   Toutes les classes commencent par "os-" pour éviter les conflits.
+   ===================================================================== */
+
+.os-header {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* ---------- La capsule (thème sombre par défaut) ---------- */
+.os-nav {
+  /* Couleurs au repos */
+  --os-bg: rgba(10, 10, 10, 0.55);
+  --os-border: rgba(255, 255, 255, 0.12);
+  --os-text: #ffffff;
+  --os-soft: rgba(255, 255, 255, 0.62);
+  --os-chip: rgba(255, 255, 255, 0.08);        /* fond des ronds et du survol d'un lien */
+  --os-chip-border: rgba(255, 255, 255, 0.12);
+  --os-active-bg: rgba(59, 130, 246, 0.25);
+  --os-active-text: #8ec5ff;
+  --os-sep: rgba(255, 255, 255, 0.14);
+  --os-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 6px;
+  border-radius: 100px;
+  box-shadow: var(--os-shadow);
+}
+
+/* Le verre dépoli de la pilule est sur un calque séparé (::before).
+   IMPORTANT : si le flou était sur .os-nav lui-même, le menu déroulant (enfant de .os-nav)
+   ne pourrait plus flouter la page derrière lui. */
+.os-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--os-bg);
+  border: 1px solid var(--os-border);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  pointer-events: none;
+}
+
+/* ---------- Marque : logo + « Outlook Studio » ---------- */
+.os-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 2px 14px 2px 2px;
+  border-radius: 100px;
+  color: var(--os-text);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  transition: color 0.35s ease, background 0.35s ease;
+}
+.os-brand:hover { background: var(--os-chip); }
+
+.os-brand-icon {
+  --os-logo-size: 36px;                       /* taille de l'icône */
+  width: var(--os-logo-size);
+  height: var(--os-logo-size);
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--os-chip);
+  border: 1px solid var(--os-chip-border);
+  color: var(--os-text);
+  overflow: hidden;
+  transition: color 0.35s ease, background 0.35s ease, border-color 0.35s ease;
+}
+.os-brand-icon svg { width: 58%; height: 58%; }
+.os-brand-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+.os-brand:hover .os-brand-icon img {
+  transform: scale(1.08) rotate(3deg);
+  transition: transform 0.25s ease;
+}
+
+/* ---------- Liens + pastille qui glisse ---------- */
+.os-links {
+  position: relative;                         /* repère pour la pastille */
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.os-links a {
+  position: relative;
+  z-index: 1;                                 /* au-dessus de la pastille */
+  display: block;
+  padding: 8px 14px;
+  border-radius: 100px;
+  color: var(--os-soft);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+.os-links a:hover { color: var(--os-text); }
+.os-links a.active,
+.os-links a[aria-current="page"] {
+  color: var(--os-active-text);
+  font-weight: 600;
+}
+
+/* La pastille : elle se déplace (et s'adapte en largeur) vers le lien choisi */
+.os-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  border-radius: 100px;
+  background: var(--os-active-bg);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.5s cubic-bezier(0.34, 1.45, 0.64, 1),
+              width 0.5s cubic-bezier(0.34, 1.45, 0.64, 1),
+              opacity 0.25s ease;
+}
+.os-indicator.ready  { opacity: 1; }
+.os-indicator.no-anim { transition: none; }     /* placement initial sans animation */
+
+.os-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background: var(--os-sep);
+}
+
+/* ---------- Bouton trois barres  →  X ---------- */
+.os-menu-btn {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--os-chip-border);
+  background: var(--os-chip);
+  color: var(--os-text);
+  cursor: pointer;
+  transition: color 0.35s ease, background 0.35s ease, border-color 0.35s ease;
+}
+.os-menu-btn:hover { background: var(--os-chip-border); }
+.os-menu-btn svg { width: 18px; height: 18px; overflow: visible; }
+.os-menu-btn line {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+/* Menu ouvert : 3 barres → X */
+.os-menu-btn[aria-expanded="true"] .l1 { transform: translateY(6px) rotate(45deg); }
+.os-menu-btn[aria-expanded="true"] .l2 { opacity: 0; transform: scaleX(0); }
+.os-menu-btn[aria-expanded="true"] .l3 { transform: translateY(-6px) rotate(-45deg); }
+
+/* ---------- Menu déroulant ---------- */
+.os-more { position: relative; }
+.os-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 235px;
+  margin: 0;
+  padding: 7px;
+  list-style: none;
+  background: rgba(10, 10, 10, 0.65);
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.98);
+  transform-origin: top right;
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s,
+              background 0.35s ease, border-color 0.35s ease;
+}
+.os-dropdown.open { opacity: 1; visibility: visible; transform: none; }
+.os-dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: 15px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: color 0.35s ease, background 0.2s ease;
+}
+.os-dropdown a:hover { background: rgba(255, 255, 255, 0.1); }
+.os-dropdown a.active { background: rgba(59, 130, 246, 0.25); color: #8ec5ff; }
+.os-dropdown .os-ico { width: 22px; text-align: center; font-size: 16px; }
+
+/* ---------- Accessibilité ---------- */
+.os-nav a:focus-visible,
+.os-menu-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .os-nav, .os-nav * { transition: none !important; }
+}
+
+/* ---------- Écrans plus étroits (avant le mobile) ---------- */
+@media (max-width: 1000px) {
+  .os-links a { padding: 8px 10px; font-size: 12.5px; }
+  .os-brand { font-size: 14px; padding-right: 8px; }
+}
+
+/* ---------- RESPONSIVE : Desktop vs Mobile ---------- */
+@media (max-width: 768px) {
+  .os-header { display: none !important; }
+  nav.floating { display: flex !important; }
+}
+@media (min-width: 769px) {
+  nav.floating { display: none !important; }
+  .os-header { display: block !important; }
+}
+
 /* -------------------------------------------------------------
  * 3. FLOATING GLASSMORPHISM NAVBAR (Exact User Specification)
  * ----------------------------------------------------------- */
@@ -1921,7 +2163,7 @@ nav.floating button:focus-visible {
   background: rgba(3, 5, 10, 0.78);
   backdrop-filter: blur(28px) saturate(190%);
   -webkit-backdrop-filter: blur(28px) saturate(190%);
-  z-index: 1000;
+  z-index: 2000;
   display: flex;
   align-items: flex-end; /* Mobile: slides from bottom */
   justify-content: center;

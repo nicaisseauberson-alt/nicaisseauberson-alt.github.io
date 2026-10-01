@@ -18,23 +18,69 @@
   <!-- Favicon officiel sans cadre artificiel (transparence pure) -->
   <link rel="icon" type="image/png" href="assets/logo.png">
   
-  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <!-- Google Fonts: Inter, JetBrains Mono & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
+  <!-- Image CDN Preconnections for Ultra-Fast Loading -->
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="dns-prefetch" href="https://images.unsplash.com">
+
   <!-- Cache Control (Garantit la réception immédiate des mises à jour sur tous les appareils) -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="assets/style.css?v=2026.60">
+  <link rel="stylesheet" href="assets/style.css?v=2026.65">
 </head>
 <body>
 
   <!-- Ambiance dynamique : Fond noir absolu & Lueur bleue animée -->
   <div class="ambient-glow" id="ambient-glow"></div>
+
+  <!-- BARRE DE NAVIGATION ORDINATEUR (Capsule Glassmorphism avec pastille glissante & menu déroulant) -->
+  <header class="os-header">
+    <nav class="os-nav" aria-label="Navigation principale">
+      <!-- Logo + nom : clic = retour à l'accueil -->
+      <a class="os-brand" href="#/" aria-label="Outlook Studio – Accueil">
+        <span class="os-brand-icon">
+          <img src="assets/logo.png" alt="Outlook Studio">
+        </span>
+        Outlook Studio
+      </a>
+
+      <ul class="os-links" id="osLinks">
+        <li class="os-indicator" id="osIndicator" aria-hidden="true"></li>
+        <li><a href="#/portfolio">Portfolio</a></li>
+        <li><a href="#/cinema">Cinéma</a></li>
+        <li><a href="#/actualites">Actualités</a></li>
+        <li><a href="#/documents">Documents</a></li>
+      </ul>
+
+      <span class="os-sep" aria-hidden="true"></span>
+
+      <!-- Bouton trois barres (devient un X) + menu déroulant -->
+      <div class="os-more">
+        <button class="os-menu-btn" id="osMenuBtn" type="button" aria-label="Plus de sections" aria-haspopup="true" aria-expanded="false" aria-controls="osDropdown">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+            <line class="l1" x1="4" y1="6" x2="20" y2="6"/>
+            <line class="l2" x1="4" y1="12" x2="20" y2="12"/>
+            <line class="l3" x1="4" y1="18" x2="20" y2="18"/>
+          </svg>
+        </button>
+
+        <ul class="os-dropdown" id="osDropdown">
+          <li><a href="#/projets"><span class="os-ico">📁</span>Projets</a></li>
+          <li><a href="#/astuces-tech"><span class="os-ico">💡</span>Astuces Tech</a></li>
+          <li><a href="#/code"><span class="os-ico">💻</span>Code &amp; Scripts</a></li>
+          <li><a href="#/gaming"><span class="os-ico">🎮</span>Gaming &amp; 3D</a></li>
+          <li><a href="#/contact"><span class="os-ico">✉️</span>Contact direct</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
 
   <!-- NAVIGATION FLOTTANTE ULTRA-MODERNE (Glassmorphism & Sliding Glow Indicator) -->
   <nav class="floating" id="main-navbar" aria-label="Navigation principale">
@@ -194,7 +240,7 @@
             <!-- Colonne Droite : Vitrine Visuelle Organique avec Cartes Centrées au Milieu de l'Image -->
             <div class="hero-visual-showcase scroll-reveal" data-delay="0.2s">
               <div class="showcase-card-frame">
-                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80" alt="Outlook Studio Architecture" class="showcase-bg-img" loading="eager">
+                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=75" alt="Outlook Studio Architecture" class="showcase-bg-img" loading="eager" fetchpriority="high" decoding="async">
                 <div class="showcase-gradient-overlay"></div>
 
                 <!-- Conteneur centré au milieu de l'image -->
@@ -202,7 +248,7 @@
                   <!-- 1. Carte Flottante : Cinéma -->
                   <div class="floating-showcase-card card-cinema" onclick="location.hash='#/cinema'">
                     <div class="card-thumb">
-                      <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=160&q=80" alt="Cinéma">
+                      <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=120&auto=format&fit=crop&q=75" alt="Cinéma" loading="lazy" decoding="async">
                     </div>
                     <div class="card-text">
                       <strong>Cinéma & Séries</strong>
@@ -213,7 +259,7 @@
                   <!-- 2. Carte Flottante : Astuces Tech & Code -->
                   <div class="floating-showcase-card card-tips" onclick="location.hash='#/astuces'">
                     <div class="card-thumb">
-                      <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=160&q=80" alt="Astuces Tech">
+                      <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=120&auto=format&fit=crop&q=75" alt="Astuces Tech" loading="lazy" decoding="async">
                     </div>
                     <div class="card-text">
                       <strong>Astuces & Code</strong>
@@ -224,7 +270,7 @@
                   <!-- 3. Carte Flottante : Gaming & Moteurs 3D -->
                   <div class="floating-showcase-card card-gaming" onclick="location.hash='#/gaming'">
                     <div class="card-thumb">
-                      <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=160&q=80" alt="Gaming">
+                      <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=120&auto=format&fit=crop&q=75" alt="Gaming" loading="lazy" decoding="async">
                     </div>
                     <div class="card-text">
                       <strong>Gaming & 3D</strong>
@@ -689,15 +735,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.60"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.65"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.60"></script>
+  <script src="assets/data.js?v=2026.65"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.60"></script>
+  <script src="assets/cloudinary-service.js?v=2026.65"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.60"></script>
+  <script src="assets/app.js?v=2026.65"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.60"></script>
+  <script src="assets/admin.js?v=2026.65"></script>
 
 </body>
 </html>

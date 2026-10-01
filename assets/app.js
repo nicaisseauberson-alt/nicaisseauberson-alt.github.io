@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.60";
+  const APP_VERSION = "2026.65";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initVisitorTelemetry();
   initRouter();
   initFloatingNavbar();
+  initOsNavbar();
   initHeroSearch();
   initScrollReveal();
   renderApp();
@@ -85,6 +86,7 @@ const VALID_ROUTES = {
   "#/projets": "projects",
   "#/projects": "projects",
   "#/astuces": "tips",
+  "#/astuces-tech": "tips",
   "#/tips": "tips",
   "#/code": "code",
   "#/gaming": "gaming",
@@ -149,6 +151,10 @@ function switchView(routeKey) {
 
   if (window.updateFloatingGlowPill) {
     window.updateFloatingGlowPill(true);
+  }
+
+  if (window.syncOsNavbar) {
+    window.syncOsNavbar();
   }
 
   // 4. Scroll smoothly to top
@@ -326,6 +332,131 @@ function initFloatingNavbar() {
   window.addEventListener("resize", () => {
     window.updateFloatingGlowPill(false);
   });
+}
+
+/* -------------------------------------------------------------
+ * 1.ter DESKTOP CAPSULE NAVBAR (Exact User Specification)
+ * ----------------------------------------------------------- */
+function initOsNavbar() {
+  const btn = document.getElementById('osMenuBtn');
+  const menu = document.getElementById('osDropdown');
+  const list = document.getElementById('osLinks');
+  const indicator = document.getElementById('osIndicator');
+  if (!btn || !menu || !list || !indicator) return;
+
+  const allLinks = document.querySelectorAll('.os-links a, .os-dropdown a');
+  const brand = document.querySelector('.os-brand');
+
+  /* ----- Menu déroulant ----- */
+  function setMenu(open) {
+    menu.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  }
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setMenu(btn.getAttribute('aria-expanded') !== 'true');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) setMenu(false);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      setMenu(false);
+      btn.focus();
+    }
+  });
+
+  /* ----- Pastille : se place derrière le lien actif de la barre ----- */
+  function moveIndicator(animate) {
+    const active = list.querySelector('a.active');
+    if (!active) {
+      indicator.classList.remove('ready');
+      return;
+    }
+    const l = list.getBoundingClientRect();
+    const a = active.getBoundingClientRect();
+    if (a.width === 0) return;
+    if (!animate) indicator.classList.add('no-anim');
+    indicator.style.width = a.width + 'px';
+    indicator.style.transform = 'translateX(' + (a.left - l.left) + 'px)';
+    indicator.classList.add('ready');
+    if (!animate) {
+      void indicator.offsetWidth;
+      indicator.classList.remove('no-anim');
+    }
+  }
+
+  /* ----- Lien actif ----- */
+  function setActive(target) {
+    allLinks.forEach(a => {
+      const on = (a === target);
+      a.classList.toggle('active', on);
+      if (on) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+    moveIndicator(true);
+  }
+
+  allLinks.forEach(a => {
+    a.addEventListener('click', () => {
+      setActive(a);
+      setMenu(false);
+    });
+  });
+
+  if (brand) {
+    brand.addEventListener('click', () => {
+      allLinks.forEach(a => {
+        a.classList.remove('active');
+        a.removeAttribute('aria-current');
+      });
+      moveIndicator(false);
+      setMenu(false);
+    });
+  }
+
+  // Synchronisation avec l'adresse (#/cinema, bouton Précédent, lien direct…)
+  function syncFromHash() {
+    let current = (location.hash || '#/').toLowerCase().trim();
+    if (current === '' || current === '#') current = '#/';
+
+    let match = Array.from(allLinks).find(a => a.getAttribute('href').toLowerCase() === current);
+
+    if (!match) {
+      if (current === '#/astuces' || current === '#/tips') {
+        match = Array.from(allLinks).find(a => a.getAttribute('href') === '#/astuces-tech' || a.getAttribute('href') === '#/astuces');
+      } else if (current === '#/projects') {
+        match = Array.from(allLinks).find(a => a.getAttribute('href') === '#/projets');
+      } else if (current === '#/news') {
+        match = Array.from(allLinks).find(a => a.getAttribute('href') === '#/actualites');
+      }
+    }
+
+    if (match) {
+      setActive(match);
+    } else {
+      allLinks.forEach(a => {
+        a.classList.remove('active');
+        a.removeAttribute('aria-current');
+      });
+      moveIndicator(false);
+    }
+  }
+
+  window.addEventListener('hashchange', syncFromHash);
+  window.syncOsNavbar = syncFromHash;
+
+  // Placement initial (sans animation), puis après chargement de la police, et au redimensionnement
+  moveIndicator(false);
+  window.addEventListener('load', () => moveIndicator(false));
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => moveIndicator(false));
+  }
+  window.addEventListener('resize', () => moveIndicator(false));
+  syncFromHash();
 }
 
 /* -------------------------------------------------------------
@@ -746,16 +877,17 @@ function renderCinema(films, searchTerm = "") {
     return;
   }
 
-  container.innerHTML = filtered.map(film => {
+  container.innerHTML = filtered.map((film, idx) => {
     const ratioStyle = film.aspectRatio === 'landscape' ? 'aspect-ratio: 16/9;' : film.aspectRatio === 'square' ? 'aspect-ratio: 1/1;' : 'aspect-ratio: 2/3;';
     const poster = film.poster || film.image || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800';
     const genre = film.genre || film.category || 'Cinéma';
     const review = film.review || film.summary || 'Recommandation officielle Outlook Studio.';
     const director = film.director || 'Auberson';
+    const isAboveFold = idx < 5;
     return `
     <div class="film-card">
       <div class="streaming-poster-wrap" style="${ratioStyle}">
-        <img src="${escapeHTML(poster)}" alt="${escapeHTML(film.title)}" class="streaming-poster" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800'">
+        <img src="${escapeHTML(poster)}" alt="${escapeHTML(film.title)}" class="streaming-poster" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800'">
         <div class="film-rating">★ ${escapeHTML(film.rating || '4.5')}</div>
       </div>
       <div class="film-body">
@@ -798,7 +930,7 @@ function renderNews(news) {
     const tagList = Array.isArray(item.tags) ? item.tags : (item.tags ? item.tags.split(',') : []);
     return `
     <div class="news-card">
-      ${imgSrc ? `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(item.title)}" class="news-card-img" onerror="this.style.display='none'">` : ''}
+      ${imgSrc ? `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(item.title)}" class="news-card-img" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}
       <div class="news-card-content">
         <div class="news-meta">
           <span class="badge-tag">${escapeHTML(item.category || 'Général')}</span>
@@ -847,7 +979,7 @@ function renderProjects(projects) {
     <div class="project-card ${p.bgImage ? 'has-bg' : ''}">
       ${p.bgImage ? `
         <div class="project-card-banner" style="${bannerRatioStyle}">
-          <img src="${escapeHTML(p.bgImage)}" alt="${escapeHTML(p.title)}" loading="lazy" class="project-card-bg-img" onerror="this.style.display='none'">
+          <img src="${escapeHTML(p.bgImage)}" alt="${escapeHTML(p.title)}" loading="lazy" decoding="async" class="project-card-bg-img" onerror="this.style.display='none'">
           <div class="project-card-banner-overlay"></div>
         </div>
       ` : ''}
@@ -1029,7 +1161,7 @@ function renderGaming(gamingItems) {
         return `
         <div class="gaming-card">
           <div class="gaming-card-img-wrap">
-            <img src="${escapeHTML(game.image || '')}" alt="${escapeHTML(game.title)}" class="gaming-card-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800'">
+            <img src="${escapeHTML(game.image || '')}" alt="${escapeHTML(game.title)}" class="gaming-card-img" loading="lazy" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800'">
             <div class="gaming-rating-badge">★ ${escapeHTML(game.rating || '9.5/10')}</div>
             <div class="gaming-platform-badge">${escapeHTML(game.platform || 'PC')}</div>
           </div>
@@ -1160,7 +1292,7 @@ function renderPortfolio(portfolioItems, profile) {
         <div class="portfolio-item-card">
           ${item.image ? `
             <div class="portfolio-card-img-wrap">
-              <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}" class="portfolio-card-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
+              <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}" class="portfolio-card-img" loading="lazy" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
             </div>
           ` : ''}
           <div class="portfolio-card-content">
