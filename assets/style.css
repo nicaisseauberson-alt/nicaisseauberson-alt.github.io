@@ -85,7 +85,8 @@ html {
 }
 
 body {
-  background-color: var(--bg-base);
+  background: radial-gradient(120% 60% at 50% 0, rgba(37, 99, 235, 0.22), transparent 70%), #05070d !important;
+  background-attachment: fixed !important;
   color: var(--text-primary);
   font-family: var(--font-sans);
   line-height: 1.6;
@@ -98,6 +99,22 @@ body {
   padding-top: calc(88px + env(safe-area-inset-top, 0));
   padding-left: env(safe-area-inset-left, 0);
   padding-right: env(safe-area-inset-right, 0);
+}
+
+/* Arrière-plan statique Alvéoles / Honeycomb en haut avec dégradé sombre (Présent sur tout le site) */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='100' viewBox='0 0 56 100'><path d='M28 66L0 50V16L28 0l28 16v34L28 66v34M0 50l-28 16M56 50l28 16' fill='none' stroke='%236f8fd8' stroke-width='1.2'/></svg>") 14px 6px/56px 100px;
+  opacity: 0.14;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 80%);
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Modal Open Lock - Safe & Reversible */
@@ -113,14 +130,15 @@ img, picture, video, canvas, svg {
   height: auto;
 }
 
-/* Arrière-plan Global Interactif : Canvas 100% Noir, Particules & Alvéoles HUD Légères */
-.global-canvas {
+/* Canvas des particules interactives qui flottent sur toute la page */
+.global-canvas,
+#globalCanvas,
+#fx {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
-  /* 1:1 pixel aspect ratio prevents oval hexagon distortion */
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
   display: block;
 }
@@ -254,9 +272,9 @@ main {
   transition: color 0.35s ease, background 0.35s ease, border-color 0.35s ease;
 }
 .os-brand-icon svg { width: 58%; height: 58%; }
-.os-brand-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transform: scale(1.08); }
+.os-brand-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
 .os-brand:hover .os-brand-icon img {
-  transform: scale(1.08) rotate(3deg);
+  transform: rotate(3deg);
   transition: transform 0.25s ease;
 }
 
@@ -917,6 +935,7 @@ nav.floating button:focus-visible {
     border-radius: 999px !important;
   }
 
+  .logo,
   .nav-logo,
   .lg img,
   .site-icon-in-circle {
@@ -928,10 +947,10 @@ nav.floating button:focus-visible {
     display: block !important;
     object-fit: cover !important;
     flex: none !important;
-    background: #ffffff !important;
-    image-rendering: -webkit-optimize-contrast !important;
-    image-rendering: crisp-edges !important;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.25) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
   }
 
   .nav-name,
@@ -947,6 +966,7 @@ nav.floating button:focus-visible {
     flex: none !important;
   }
 
+  .burger,
   .nav-burger,
   .bt,
   nav.floating .bt,
@@ -971,11 +991,13 @@ nav.floating button:focus-visible {
     margin: 0 !important;
   }
 
+  .burger i,
   .nav-burger i,
-  .bt i {
+  .bt i,
+  .menu-toggle i {
     display: block !important;
     height: 1.6px !important;
-    background: #f5f5f7 !important;
+    background: #ffffff !important;
     border-radius: 2px !important;
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease !important;
     transform-origin: center !important;
@@ -984,16 +1006,19 @@ nav.floating button:focus-visible {
     margin: 0 !important;
   }
 
-  /* Animation fluide burger vers X quand le menu est ouvert */
+  /* Animation fluide burger vers Croix (X) quand le menu est ouvert */
+  .burger.open i:nth-child(1),
   .nav-burger.open i:nth-child(1),
   .menu-toggle.open i:nth-child(1) {
     transform: translateY(5.6px) rotate(45deg) !important;
   }
+  .burger.open i:nth-child(2),
   .nav-burger.open i:nth-child(2),
   .menu-toggle.open i:nth-child(2) {
     opacity: 0 !important;
     transform: scaleX(0) !important;
   }
+  .burger.open i:nth-child(3),
   .nav-burger.open i:nth-child(3),
   .menu-toggle.open i:nth-child(3) {
     transform: translateY(-5.6px) rotate(-45deg) !important;
@@ -1008,19 +1033,24 @@ nav.floating button:focus-visible {
     padding: 0 8px !important;
     gap: 8px !important;
   }
+  .brand,
   .nav-brand {
     gap: 8px !important;
   }
+  .logo,
   .nav-logo {
     width: 30px !important;
     height: 30px !important;
     min-width: 30px !important;
     min-height: 30px !important;
   }
+  .nm,
   .nav-name {
     font-size: 15px !important;
   }
-  .nav-burger {
+  .burger,
+  .nav-burger,
+  .menu-toggle {
     width: 30px !important;
     height: 30px !important;
     padding: 0 8px !important;

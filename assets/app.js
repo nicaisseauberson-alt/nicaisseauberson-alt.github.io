@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.92";
+  const APP_VERSION = "2026.93";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -609,301 +609,95 @@ window.initHeroSearch = initHeroSearch;
  * Particules stellaires légères et alvéoles technologiques (HUD)
  * ===================================================================== */
 function initGlobalCanvas() {
-  const canvas = document.getElementById("globalCanvas") || document.getElementById("hxCanvas");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d", { alpha: true });
-  if (!ctx) return;
+  const c = document.getElementById("globalCanvas") || document.getElementById("fx") || document.getElementById("hxCanvas");
+  if (!c) return;
+  const x = c.getContext("2d");
+  if (!x) return;
 
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let w = 0, h = 0, raf = 0;
-  const mouse = { x: -9999, y: -9999 };
+  const R = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let P = [], W = 0, H = 0, D = 1;
+  const L = 120;
 
-  let pts = [];
-  let hexes = [];
-  let HEX_R = 56;
-  const HEX_RAD = 250;
-  const HEX_PUSH = 46;
+  function size() {
+    D = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    c.width = W * D;
+    c.height = H * D;
+    x.setTransform(D, 0, 0, D, 0, 0);
 
-  let lastW = 0;
-  let lastH = 0;
-
-  function resize(force = false) {
-    const newW = window.innerWidth;
-    const newH = window.innerHeight;
-    if (newW === 0 || newH === 0) return;
-
-    // Sur mobile, le scroll fait apparaître/disparaître la barre d'adresse du navigateur,
-    // ce qui modifie window.innerHeight de quelques dizaines de pixels.
-    // Pour éviter toute coupure ou changement brusque d'arrière-plan au scroll :
-    if (!force) {
-      const widthDiff = Math.abs(newW - lastW);
-      const heightDiff = Math.abs(newH - lastH);
-      if (widthDiff < 8 && heightDiff < 180) {
-        return; // Ignorer le scroll mobile pour conserver la continuité totale du canvas
-      }
-    }
-
-    lastW = newW;
-    lastH = newH;
-    w = newW;
-    // Couvre toute la hauteur écran y compris en cas de repli de barre d'URL
-    const screenH = (window.screen && window.screen.height) ? window.screen.height : newH;
-    h = newH;
-
-    // Use 1x DPR for full-screen fixed background canvas: provides ultra-fluid 60-120fps with zero GPU lag
-    canvas.width = w;
-    canvas.height = h;
-
-    const isMobile = w < 768;
-    const count = isMobile ? 54 : 95;
-
-    const COLORS = ["96,165,250", "139,123,255", "255,255,255"];
-    if (pts.length > 0 && Math.abs(pts.length - count) < 10) {
-      // Ajuster sans détruire brusquement les positions existantes
-      pts.forEach(p => {
-        p.x = Math.min(p.x, w);
-        p.y = Math.min(p.y, h);
+    const n = Math.min(70, Math.round((W * H) / 14000));
+    while (P.length < n) {
+      P.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        r: Math.random() * 1.5 + 0.7,
+        w: Math.random() < 0.2
       });
-    } else {
-      pts = Array.from({ length: count }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * (isMobile ? 0.45 : 0.35),
-        vy: (Math.random() - 0.5) * (isMobile ? 0.45 : 0.35),
-        r: isMobile ? (Math.random() * 1.5 + 1.2) : (Math.random() < 0.2 ? Math.random() * 1.5 + 1.5 : Math.random() * 1.1 + 0.6),
-        c: COLORS[(Math.random() * COLORS.length) | 0],
-        a: isMobile ? (Math.random() * 0.35 + 0.65) : (Math.random() * 0.35 + 0.45)
-      }));
     }
-
-    buildHexGrid(isMobile);
-    draw(false);
+    P.length = n;
   }
 
-  function buildHexGrid(isMobile) {
-    HEX_R = isMobile ? 48 : (w > 1600 ? 68 : 58);
-    const sx = HEX_R * 1.5;
-    const sy = HEX_R * Math.sqrt(3);
-    const cols = Math.ceil(w / sx) + 2;
-    const rows = Math.ceil(h / sy) + 2;
-
-    hexes = [];
-    for (let c = -1; c < cols; c++) {
-      for (let r = -1; r < rows; r++) {
-        hexes.push({
-          x: c * sx,
-          y: r * sy + (c & 1 ? sy / 2 : 0),
-          ox: 0,
-          oy: 0,
-          k: 0,
-          ph: Math.random() * 6.283
-        });
+  function draw() {
+    x.clearRect(0, 0, W, H);
+    for (let i = 0; i < P.length; i++) {
+      const a = P[i];
+      if (!R) {
+        a.x += a.vx;
+        a.y += a.vy;
+        if (a.x < 0 || a.x > W) a.vx *= -1;
+        if (a.y < 0 || a.y > H) a.vy *= -1;
       }
-    }
-  }
-
-  function hexPath(cx, cy, r) {
-    ctx.moveTo(cx + r, cy);
-    for (let i = 1; i < 6; i++) {
-      const a = (i * Math.PI) / 3;
-      ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
-    }
-    ctx.closePath();
-  }
-
-  function drawHexes(t) {
-    const rr = HEX_R - 1.5;
-    const hot = [];
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(37, 99, 235, 0.08)";
-    ctx.beginPath();
-
-    const mouseActive = mouse.x > -1000 && mouse.y > -1000;
-    const hexRadSq = HEX_RAD * HEX_RAD;
-
-    for (let i = 0; i < hexes.length; i++) {
-      const q = hexes[i];
-      let tx = 0, ty = 0, tk = 0;
-
-      if (mouseActive) {
-        const mx = q.x - mouse.x;
-        const my = q.y - mouse.y;
-        const d2 = mx * mx + my * my;
-        if (d2 < hexRadSq) {
-          const d = Math.sqrt(d2) + 0.001;
-          const f = 1 - d / HEX_RAD;
-          // Répulsion très prononcée et dynamique
-          tx = (mx / d) * f * f * HEX_PUSH;
-          ty = (my / d) * f * f * HEX_PUSH;
-          tk = f;
-        }
-      }
-
-      // Vitesse d'inertie plus vive pour une réactivité immédiate au curseur
-      q.ox += (tx - q.ox) * 0.08;
-      q.oy += (ty - q.oy) * 0.08;
-      q.k += (tk - q.k) * 0.08;
-
-      // Respiration douce : opacité diminuée de 20%, n'apparaît que très subtilement
-      const pulse = Math.sin(t * 0.00032 + q.ph + q.x * 0.0012 + q.y * 0.001);
-      if (pulse > 0.48 || q.k > 0.025) {
-        hot.push(q);
-      } else if (pulse > 0.08) {
-        hexPath(q.x + q.ox, q.y + q.oy, rr);
-      }
-    }
-    // Opacité diminuée de 20% sur le contour de base
-    ctx.strokeStyle = (w < 768) ? "rgba(96, 165, 250, 0.26)" : "rgba(59, 130, 246, 0.14)";
-    ctx.stroke();
-
-    // Trace les alvéoles actives avec opacité maîtrisée (-20%)
-    for (let j = 0; j < hot.length; j++) {
-      const q = hot[j];
-      const pulse = Math.sin(t * 0.00032 + q.ph + q.x * 0.0012 + q.y * 0.001);
-      const vis = Math.max(0, (pulse - 0.48) / 0.52);
-      const intensity = Math.min(1, q.k * 1.8 + vis);
-
-      ctx.beginPath();
-      hexPath(q.x + q.ox, q.y + q.oy, rr * (1 - 0.16 * q.k));
-      ctx.fillStyle = "rgba(37, 99, 235, " + ((w < 768 ? 0.07 : 0.035) * intensity) + ")";
-      ctx.fill();
-      ctx.strokeStyle = "rgba(147, 197, 253, " + ((w < 768 ? 0.32 : 0.20) + 0.35 * intensity) + ")";
-      ctx.lineWidth = 1.1 + intensity * 0.4;
-      ctx.stroke();
-    }
-  }
-
-  function draw(move) {
-    if (w === 0 || h === 0 || pts.length === 0) {
-      resize(true);
-    }
-    ctx.clearRect(0, 0, w, h);
-    drawHexes(performance.now());
-
-    // 1. Particules
-    for (let i = 0; i < pts.length; i++) {
-      const p = pts[i];
-      if (move) {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < -15) p.x = w + 15; else if (p.x > w + 15) p.x = -15;
-        if (p.y < -15) p.y = h + 15; else if (p.y > h + 15) p.y = -15;
-
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const d2 = dx * dx + dy * dy;
-        if (d2 < 18000) {
-          const f = (1 - d2 / 18000) * 0.7;
-          p.x += (dx / (Math.sqrt(d2) + 1)) * f * 4.0;
-          p.y += (dy / (Math.sqrt(d2) + 1)) * f * 4.0;
-        }
-      }
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, 6.2832);
-      ctx.fillStyle = "rgba(" + p.c + "," + p.a + ")";
-      ctx.fill();
-    }
-
-    // 2. Lignes de connexion (optimisées en une seule passe de tracé)
-    ctx.beginPath();
-    const linkDistSq = (w < 768 ? 75 : 95) * (w < 768 ? 75 : 95);
-    for (let i = 0; i < pts.length; i++) {
-      const a = pts[i];
-      for (let j = i + 1; j < pts.length; j++) {
-        const b = pts[j];
+      for (let j = i + 1; j < P.length; j++) {
+        const b = P[j];
         const dx = a.x - b.x;
         const dy = a.y - b.y;
-        const d2 = dx * dx + dy * dy;
-        if (d2 < linkDistSq) {
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
+        const d = dx * dx + dy * dy;
+        if (d < L * L) {
+          x.strokeStyle = "rgba(106,165,255," + (0.3 * (1 - Math.sqrt(d) / L)) + ")";
+          x.lineWidth = 0.8;
+          x.beginPath();
+          x.moveTo(a.x, a.y);
+          x.lineTo(b.x, b.y);
+          x.stroke();
         }
       }
+      x.fillStyle = a.w ? "rgba(255,255,255,.85)" : "rgba(120,170,255,.8)";
+      x.beginPath();
+      x.arc(a.x, a.y, a.r, 0, 6.283);
+      x.fill();
     }
-    ctx.strokeStyle = (w < 768) ? "rgba(147, 197, 253, 0.32)" : "rgba(96, 165, 250, 0.18)";
-    ctx.lineWidth = 0.75;
-    ctx.stroke();
-  }
-
-  function loop() {
-    draw(true);
-    raf = requestAnimationFrame(loop);
+    if (!R) {
+      window._globalCanvasRaf = requestAnimationFrame(draw);
+    }
   }
 
   if (window._globalCanvasRaf) {
     cancelAnimationFrame(window._globalCanvasRaf);
   }
 
+  size();
+  draw();
+
   if (!window._hasGlobalCanvasEvents) {
-    window.addEventListener("pointermove", (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    }, { passive: true });
-
-    window.addEventListener("pointerleave", () => {
-      mouse.x = -9999;
-      mouse.y = -9999;
-    }, { passive: true });
-
-    window.addEventListener("touchstart", (e) => {
-      if (e.touches && e.touches[0]) {
-        mouse.x = e.touches[0].clientX;
-        mouse.y = e.touches[0].clientY;
-      }
-    }, { passive: true });
-
-    window.addEventListener("touchmove", (e) => {
-      if (e.touches && e.touches[0]) {
-        mouse.x = e.touches[0].clientX;
-        mouse.y = e.touches[0].clientY;
-      }
-    }, { passive: true });
-
-    window.addEventListener("touchend", () => {
-      setTimeout(() => {
-        mouse.x = -9999;
-        mouse.y = -9999;
-      }, 400);
-    }, { passive: true });
-
-    let t;
     window.addEventListener("resize", () => {
-      clearTimeout(t);
-      t = setTimeout(() => {
-        resize(false);
-      }, 180);
+      size();
+      if (R) draw();
     });
-
     window.addEventListener("orientationchange", () => {
-      setTimeout(() => {
-        resize(true);
-      }, 250);
+      setTimeout(() => { size(); if (R) draw(); }, 200);
     });
-
-    window.addEventListener("pageshow", () => {
-      resize(true);
-    });
-
-    window.addEventListener("load", () => {
-      resize(true);
-    });
-
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
-        cancelAnimationFrame(raf);
-      } else if (!reduced) {
-        raf = requestAnimationFrame(loop);
-        window._globalCanvasRaf = raf;
+        cancelAnimationFrame(window._globalCanvasRaf);
+      } else if (!R) {
+        window._globalCanvasRaf = requestAnimationFrame(draw);
       }
     });
-
     window._hasGlobalCanvasEvents = true;
   }
-
-  resize(true);
-  loop();
-  window._globalCanvasRaf = raf;
 }
 window.initGlobalCanvas = initGlobalCanvas;
 window.initHxCanvas = initGlobalCanvas;
