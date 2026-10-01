@@ -34,7 +34,7 @@
   
   <!-- Stylesheets -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.42.0/dist/tabler-icons.min.css">
-  <link rel="stylesheet" href="assets/style.css?v=2026.91">
+  <link rel="stylesheet" href="assets/style.css?v=2026.92">
 </head>
 <body>
 
@@ -83,15 +83,14 @@
     </nav>
   </header>
 
-  <!-- NAVIGATION FLOTTANTE ULTRA-MODERNE (Glassmorphism & Sliding Glow Indicator) -->
-  <nav class="floating pill" id="main-navbar" aria-label="Navigation principale mobile">
-    <a href="#/" class="brand pill-brand" title="Outlook Studio — Accueil" data-route="home">
-      <div class="lg"><img src="assets/logo.png" alt="Outlook Studio" class="site-icon-in-circle"></div>
-      <div class="nm">Outlook Studio</div>
+  <!-- NAVIGATION MOBILE EXACTE (Pill conforme à la maquette utilisateur) -->
+  <nav class="nav floating" id="main-navbar" aria-label="Navigation principale mobile">
+    <a class="nav-brand brand" href="#/" data-route="home" title="Outlook Studio — Accueil">
+      <img class="nav-logo" alt="Logo Outlook Studio" src="assets/logo.png">
+      <span class="nav-name">Outlook Studio</span>
     </a>
-    <div class="pill-divider" style="width:.5px;height:22px;background:rgba(255,255,255,.25)" aria-hidden="true"></div>
-    <button class="bt menu-toggle" id="menuToggle" type="button" aria-label="Menu des options" aria-haspopup="true" aria-expanded="false" aria-controls="mobileMenu">
-      <i class="ti ti-menu-2" aria-hidden="true"></i>
+    <button class="nav-burger menu-toggle" id="menuToggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
+      <i></i><i></i><i></i>
     </button>
   </nav>
 
@@ -557,15 +556,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.91"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.92"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.91"></script>
+  <script src="assets/data.js?v=2026.92"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.91"></script>
+  <script src="assets/cloudinary-service.js?v=2026.92"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.91"></script>
+  <script src="assets/app.js?v=2026.92"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.91"></script>
+  <script src="assets/admin.js?v=2026.92"></script>
 
 </body>
 </html>

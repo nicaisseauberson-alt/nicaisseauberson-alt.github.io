@@ -407,6 +407,7 @@ main {
 @media (min-width: 769px) {
   .os-header { display: block !important; }
   nav.floating,
+  .nav,
   .pill,
   .pill-divider,
   .nav-mobile-divider,
@@ -796,18 +797,18 @@ nav.floating button:focus-visible {
 
 .mobile-menu {
   position: fixed;
-  top: calc(16px + env(safe-area-inset-top, 0px));
+  top: calc(14px + env(safe-area-inset-top, 0px));
   left: 50%;
   transform: translateX(-50%) translateY(-10px) scale(0.98);
   width: min(92vw, 340px);
-  margin-top: 68px;
+  margin-top: 66px;
   z-index: 999;
-  border-radius: 20px;
-  background: rgba(10, 12, 18, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  background: rgba(14, 16, 22, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.26) !important;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 16px 45px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
   padding: 10px;
   opacity: 0;
   visibility: hidden;
@@ -863,210 +864,173 @@ nav.floating button:focus-visible {
 }
 
 /* =====================================================================
- * NAVIGATION MOBILE : VARIANTE B (PILULE COMPACTE CENTRÉE)
- * Conforme pixel-perfect à la maquette de l'utilisateur
+ * NAVIGATION MOBILE : CODE EXACT FOURNI PAR L'UTILISATEUR
+ * Conforme pixel-perfect à la maquette & au snippet HTML/CSS
  * ===================================================================== */
 @media (max-width: 768px) {
   .os-header {
     display: none !important;
   }
   
+  .nav,
   nav.floating,
   .pill {
-    -webkit-transform: translateX(-50%) translateZ(0) !important;
-    -webkit-tap-highlight-color: transparent !important;
     position: fixed !important;
     top: calc(14px + env(safe-area-inset-top, 0px)) !important;
     left: 50% !important;
     right: auto !important;
     transform: translateX(-50%) !important;
+    -webkit-transform: translateX(-50%) !important;
     margin: 0 auto !important;
-    width: -moz-fit-content !important;
     width: fit-content !important;
-    max-width: calc(100vw - 20px) !important;
-    height: 56px !important;
-    border-radius: 999px !important;
-    background: rgba(255, 255, 255, 0.07) !important;
-    border: 0.5px solid rgba(255, 255, 255, 0.22) !important;
-    backdrop-filter: blur(16px) saturate(1.2) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 28px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
-    color: #fff !important;
+    height: 52px !important;
+    padding: 0 9px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 10px 0 10px !important;
-    gap: 12px !important;
+    gap: 10px !important;
+    border-radius: 999px !important;
+    background: rgba(18, 18, 20, .88) !important;
+    /* Bordure blanche nette et visible sur tous les navigateurs (Brave, Safari, Chrome) */
+    border: 1.5px solid rgba(255, 255, 255, 0.24) !important;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .6), 0 6px 24px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
     z-index: 1000 !important;
     box-sizing: border-box !important;
     overflow: visible !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
 
+  .nav-brand,
   nav.floating .brand,
   .pill-brand {
-    display: inline-flex !important;
+    display: flex !important;
     align-items: center !important;
-    gap: 12px !important;
+    gap: 10px !important;
+    color: #f5f5f7 !important;
+    text-decoration: none !important;
+    line-height: 1 !important;
+    flex: none !important;
     padding: 0 !important;
     margin: 0 !important;
     border-radius: 999px !important;
-    text-decoration: none !important;
-    color: #fff !important;
-    white-space: nowrap !important;
-    line-height: 1 !important;
-    flex: none !important;
   }
 
-  .lg,
-nav.floating .lg,
-nav.floating .brand-logo-wrap {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-  border-radius: 50% !important;
-  background: #ffffff !important;
-  display: -webkit-box !important;
-  display: -webkit-flex !important;
-  display: flex !important;
-  -webkit-box-align: center !important;
-  -webkit-align-items: center !important;
-  align-items: center !important;
-  -webkit-box-pack: center !important;
-  -webkit-justify-content: center !important;
-  justify-content: center !important;
-  overflow: hidden !important;
-  -webkit-mask-image: -webkit-radial-gradient(white, black) !important;
-  flex: none !important;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35) !important;
-  position: relative !important;
-}
+  .nav-logo,
+  .lg img,
+  .site-icon-in-circle {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    border-radius: 50% !important;
+    display: block !important;
+    object-fit: cover !important;
+    flex: none !important;
+    background: #ffffff !important;
+    image-rendering: -webkit-optimize-contrast !important;
+    image-rendering: crisp-edges !important;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.25) !important;
+  }
 
-.lg img,
-.lg .site-icon-in-circle {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  border-radius: 50% !important;
-  -webkit-filter: invert(1) !important;
-  filter: invert(1) !important;
-  -webkit-transform: scale(1.42) !important;
-  transform: scale(1.42) !important;
-  display: block !important;
-  image-rendering: -webkit-optimize-contrast !important;
-  image-rendering: crisp-edges !important;
-}
-
+  .nav-name,
   .nm,
   nav.floating .nm,
   nav.floating .brand-title {
-    font-size: 17px !important;
-    letter-spacing: 0.01em !important;
+    font-size: 16.5px !important;
     font-weight: 500 !important;
-    line-height: 1 !important;
-    color: #ffffff !important;
+    letter-spacing: .01em !important;
     white-space: nowrap !important;
+    color: #f5f5f7 !important;
+    line-height: 1 !important;
     flex: none !important;
   }
 
-  .pill-divider,
-  .nav-mobile-divider {
-    display: block !important;
-    width: 0.5px !important;
-    height: 22px !important;
-    background: rgba(255, 255, 255, 0.25) !important;
-    flex: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
+  .nav-burger,
   .bt,
   nav.floating .bt,
   .menu-toggle {
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 50% !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: #ffffff !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    padding: 0 9.5px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    background: none !important;
+    border: 0 !important;
     cursor: pointer !important;
+    flex: none !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    border-radius: 50% !important;
+    margin: 0 !important;
+  }
+
+  .nav-burger i,
+  .bt i {
+    display: block !important;
+    height: 1.6px !important;
+    background: #f5f5f7 !important;
+    border-radius: 2px !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease !important;
+    transform-origin: center !important;
+    width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
-    display: grid !important;
-    place-items: center !important;
-    flex: none !important;
-    font-size: 20px !important;
-    line-height: 1 !important;
-    outline: none !important;
-    transition: transform 0.2s ease, opacity 0.2s ease !important;
   }
 
-  .bt i,
-  nav.floating .bt i {
-    font-size: 20px !important;
-    line-height: 1 !important;
-    color: #ffffff !important;
-    display: block !important;
+  /* Animation fluide burger vers X quand le menu est ouvert */
+  .nav-burger.open i:nth-child(1),
+  .menu-toggle.open i:nth-child(1) {
+    transform: translateY(5.6px) rotate(45deg) !important;
   }
-
-  .menu-toggle svg {
-    width: 20px !important;
-    height: 20px !important;
-    display: block !important;
-    margin: 0 auto !important;
-    stroke: currentColor !important;
-    overflow: visible !important;
+  .nav-burger.open i:nth-child(2),
+  .menu-toggle.open i:nth-child(2) {
+    opacity: 0 !important;
+    transform: scaleX(0) !important;
+  }
+  .nav-burger.open i:nth-child(3),
+  .menu-toggle.open i:nth-child(3) {
+    transform: translateY(-5.6px) rotate(-45deg) !important;
   }
 }
 
 @media (max-width: 380px) {
+  .nav,
   nav.floating,
   .pill {
-    gap: 9px !important;
-    height: 52px !important;
-    padding: 0 8px 0 8px !important;
+    height: 48px !important;
+    padding: 0 8px !important;
+    gap: 8px !important;
   }
-  nav.floating .brand,
-  .pill-brand {
-    gap: 9px !important;
+  .nav-brand {
+    gap: 8px !important;
   }
-  .lg,
-  nav.floating .lg,
-  nav.floating .brand-logo-wrap {
-    width: 32px !important;
-    height: 32px !important;
-    font-size: 18px !important;
+  .nav-logo {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
   }
-  .lg i,
-  nav.floating .lg i {
-    font-size: 18px !important;
-  }
-  .nm,
-  nav.floating .nm,
-  nav.floating .brand-title {
+  .nav-name {
     font-size: 15px !important;
   }
-  .pill-divider,
-  .nav-mobile-divider {
-    height: 18px !important;
-  }
-  .bt,
-  nav.floating .bt,
-  .menu-toggle {
-    width: 32px !important;
-    height: 32px !important;
-    font-size: 18px !important;
-  }
-  .bt i,
-  nav.floating .bt i {
-    font-size: 18px !important;
+  .nav-burger {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 0 8px !important;
   }
 }
 
 @media (min-width: 769px) {
   .os-header { display: block !important; }
   nav.floating,
+  .nav,
   .pill,
   .pill-divider,
   .nav-mobile-divider,
@@ -1166,16 +1130,17 @@ nav.floating .brand-logo-wrap {
   align-items: center;
   gap: 10px;
   padding: 9px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.17);
+  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
   border-radius: 100px;
-  background: rgba(255, 255, 255, 0.075);
-  -webkit-backdrop-filter: blur(7px) saturate(160%);
-  backdrop-filter: blur(7px) saturate(160%);
+  background: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  backdrop-filter: blur(8px) saturate(160%);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .hx-badge .dot {
@@ -1220,11 +1185,12 @@ nav.floating .brand-logo-wrap {
   max-width: 620px;
   margin: 30px 0 0;
   padding: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.30) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 8px 24px rgba(0, 0, 0, 0.45) !important;
   border-radius: 100px;
-  background: rgba(255, 255, 255, 0.075);
-  -webkit-backdrop-filter: blur(7px) saturate(160%);
-  backdrop-filter: blur(7px) saturate(160%);
+  background: rgba(255, 255, 255, 0.08) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  backdrop-filter: blur(8px) saturate(160%);
   transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -1324,12 +1290,13 @@ nav.floating .brand-logo-wrap {
   align-items: center;
   gap: 9px;
   padding: 10px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.17);
+  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
   border-radius: 100px;
-  background: rgba(255, 255, 255, 0.075);
-  -webkit-backdrop-filter: blur(7px) saturate(160%);
-  backdrop-filter: blur(7px) saturate(160%);
-  color: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  backdrop-filter: blur(8px) saturate(160%);
+  color: rgba(255, 255, 255, 0.92);
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -1337,8 +1304,9 @@ nav.floating .brand-logo-wrap {
 }
 
 .hx-chip:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
   transform: translateY(-1px);
 }
 
@@ -1361,12 +1329,12 @@ nav.floating .brand-logo-wrap {
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  border: 1.5px solid rgba(255, 255, 255, 0.30) !important;
   border-radius: 30px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035)) !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.035)) !important;
   -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
   backdrop-filter: blur(12px) saturate(140%) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 16px 38px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 16px 38px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
 }
 
 .hx-links {
@@ -1380,11 +1348,12 @@ nav.floating .brand-logo-wrap {
   align-items: center;
   gap: 16px;
   padding: 14px 18px 14px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1.5px solid rgba(255, 255, 255, 0.26) !important;
   border-radius: 18px;
-  background: rgba(10, 10, 14, 0.55);
-  -webkit-backdrop-filter: blur(7px);
-  backdrop-filter: blur(7px);
+  background: rgba(14, 16, 22, 0.65) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   color: inherit;
   text-decoration: none;
   transition: transform 0.35s var(--hx-ease, cubic-bezier(0.16, 1, 0.3, 1)), border-color 0.3s ease, background 0.3s ease;
@@ -1392,8 +1361,9 @@ nav.floating .brand-logo-wrap {
 
 .hx-link:hover {
   transform: translateX(4px);
-  border-color: rgba(255, 255, 255, 0.28);
-  background: rgba(20, 22, 30, 0.65);
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  background: rgba(20, 22, 30, 0.75) !important;
 }
 
 .hx-thumb {
@@ -3714,8 +3684,34 @@ body:not([data-current-route="home"]) .footer-content {
 
 /* =====================================================================
  * CARTES ET RECTANGLES ARRONDIS UNIVERSELS (Verre Givré & Lisse Anti-Aliasing)
- * Appliqué à Actualités, Films, Projets, Gaming, Astuces, Documents, etc.
+ * Appliqué à Accueil, Recherche, Badges, Puces, Actualités, Films, Projets, Gaming, Astuces, Documents, etc.
+ * Rendu haute visibilité des bordures blanches garanti sur Brave, Safari, Chrome, iOS & Android
  * ===================================================================== */
+.hx-search,
+.hx-badge,
+.hx-chip,
+.hx-card,
+.hx-link,
+.hx-stat,
+.news-card,
+.film-card,
+.project-card,
+.gaming-card,
+.tip-card,
+.document-card,
+.portfolio-item-card,
+.contact-card,
+.code-card,
+.bento-card,
+.category-header-clean,
+.category-hero,
+.modal-card,
+.modal-sheet,
+.admin-card {
+  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+}
+
 .hx-card,
 .hx-stat,
 .news-card,
@@ -3733,8 +3729,7 @@ body:not([data-current-route="home"]) .footer-content {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.025) 100%) !important;
   backdrop-filter: blur(12px) saturate(140%) !important;
   -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
 }
 
 .news-card:hover,
@@ -3748,7 +3743,9 @@ body:not([data-current-route="home"]) .footer-content {
 .code-card:hover,
 .bento-card:hover,
 .hx-card:hover,
-.hx-stat:hover {
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 18px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+.hx-stat:hover,
+.hx-link:hover,
+.hx-chip:hover {
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.20), 0 18px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.30) !important;
 }
