@@ -33,12 +33,12 @@
   <meta http-equiv="Expires" content="0">
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="assets/style.css?v=2026.70">
+  <link rel="stylesheet" href="assets/style.css?v=2026.75">
 </head>
 <body>
 
-  <!-- Ambiance dynamique : Fond noir absolu & Lueur bleue animée -->
-  <div class="ambient-glow" id="ambient-glow"></div>
+  <!-- Arrière-plan Global Interactif : Canvas 100% Noir, Particules & Alvéoles HUD Légères -->
+  <canvas id="globalCanvas" class="global-canvas" aria-hidden="true"></canvas>
 
   <!-- BARRE DE NAVIGATION ORDINATEUR (Capsule Glassmorphism avec pastille glissante & menu déroulant) -->
   <header class="os-header">
@@ -195,8 +195,6 @@
              grille typographique d'impact, carte droite givrée & statistiques
              ===================================================================== -->
         <section class="hx" id="accueil">
-          <canvas class="hx-canvas" id="hxCanvas" aria-hidden="true"></canvas>
-
           <div class="hx-inner">
             <div class="hx-grid">
 
@@ -691,15 +689,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.70"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.75"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.70"></script>
+  <script src="assets/data.js?v=2026.75"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.70"></script>
+  <script src="assets/cloudinary-service.js?v=2026.75"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.70"></script>
+  <script src="assets/app.js?v=2026.75"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.70"></script>
+  <script src="assets/admin.js?v=2026.75"></script>
 
 </body>
 </html>

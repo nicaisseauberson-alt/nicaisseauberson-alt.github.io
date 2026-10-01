@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.70";
+  const APP_VERSION = "2026.75";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initFloatingNavbar();
   initOsNavbar();
   initHeroSearch();
-  initHxCanvas();
+  initGlobalCanvas();
   initScrollReveal();
   renderApp();
   setupEventListeners();
@@ -199,12 +199,7 @@ function switchView(routeKey) {
     }, 60);
   }
 
-  // 7. Refresh canvas if returning to home view
-  if (routeKey === "home" && window.initHxCanvas) {
-    setTimeout(() => {
-      window.initHxCanvas();
-    }, 50);
-  }
+
 }
 
 /* -------------------------------------------------------------
@@ -604,61 +599,70 @@ function initHeroSearch() {
 window.initHeroSearch = initHeroSearch;
 
 /* =====================================================================
- * ACCUEIL ULTRA-MODERNE CANVAS – Réseau de particules & alvéoles HUD
- * Animation de points avec liaisons douces et répulsion interactive
+ * ARRIÈRE-PLAN GLOBAL INTERACTIF (Ultra-Fluide, Toutes les Pages)
+ * Particules stellaires légères et alvéoles technologiques (HUD)
  * ===================================================================== */
-function initHxCanvas() {
-  const canvas = document.getElementById("hxCanvas");
+function initGlobalCanvas() {
+  const canvas = document.getElementById("globalCanvas") || document.getElementById("hxCanvas");
   if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  const section = canvas.parentElement;
-  if (!section) return;
+  const ctx = canvas.getContext("2d", { alpha: true });
+  if (!ctx) return;
 
-  const COLORS = ["96,165,250", "139,123,255", "255,255,255"];
-  const DENSITY = 0.00028;
-  const LINK_DIST = 125;
-  const SPEED = 0.24;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  let w = 0, h = 0, dpr = 1, pts = [], raf = 0;
+  let w = 0, h = 0, raf = 0;
   const mouse = { x: -9999, y: -9999 };
 
-  function resize() {
-    if (!section || !canvas) return;
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    w = section.clientWidth;
-    h = section.clientHeight;
-    if (w === 0 || h === 0) return;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  let pts = [];
+  let hexes = [];
+  let HEX_R = 56;
+  const HEX_RAD = 170;
+  const HEX_PUSH = 20;
 
-    const count = Math.min(420, Math.round(w * h * DENSITY));
+  function resize() {
+    w = window.innerWidth;
+    h = window.innerHeight;
+    if (w === 0 || h === 0) return;
+
+    // Use 1x DPR for full-screen fixed background canvas: provides ultra-fluid 60-120fps with zero GPU lag
+    canvas.width = w;
+    canvas.height = h;
+
+    const isMobile = w < 768;
+    const count = isMobile ? 22 : 40;
+
+    const COLORS = ["96,165,250", "139,123,255", "255,255,255"];
     pts = Array.from({ length: count }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      vx: (Math.random() - 0.5) * SPEED * 2,
-      vy: (Math.random() - 0.5) * SPEED * 2,
-      r: Math.random() < 0.16 ? Math.random() * 1.6 + 2.2 : Math.random() * 1.4 + 0.5,
+      vx: (Math.random() - 0.5) * 0.32,
+      vy: (Math.random() - 0.5) * 0.32,
+      r: Math.random() < 0.2 ? Math.random() * 1.5 + 1.5 : Math.random() * 1.1 + 0.6,
       c: COLORS[(Math.random() * COLORS.length) | 0],
-      a: Math.random() * 0.55 + 0.3
+      a: Math.random() * 0.45 + 0.25
     }));
-    buildHex();
+
+    buildHexGrid(isMobile);
     draw(false);
   }
 
-  /* Alvéoles technologiques (HUD) */
-  const HEX_RAD = 190, HEX_PUSH = 26;
-  let hexes = [], HEX_R = 30;
+  function buildHexGrid(isMobile) {
+    HEX_R = isMobile ? 48 : (w > 1600 ? 68 : 58);
+    const sx = HEX_R * 1.5;
+    const sy = HEX_R * Math.sqrt(3);
+    const cols = Math.ceil(w / sx) + 2;
+    const rows = Math.ceil(h / sy) + 2;
 
-  function buildHex() {
-    HEX_R = w > 1600 ? 52 : 40;
-    const sx = HEX_R * 1.5, sy = HEX_R * Math.sqrt(3);
-    const cols = Math.ceil(w / sx) + 2, rows = Math.ceil(h / sy) + 2;
     hexes = [];
     for (let c = -1; c < cols; c++) {
       for (let r = -1; r < rows; r++) {
-        hexes.push({ x: c * sx, y: r * sy + (c & 1 ? sy / 2 : 0), ox: 0, oy: 0, k: 0, g: 0, ph: Math.random() * 6.283 });
+        hexes.push({
+          x: c * sx,
+          y: r * sy + (c & 1 ? sy / 2 : 0),
+          ox: 0,
+          oy: 0,
+          k: 0,
+          ph: Math.random() * 6.283
+        });
       }
     }
   }
@@ -673,37 +677,60 @@ function initHxCanvas() {
   }
 
   function drawHexes(t) {
-    const rr = HEX_R - 1.5, hot = [];
+    const rr = HEX_R - 1.5;
+    const hot = [];
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(30,64,140,0.3)";
+    ctx.strokeStyle = "rgba(37, 99, 235, 0.08)";
     ctx.beginPath();
-    for (const q of hexes) {
+
+    const mouseActive = mouse.x > -1000 && mouse.y > -1000;
+    const hexRadSq = HEX_RAD * HEX_RAD;
+
+    for (let i = 0; i < hexes.length; i++) {
+      const q = hexes[i];
       let tx = 0, ty = 0, tk = 0;
-      const mx = q.x - mouse.x, my = q.y - mouse.y, d2 = mx * mx + my * my;
-      if (d2 < HEX_RAD * HEX_RAD) {
-        const d = Math.sqrt(d2) + 0.001, f = 1 - d / HEX_RAD;
-        tx = (mx / d) * f * f * HEX_PUSH;
-        ty = (my / d) * f * f * HEX_PUSH;
-        tk = f;
+
+      if (mouseActive) {
+        const mx = q.x - mouse.x;
+        const my = q.y - mouse.y;
+        const d2 = mx * mx + my * my;
+        if (d2 < hexRadSq) {
+          const d = Math.sqrt(d2) + 0.001;
+          const f = 1 - d / HEX_RAD;
+          tx = (mx / d) * f * f * HEX_PUSH;
+          ty = (my / d) * f * f * HEX_PUSH;
+          tk = f;
+        }
       }
-      q.ox += (tx - q.ox) * 0.03;
-      q.oy += (ty - q.oy) * 0.03;
-      q.k += (tk - q.k) * 0.03;
-      const pulse = Math.sin(t * 0.00025 + q.ph + q.x * 0.0015 + q.y * 0.0012);
-      const u = Math.max(0, (pulse - 0.9) / 0.1);
-      q.g = u * u * (3 - 2 * u);
-      if (q.k > 0.02 || q.g > 0) hot.push(q);
-      else hexPath(q.x + q.ox, q.y + q.oy, rr);
+
+      q.ox += (tx - q.ox) * 0.05;
+      q.oy += (ty - q.oy) * 0.05;
+      q.k += (tk - q.k) * 0.05;
+
+      // Respiration douce des alvéoles : apparaissent et disparaissent légèrement (cycle ~18 s)
+      const pulse = Math.sin(t * 0.00035 + q.ph + q.x * 0.0012 + q.y * 0.001);
+      // Opacité subtile et non gênante
+      if (pulse > 0.52 || q.k > 0.03) {
+        hot.push(q);
+      } else if (pulse > 0.1) {
+        hexPath(q.x + q.ox, q.y + q.oy, rr);
+      }
     }
     ctx.stroke();
-    for (const q of hot) {
-      const e = Math.min(1, q.k + q.g);
+
+    // Trace les alvéoles en cours d'apparition ou stimulées par le curseur
+    for (let j = 0; j < hot.length; j++) {
+      const q = hot[j];
+      const pulse = Math.sin(t * 0.00035 + q.ph + q.x * 0.0012 + q.y * 0.001);
+      const vis = Math.max(0, (pulse - 0.52) / 0.48);
+      const intensity = Math.min(1, q.k + vis);
+
       ctx.beginPath();
-      hexPath(q.x + q.ox, q.y + q.oy, rr * (1 - 0.2 * q.k));
-      ctx.fillStyle = "rgba(37,99,235," + (0.045 * e) + ")";
+      hexPath(q.x + q.ox, q.y + q.oy, rr * (1 - 0.15 * q.k));
+      ctx.fillStyle = "rgba(37, 99, 235, " + (0.025 * intensity) + ")";
       ctx.fill();
-      ctx.strokeStyle = "rgba(37,99,235," + (0.3 + 0.3 * e) + ")";
-      ctx.lineWidth = 1 + e * 0.4;
+      ctx.strokeStyle = "rgba(96, 165, 250, " + (0.12 + 0.14 * intensity) + ")";
+      ctx.lineWidth = 1 + intensity * 0.3;
       ctx.stroke();
     }
   }
@@ -712,43 +739,50 @@ function initHxCanvas() {
     ctx.clearRect(0, 0, w, h);
     drawHexes(performance.now());
 
-    for (const p of pts) {
+    // 1. Particules
+    for (let i = 0; i < pts.length; i++) {
+      const p = pts[i];
       if (move) {
         p.x += p.vx;
         p.y += p.vy;
-        if (p.x < -20) p.x = w + 20;
-        else if (p.x > w + 20) p.x = -20;
-        if (p.y < -20) p.y = h + 20;
-        else if (p.y > h + 20) p.y = -20;
+        if (p.x < -15) p.x = w + 15; else if (p.x > w + 15) p.x = -15;
+        if (p.y < -15) p.y = h + 15; else if (p.y > h + 15) p.y = -15;
 
-        const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
-        if (d2 < 14000) {
-          const f = (1 - d2 / 14000) * 0.6;
-          p.x += dx * 0.02 * f * 10 * 0.1 + (dx / (Math.sqrt(d2) + 1)) * f;
-          p.y += dy * 0.02 * f * 10 * 0.1 + (dy / (Math.sqrt(d2) + 1)) * f;
+        const dx = p.x - mouse.x;
+        const dy = p.y - mouse.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 12000) {
+          const f = (1 - d2 / 12000) * 0.5;
+          p.x += (dx / (Math.sqrt(d2) + 1)) * f * 2.5;
+          p.y += (dy / (Math.sqrt(d2) + 1)) * f * 2.5;
         }
       }
+
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, 6.2832);
       ctx.fillStyle = "rgba(" + p.c + "," + p.a + ")";
       ctx.fill();
     }
 
+    // 2. Lignes de connexion (optimisées en une seule passe de tracé)
+    ctx.beginPath();
+    const linkDistSq = 110 * 110;
     for (let i = 0; i < pts.length; i++) {
+      const a = pts[i];
       for (let j = i + 1; j < pts.length; j++) {
-        const a = pts[i], b = pts[j];
-        const dx = a.x - b.x, dy = a.y - b.y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        if (d < LINK_DIST) {
-          ctx.strokeStyle = "rgba(96,165,250," + (0.16 * (1 - d / LINK_DIST)) + ")";
-          ctx.lineWidth = 0.7;
-          ctx.beginPath();
+        const b = pts[j];
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < linkDistSq) {
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
-          ctx.stroke();
         }
       }
     }
+    ctx.strokeStyle = "rgba(96, 165, 250, 0.12)";
+    ctx.lineWidth = 0.65;
+    ctx.stroke();
   }
 
   function loop() {
@@ -756,48 +790,54 @@ function initHxCanvas() {
     raf = requestAnimationFrame(loop);
   }
 
-  if (window._hxCanvasRaf) {
-    cancelAnimationFrame(window._hxCanvasRaf);
+  if (window._globalCanvasRaf) {
+    cancelAnimationFrame(window._globalCanvasRaf);
   }
 
-  if (!section._hasHxPointer) {
-    section.addEventListener("pointermove", (e) => {
-      const r = section.getBoundingClientRect();
-      mouse.x = e.clientX - r.left;
-      mouse.y = e.clientY - r.top;
-    });
-    section.addEventListener("pointerleave", () => {
-      mouse.x = mouse.y = -9999;
-    });
-    section._hasHxPointer = true;
-  }
+  if (!window._hasGlobalCanvasEvents) {
+    window.addEventListener("pointermove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    }, { passive: true });
 
-  if (!window._hasHxResize) {
+    window.addEventListener("pointerleave", () => {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    }, { passive: true });
+
+    window.addEventListener("touchend", () => {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    }, { passive: true });
+
     let t;
     window.addEventListener("resize", () => {
       clearTimeout(t);
       t = setTimeout(() => {
-        if (document.getElementById("hxCanvas")) resize();
+        resize();
       }, 150);
     });
+
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         cancelAnimationFrame(raf);
       } else if (!reduced) {
-        loop();
-        window._hxCanvasRaf = raf;
+        raf = requestAnimationFrame(loop);
+        window._globalCanvasRaf = raf;
       }
     });
-    window._hasHxResize = true;
+
+    window._hasGlobalCanvasEvents = true;
   }
 
   resize();
   if (!reduced) {
     loop();
-    window._hxCanvasRaf = raf;
+    window._globalCanvasRaf = raf;
   }
 }
-window.initHxCanvas = initHxCanvas;
+window.initGlobalCanvas = initGlobalCanvas;
+window.initHxCanvas = initGlobalCanvas;
 
 /* -------------------------------------------------------------
  * 2. VISITOR TELEMETRY & PRESENCE ENGINE
