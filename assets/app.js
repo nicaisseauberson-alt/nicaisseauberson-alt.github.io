@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.75";
+  const APP_VERSION = "2026.80";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -141,7 +141,13 @@ function switchView(routeKey) {
     v.classList.remove("active");
   });
 
-  // 2. Show target view
+  // 2. Show target view & update body route attribute
+  document.body.setAttribute("data-current-route", routeKey);
+  const footerGrid = document.querySelector(".footer-grid");
+  if (footerGrid) {
+    footerGrid.style.display = (routeKey === "home") ? "grid" : "none";
+  }
+
   const targetView = document.getElementById(`view-${routeKey}`);
   if (targetView) {
     targetView.classList.add("active");
@@ -628,7 +634,7 @@ function initGlobalCanvas() {
     canvas.height = h;
 
     const isMobile = w < 768;
-    const count = isMobile ? 22 : 40;
+    const count = isMobile ? 26 : 48;
 
     const COLORS = ["96,165,250", "139,123,255", "255,255,255"];
     pts = Array.from({ length: count }, () => ({
@@ -638,7 +644,7 @@ function initGlobalCanvas() {
       vy: (Math.random() - 0.5) * 0.32,
       r: Math.random() < 0.2 ? Math.random() * 1.5 + 1.5 : Math.random() * 1.1 + 0.6,
       c: COLORS[(Math.random() * COLORS.length) | 0],
-      a: Math.random() * 0.45 + 0.25
+      a: Math.random() * 0.35 + 0.45
     }));
 
     buildHexGrid(isMobile);
@@ -707,30 +713,30 @@ function initGlobalCanvas() {
       q.oy += (ty - q.oy) * 0.05;
       q.k += (tk - q.k) * 0.05;
 
-      // Respiration douce des alvéoles : apparaissent et disparaissent légèrement (cycle ~18 s)
+      // Respiration douce des alvéoles : apparaissent et disparaissent avec présence nette mais élégante
       const pulse = Math.sin(t * 0.00035 + q.ph + q.x * 0.0012 + q.y * 0.001);
-      // Opacité subtile et non gênante
-      if (pulse > 0.52 || q.k > 0.03) {
+      if (pulse > 0.40 || q.k > 0.02) {
         hot.push(q);
-      } else if (pulse > 0.1) {
+      } else if (pulse > -0.05) {
         hexPath(q.x + q.ox, q.y + q.oy, rr);
       }
     }
+    ctx.strokeStyle = "rgba(59, 130, 246, 0.16)";
     ctx.stroke();
 
-    // Trace les alvéoles en cours d'apparition ou stimulées par le curseur
+    // Trace les alvéoles en respiration active ou approchées par le curseur
     for (let j = 0; j < hot.length; j++) {
       const q = hot[j];
       const pulse = Math.sin(t * 0.00035 + q.ph + q.x * 0.0012 + q.y * 0.001);
-      const vis = Math.max(0, (pulse - 0.52) / 0.48);
-      const intensity = Math.min(1, q.k + vis);
+      const vis = Math.max(0, (pulse - 0.40) / 0.60);
+      const intensity = Math.min(1, q.k * 1.5 + vis);
 
       ctx.beginPath();
-      hexPath(q.x + q.ox, q.y + q.oy, rr * (1 - 0.15 * q.k));
-      ctx.fillStyle = "rgba(37, 99, 235, " + (0.025 * intensity) + ")";
+      hexPath(q.x + q.ox, q.y + q.oy, rr * (1 - 0.12 * q.k));
+      ctx.fillStyle = "rgba(37, 99, 235, " + (0.05 * intensity) + ")";
       ctx.fill();
-      ctx.strokeStyle = "rgba(96, 165, 250, " + (0.12 + 0.14 * intensity) + ")";
-      ctx.lineWidth = 1 + intensity * 0.3;
+      ctx.strokeStyle = "rgba(96, 165, 250, " + (0.24 + 0.22 * intensity) + ")";
+      ctx.lineWidth = 1.2 + intensity * 0.4;
       ctx.stroke();
     }
   }
@@ -780,8 +786,8 @@ function initGlobalCanvas() {
         }
       }
     }
-    ctx.strokeStyle = "rgba(96, 165, 250, 0.12)";
-    ctx.lineWidth = 0.65;
+    ctx.strokeStyle = "rgba(96, 165, 250, 0.22)";
+    ctx.lineWidth = 0.75;
     ctx.stroke();
   }
 
