@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.80";
+  const APP_VERSION = "2026.85";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -621,8 +621,8 @@ function initGlobalCanvas() {
   let pts = [];
   let hexes = [];
   let HEX_R = 56;
-  const HEX_RAD = 170;
-  const HEX_PUSH = 20;
+  const HEX_RAD = 250;
+  const HEX_PUSH = 46;
 
   function resize() {
     w = window.innerWidth;
@@ -703,40 +703,43 @@ function initGlobalCanvas() {
         if (d2 < hexRadSq) {
           const d = Math.sqrt(d2) + 0.001;
           const f = 1 - d / HEX_RAD;
+          // Répulsion très prononcée et dynamique
           tx = (mx / d) * f * f * HEX_PUSH;
           ty = (my / d) * f * f * HEX_PUSH;
           tk = f;
         }
       }
 
-      q.ox += (tx - q.ox) * 0.05;
-      q.oy += (ty - q.oy) * 0.05;
-      q.k += (tk - q.k) * 0.05;
+      // Vitesse d'inertie plus vive pour une réactivité immédiate au curseur
+      q.ox += (tx - q.ox) * 0.08;
+      q.oy += (ty - q.oy) * 0.08;
+      q.k += (tk - q.k) * 0.08;
 
-      // Respiration douce des alvéoles : apparaissent et disparaissent avec présence nette mais élégante
-      const pulse = Math.sin(t * 0.00035 + q.ph + q.x * 0.0012 + q.y * 0.001);
-      if (pulse > 0.40 || q.k > 0.02) {
+      // Respiration douce : opacité diminuée de 20%, n'apparaît que très subtilement
+      const pulse = Math.sin(t * 0.00032 + q.ph + q.x * 0.0012 + q.y * 0.001);
+      if (pulse > 0.48 || q.k > 0.025) {
         hot.push(q);
-      } else if (pulse > -0.05) {
+      } else if (pulse > 0.08) {
         hexPath(q.x + q.ox, q.y + q.oy, rr);
       }
     }
-    ctx.strokeStyle = "rgba(59, 130, 246, 0.16)";
+    // Opacité diminuée de 20% sur le contour de base
+    ctx.strokeStyle = "rgba(59, 130, 246, 0.12)";
     ctx.stroke();
 
-    // Trace les alvéoles en respiration active ou approchées par le curseur
+    // Trace les alvéoles actives avec opacité maîtrisée (-20%)
     for (let j = 0; j < hot.length; j++) {
       const q = hot[j];
-      const pulse = Math.sin(t * 0.00035 + q.ph + q.x * 0.0012 + q.y * 0.001);
-      const vis = Math.max(0, (pulse - 0.40) / 0.60);
-      const intensity = Math.min(1, q.k * 1.5 + vis);
+      const pulse = Math.sin(t * 0.00032 + q.ph + q.x * 0.0012 + q.y * 0.001);
+      const vis = Math.max(0, (pulse - 0.48) / 0.52);
+      const intensity = Math.min(1, q.k * 1.8 + vis);
 
       ctx.beginPath();
-      hexPath(q.x + q.ox, q.y + q.oy, rr * (1 - 0.12 * q.k));
-      ctx.fillStyle = "rgba(37, 99, 235, " + (0.05 * intensity) + ")";
+      hexPath(q.x + q.ox, q.y + q.oy, rr * (1 - 0.16 * q.k));
+      ctx.fillStyle = "rgba(37, 99, 235, " + (0.035 * intensity) + ")";
       ctx.fill();
-      ctx.strokeStyle = "rgba(96, 165, 250, " + (0.24 + 0.22 * intensity) + ")";
-      ctx.lineWidth = 1.2 + intensity * 0.4;
+      ctx.strokeStyle = "rgba(96, 165, 250, " + (0.18 + 0.18 * intensity) + ")";
+      ctx.lineWidth = 1.1 + intensity * 0.4;
       ctx.stroke();
     }
   }
@@ -757,10 +760,10 @@ function initGlobalCanvas() {
         const dx = p.x - mouse.x;
         const dy = p.y - mouse.y;
         const d2 = dx * dx + dy * dy;
-        if (d2 < 12000) {
-          const f = (1 - d2 / 12000) * 0.5;
-          p.x += (dx / (Math.sqrt(d2) + 1)) * f * 2.5;
-          p.y += (dy / (Math.sqrt(d2) + 1)) * f * 2.5;
+        if (d2 < 18000) {
+          const f = (1 - d2 / 18000) * 0.7;
+          p.x += (dx / (Math.sqrt(d2) + 1)) * f * 4.0;
+          p.y += (dy / (Math.sqrt(d2) + 1)) * f * 4.0;
         }
       }
 

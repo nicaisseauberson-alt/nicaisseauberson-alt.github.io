@@ -61,8 +61,8 @@
   --hx-blue-soft: #60a5fa;
   --hx-violet: #8b7bff;
   --hx-font: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --hx-max: 1240px;
-  --hx-pad: 40px;
+  --hx-max: 100%;
+  --hx-pad: 0px;
   --hx-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --hx-card-image: none;
 }
@@ -855,12 +855,12 @@ nav.floating button:focus-visible {
     margin: 0 !important;
     width: -moz-fit-content !important;
     width: fit-content !important;
-    max-width: calc(100vw - 28px);
+    max-width: calc(100vw - 24px);
     display: inline-flex !important;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 4px 6px 4px 6px;
+    justify-content: center;
+    gap: 10px;
+    padding: 4px 8px 4px 5px;
     border-radius: 100px;
     background: rgba(10, 10, 10, 0.65) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
@@ -873,35 +873,33 @@ nav.floating button:focus-visible {
   nav.floating .brand {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 2px 8px 2px 2px;
+    gap: 9px;
+    padding: 0 4px 0 0;
     border-radius: 100px;
     text-decoration: none;
     color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
     white-space: nowrap;
     line-height: 1;
   }
   nav.floating .brand-logo {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     object-fit: cover;
-    transform: scale(1.08);
+    transform: scale(1.12);
     flex-shrink: 0;
+    display: block;
   }
   nav.floating .brand-title {
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 15.5px;
+    font-weight: 750;
     line-height: 1;
     color: #fff;
     white-space: nowrap;
   }
   .menu-toggle {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 0 !important;
     background: transparent !important;
     border: none !important;
@@ -909,9 +907,20 @@ nav.floating button:focus-visible {
     color: #fff;
     cursor: pointer;
     padding: 0;
-    display: grid !important;
-    place-items: center;
+    margin: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    line-height: 1;
     transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .menu-toggle svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+    margin: 0 auto;
+    overflow: visible;
   }
   .menu-toggle:hover,
   .menu-toggle:focus,
@@ -956,11 +965,12 @@ nav.floating button:focus-visible {
     padding-right: 4px;
   }
   nav.floating .brand-logo {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
+    transform: scale(1.12);
   }
   nav.floating .brand-title {
-    font-size: 13px;
+    font-size: 14px;
   }
   .menu-toggle {
     width: 30px;
@@ -1031,10 +1041,10 @@ nav.floating button:focus-visible {
   position: relative;
   overflow: hidden;
   background: transparent !important;
-  margin-left: calc(-1 * clamp(10px, 2.5vw, 36px));
-  margin-right: calc(-1 * clamp(10px, 2.5vw, 36px));
-  width: calc(100% + 2 * clamp(10px, 2.5vw, 36px));
-  padding: 24px var(--hx-pad, 40px) 72px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 24px 0 60px;
   box-sizing: border-box;
 }
 
@@ -1045,15 +1055,17 @@ nav.floating button:focus-visible {
 .hx-inner {
   position: relative;
   z-index: 1;
-  max-width: var(--hx-max, 1240px);
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
-/* Grille principale : texte | carte */
+/* Grille principale : texte | carte - Utilisation complète de la largeur */
 .hx-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 72px;
+  grid-template-columns: minmax(0, 1.22fr) minmax(0, 0.98fr);
+  gap: clamp(24px, 3.5vw, 48px);
+  width: 100%;
   align-items: center;
 }
 
@@ -1102,8 +1114,8 @@ nav.floating button:focus-visible {
 }
 
 .hx-lead {
-  max-width: 540px;
-  margin: 28px 0 0;
+  max-width: 720px;
+  margin: 22px 0 0;
   font-size: 18px;
   line-height: 1.7;
   color: var(--hx-text-soft, rgba(255, 255, 255, 0.64));
@@ -1114,8 +1126,8 @@ nav.floating button:focus-visible {
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: 520px;
-  margin: 40px 0 0;
+  max-width: 620px;
+  margin: 30px 0 0;
   padding: 6px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 100px;
@@ -1252,20 +1264,18 @@ nav.floating button:focus-visible {
 /* Carte de droite */
 .hx-card {
   position: relative;
-  min-height: 480px;
+  min-height: 460px;
   padding: 28px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
-  border-radius: 32px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%),
-    rgba(12, 16, 28, 0.65);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-  backdrop-filter: blur(14px) saturate(160%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 24px 60px rgba(0, 0, 0, 0.5);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.035)) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+  backdrop-filter: blur(12px) saturate(140%) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 16px 38px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
 }
 
 .hx-links {
@@ -3611,4 +3621,45 @@ body:not([data-current-route="home"]) .footer-content {
   margin-top: 0 !important;
   padding-top: 0 !important;
   border-top: none !important;
+}
+
+/* =====================================================================
+ * CARTES ET RECTANGLES ARRONDIS UNIVERSELS (Verre Givré & Lisse Anti-Aliasing)
+ * Appliqué à Actualités, Films, Projets, Gaming, Astuces, Documents, etc.
+ * ===================================================================== */
+.hx-card,
+.hx-stat,
+.news-card,
+.film-card,
+.project-card,
+.gaming-card,
+.tip-card,
+.document-card,
+.portfolio-item-card,
+.contact-card,
+.code-card,
+.bento-card,
+.category-header-clean,
+.category-hero {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.025) 100%) !important;
+  backdrop-filter: blur(12px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+.news-card:hover,
+.film-card:hover,
+.project-card:hover,
+.gaming-card:hover,
+.tip-card:hover,
+.document-card:hover,
+.portfolio-item-card:hover,
+.contact-card:hover,
+.code-card:hover,
+.bento-card:hover,
+.hx-card:hover,
+.hx-stat:hover {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 18px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
 }
