@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.90";
+  const APP_VERSION = "2026.91";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -624,8 +624,8 @@ function initGlobalCanvas() {
   const HEX_RAD = 250;
   const HEX_PUSH = 46;
 
-  let lastW = window.innerWidth;
-  let lastH = window.innerHeight;
+  let lastW = 0;
+  let lastH = 0;
 
   function resize(force = false) {
     const newW = window.innerWidth;
@@ -774,6 +774,9 @@ function initGlobalCanvas() {
   }
 
   function draw(move) {
+    if (w === 0 || h === 0 || pts.length === 0) {
+      resize(true);
+    }
     ctx.clearRect(0, 0, w, h);
     drawHexes(performance.now());
 
@@ -878,6 +881,14 @@ function initGlobalCanvas() {
       }, 250);
     });
 
+    window.addEventListener("pageshow", () => {
+      resize(true);
+    });
+
+    window.addEventListener("load", () => {
+      resize(true);
+    });
+
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         cancelAnimationFrame(raf);
@@ -890,7 +901,7 @@ function initGlobalCanvas() {
     window._hasGlobalCanvasEvents = true;
   }
 
-  resize();
+  resize(true);
   loop();
   window._globalCanvasRaf = raf;
 }

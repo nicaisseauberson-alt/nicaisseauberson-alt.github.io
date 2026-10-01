@@ -873,6 +873,8 @@ nav.floating button:focus-visible {
   
   nav.floating,
   .pill {
+    -webkit-transform: translateX(-50%) translateZ(0) !important;
+    -webkit-tap-highlight-color: transparent !important;
     position: fixed !important;
     top: calc(14px + env(safe-area-inset-top, 0px)) !important;
     left: 50% !important;
@@ -920,13 +922,24 @@ nav.floating .lg,
 nav.floating .brand-logo-wrap {
   width: 36px !important;
   height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
   border-radius: 50% !important;
   background: #ffffff !important;
-  display: grid !important;
-  place-items: center !important;
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -webkit-align-items: center !important;
+  align-items: center !important;
+  -webkit-box-pack: center !important;
+  -webkit-justify-content: center !important;
+  justify-content: center !important;
   overflow: hidden !important;
+  -webkit-mask-image: -webkit-radial-gradient(white, black) !important;
   flex: none !important;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35) !important;
+  position: relative !important;
 }
 
 .lg img,
@@ -935,9 +948,13 @@ nav.floating .brand-logo-wrap {
   height: 100% !important;
   object-fit: cover !important;
   border-radius: 50% !important;
-  filter: invert(1) !important; /* Converts black bg to white and white swirl to pure black */
-  transform: scale(1.15) !important; /* Fills the entire white circle */
+  -webkit-filter: invert(1) !important;
+  filter: invert(1) !important;
+  -webkit-transform: scale(1.42) !important;
+  transform: scale(1.42) !important;
   display: block !important;
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: crisp-edges !important;
 }
 
   .nm,
