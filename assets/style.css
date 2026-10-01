@@ -1610,6 +1610,48 @@ nav.floating button:focus-visible {
 }
 
 /* 9. CINEMA SECTION */
+.cinema-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.cinema-filter-pills::-webkit-scrollbar {
+  display: none;
+}
+.cinema-pill-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary, #94a3b8);
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cinema-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.cinema-pill-btn.active {
+  background: rgba(59, 130, 246, 0.22);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.65);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.3);
+}
+
 .cinema-grid {
   display: flex;
   flex-direction: column;

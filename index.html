@@ -29,7 +29,7 @@
   <meta http-equiv="Expires" content="0">
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="assets/style.css?v=2026.40">
+  <link rel="stylesheet" href="assets/style.css?v=2026.45">
 </head>
 <body>
 
@@ -341,6 +341,16 @@
             <span class="search-icon">🔍</span>
             <input type="text" id="cinema-search" class="search-input" placeholder="Rechercher un film, un réalisateur ou un genre...">
           </div>
+        </div>
+
+        <!-- Filtres Thématiques Rapides (Nolan, A24, Spider-Man, Marvel, Nouveautés) -->
+        <div class="cinema-filter-pills" id="cinema-filter-pills">
+          <button class="cinema-pill-btn active" data-filter="">Tous les films</button>
+          <button class="cinema-pill-btn" data-filter="Christopher Nolan">Christopher Nolan</button>
+          <button class="cinema-pill-btn" data-filter="A24">Studio A24</button>
+          <button class="cinema-pill-btn" data-filter="Spider-Man">Spider-Man</button>
+          <button class="cinema-pill-btn" data-filter="Marvel">Marvel</button>
+          <button class="cinema-pill-btn" data-filter="Sortie Récente">Sorties Récentes</button>
         </div>
 
         <!-- Grille de films (gérée par app.js) -->
@@ -679,15 +689,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.40"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.45"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.40"></script>
+  <script src="assets/data.js?v=2026.45"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.40"></script>
+  <script src="assets/cloudinary-service.js?v=2026.45"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.40"></script>
+  <script src="assets/app.js?v=2026.45"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.40"></script>
+  <script src="assets/admin.js?v=2026.45"></script>
 
 </body>
 </html>

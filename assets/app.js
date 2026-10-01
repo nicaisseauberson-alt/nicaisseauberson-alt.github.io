@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.40";
+  const APP_VERSION = "2026.45";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -722,10 +722,15 @@ function renderCinema(films, searchTerm = "") {
   const filtered = validFilms.filter(f => {
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
+    const tagMatch = Array.isArray(f.tags) && f.tags.some(t => String(t).toLowerCase().includes(term));
     return (f.title || "").toLowerCase().includes(term) ||
            (f.director || "").toLowerCase().includes(term) ||
            (f.genre || "").toLowerCase().includes(term) ||
-           (f.year || "").toString().includes(term);
+           (f.category || "").toLowerCase().includes(term) ||
+           (f.review || "").toLowerCase().includes(term) ||
+           (f.summary || "").toLowerCase().includes(term) ||
+           (f.year || "").toString().includes(term) ||
+           tagMatch;
   });
 
   if (filtered.length === 0) {
@@ -743,21 +748,25 @@ function renderCinema(films, searchTerm = "") {
 
   container.innerHTML = filtered.map(film => {
     const ratioStyle = film.aspectRatio === 'landscape' ? 'aspect-ratio: 16/9;' : film.aspectRatio === 'square' ? 'aspect-ratio: 1/1;' : 'aspect-ratio: 2/3;';
+    const poster = film.poster || film.image || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800';
+    const genre = film.genre || film.category || 'Cinéma';
+    const review = film.review || film.summary || 'Recommandation officielle Outlook Studio.';
+    const director = film.director || 'Auberson';
     return `
     <div class="film-card">
       <div class="streaming-poster-wrap" style="${ratioStyle}">
-        <img src="${escapeHTML(film.poster)}" alt="${escapeHTML(film.title)}" class="streaming-poster" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800'">
+        <img src="${escapeHTML(poster)}" alt="${escapeHTML(film.title)}" class="streaming-poster" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800'">
         <div class="film-rating">★ ${escapeHTML(film.rating || '4.5')}</div>
       </div>
       <div class="film-body">
         <div class="film-meta">
-          <span>${escapeHTML(film.year || '2026')}</span> • <span>${escapeHTML(film.genre || 'Cinéma')}</span> • <span>De ${escapeHTML(film.director || 'Auberson')}</span>
+          <span>${escapeHTML(film.year || '2026')}</span> • <span>${escapeHTML(genre)}</span> • <span>De ${escapeHTML(director)}</span>
         </div>
         <h3 class="film-title">${escapeHTML(film.title)}</h3>
-        <p class="film-review">« ${escapeHTML(film.review || 'Recommandation officielle Outlook Studio.')} »</p>
+        <p class="film-review">« ${escapeHTML(review)} »</p>
         <div class="film-actions">
           ${film.link ? `<a href="${escapeHTML(film.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">Fiche / Source</a>` : ''}
-          ${film.trailerUrl ? `<button class="btn btn-primary btn-sm" onclick="openTrailer('${escapeHTML(film.title)}', '${escapeHTML(film.trailerUrl)}')">Bande-Annonce ▶</button>` : ''}
+          ${film.trailerUrl ? `<button class="btn btn-primary btn-sm btn-play-trailer" data-trailer-title="${escapeHTML(film.title)}" data-trailer-url="${escapeHTML(film.trailerUrl)}" onclick="window.playFilmTrailer(this)">Bande-Annonce ▶ (VF)</button>` : ''}
         </div>
       </div>
     </div>
@@ -1264,6 +1273,19 @@ function setupEventListeners() {
     });
   }
 
+  // Quick filter pills for Cinema
+  const cinemaPills = document.querySelectorAll(".cinema-pill-btn");
+  cinemaPills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      cinemaPills.forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      const filter = pill.getAttribute("data-filter") || "";
+      if (cinemaSearch) cinemaSearch.value = filter;
+      const data = StorageService.get();
+      renderCinema(data.cinema, filter);
+    });
+  });
+
   // Search input tips
   const tipsSearch = document.getElementById("tips-search");
   if (tipsSearch) {
@@ -1353,6 +1375,15 @@ window.openTrailer = function(title, url) {
 
   document.body.classList.add("modal-open");
   document.body.appendChild(modal);
+};
+
+window.playFilmTrailer = function(btn) {
+  if (!btn) return;
+  const title = btn.getAttribute("data-trailer-title") || "";
+  const url = btn.getAttribute("data-trailer-url") || "";
+  if (url) {
+    window.openTrailer(title, url);
+  }
 };
 
 function escapeHTML(str) {
