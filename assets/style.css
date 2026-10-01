@@ -186,12 +186,13 @@ img, picture, video, canvas, svg {
 
 .wrapper {
   width: 100%;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 0 var(--page-padding);
+  max-width: 100%;
+  margin: 0;
+  padding: 0 clamp(10px, 2.5vw, 36px);
   position: relative;
   z-index: 1;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 main {
@@ -1654,15 +1655,15 @@ nav.floating button:focus-visible {
 
 .cinema-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
   width: 100%;
 }
 
 .film-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -1694,13 +1695,13 @@ nav.floating button:focus-visible {
 
 .film-rating {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
   background: rgba(0, 0, 0, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: var(--radius-full);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #fbbf24;
   backdrop-filter: blur(8px);
@@ -1709,7 +1710,7 @@ nav.floating button:focus-visible {
 }
 
 .film-body {
-  padding: 13px 14px 15px;
+  padding: 10px 10px 12px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -1719,29 +1720,29 @@ nav.floating button:focus-visible {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px;
-  font-size: 0.72rem;
+  gap: 3px;
+  font-size: 0.68rem;
   color: var(--text-tertiary);
-  margin-bottom: 6px;
-  line-height: 1.3;
+  margin-bottom: 4px;
+  line-height: 1.25;
 }
 
 .film-title {
-  font-size: 1.02rem;
+  font-size: 0.94rem;
   font-weight: 700;
-  margin-bottom: 6px;
-  line-height: 1.25;
+  margin-bottom: 5px;
+  line-height: 1.22;
   color: #fff;
   letter-spacing: -0.01em;
 }
 
 .film-review {
-  font-size: 0.80rem;
+  font-size: 0.77rem;
   color: var(--text-secondary);
-  line-height: 1.45;
-  margin-bottom: 12px;
+  line-height: 1.4;
+  margin-bottom: 10px;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1756,14 +1757,64 @@ nav.floating button:focus-visible {
 }
 
 .film-actions .btn {
-  font-size: 0.75rem;
-  padding: 5px 9px;
+  font-size: 0.72rem;
+  padding: 5px 8px;
   border-radius: 7px;
   white-space: nowrap;
 }
 
 .film-actions .btn-play-trailer {
-  padding: 5px 11px;
+  padding: 5px 9px;
+}
+
+/* Mobile specific styling for 3-column cinema grid */
+@media (max-width: 640px) {
+  .cinema-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .film-body {
+    padding: 6px 6px 8px;
+  }
+  .film-rating {
+    top: 4px;
+    right: 4px;
+    padding: 1px 4px;
+    font-size: 0.58rem;
+  }
+  .film-meta {
+    font-size: 0.58rem;
+    gap: 2px;
+    margin-bottom: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .film-title {
+    font-size: 0.74rem;
+    margin-bottom: 3px;
+    line-height: 1.18;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .film-review {
+    display: none;
+  }
+  .film-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .film-actions .btn {
+    font-size: 0.62rem;
+    padding: 3px 2px;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    border-radius: 5px;
+  }
 }
 
 /* 10. PROJECTS & DOWNLOADS */
@@ -2455,8 +2506,8 @@ nav.floating button:focus-visible {
   
   .cinema-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
   }
 
   .film-actions {
@@ -2475,10 +2526,10 @@ nav.floating button:focus-visible {
 
 @media (min-width: 768px) {
 
-  /* Cinema Grid Tablet (3 columns) */
+  /* Cinema Grid Tablet (4 columns) */
   .cinema-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
   }
 
   /* Bento Grid 12 Columns */
@@ -2630,8 +2681,8 @@ nav.floating button:focus-visible {
   }
 
   .cinema-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
   }
 }
 
