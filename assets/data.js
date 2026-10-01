@@ -126,8 +126,8 @@ const DEFAULT_DATA = {
       category: "Marvel / Action / Comédie",
       year: "2024",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/deadpool-wolverine.jpg",
+      image: "assets/posters/deadpool-wolverine.jpg",
       summary: "Le duo le plus attendu de l'univers Marvel enfin réuni. Wade Wilson sort de sa retraite pour recruter un Wolverine brisé afin de sauver son univers d'une extinction imminente. Une comédie d'action explosive et jubilatoire.",
       review: "Le duo le plus attendu de l'univers Marvel enfin réuni. Wade Wilson sort de sa retraite pour recruter un Wolverine brisé afin de sauver son univers d'une extinction imminente. Une comédie d'action explosive et jubilatoire.",
       trailerUrl: "https://www.youtube.com/watch?v=2t9-VpzzNmY",
@@ -143,8 +143,8 @@ const DEFAULT_DATA = {
       category: "Spider-Man / Marvel / Animation",
       year: "2023",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/spiderman-across.jpg",
+      image: "assets/posters/spiderman-across.jpg",
       summary: "Miles Morales est catapulté à travers le Multivers où il fait la rencontre d'une coalition de Spider-Héros chargée de protéger l'existence même de la réalité. Face à un choix déchirant entre sauver un être cher ou tout le multivers, Miles redéfinit ce que signifie être un héros.",
       review: "Miles Morales est catapulté à travers le Multivers où il fait la rencontre d'une coalition de Spider-Héros chargée de protéger l'existence même de la réalité. Face à un choix déchirant entre sauver un être cher ou tout le multivers, Miles redéfinit ce que signifie être un héros.",
       trailerUrl: "https://www.youtube.com/watch?v=Mg4XVBon_uE",
@@ -160,8 +160,8 @@ const DEFAULT_DATA = {
       category: "Spider-Man / Marvel / Action",
       year: "2021",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1604200213928-ba3cf4fc8436?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1604200213928-ba3cf4fc8436?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/spiderman-no-way-home.jpg",
+      image: "assets/posters/spiderman-no-way-home.jpg",
       summary: "L'identité de Peter Parker étant désormais révélée au grand jour, il sollicite l'aide de Doctor Strange. Mais un sortilège altéré ouvre une brèche dimensionnelle libérant les plus redoutables ennemis des Spider-Man de tous les univers.",
       review: "L'identité de Peter Parker étant désormais révélée au grand jour, il sollicite l'aide de Doctor Strange. Mais un sortilège altéré ouvre une brèche dimensionnelle libérant les plus redoutables ennemis des Spider-Man de tous les univers.",
       trailerUrl: "https://www.youtube.com/watch?v=JfVOs4VSpmA",
@@ -177,8 +177,8 @@ const DEFAULT_DATA = {
       category: "A24 / Thriller Dystopique / Guerre",
       year: "2024",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/civil-war.jpg",
+      image: "assets/posters/civil-war.jpg",
       summary: "Une production événementielle du studio A24. Dans une Amérique fracturée en proie à une seconde guerre civile brutale, une équipe de reporters de guerre tente de rallier Washington D.C. avant l'assaut final sur la Maison-Blanche.",
       review: "Une production événementielle du studio A24. Dans une Amérique fracturée en proie à une seconde guerre civile brutale, une équipe de reporters de guerre tente de rallier Washington D.C. avant l'assaut final sur la Maison-Blanche.",
       trailerUrl: "https://www.youtube.com/watch?v=3RljvOfjwhs",
@@ -194,8 +194,8 @@ const DEFAULT_DATA = {
       category: "A24 / Thriller Psychologique / Horreur",
       year: "2024",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/heretic.jpg",
+      image: "assets/posters/heretic.jpg",
       summary: "Produit par le studio A24, ce thriller captivant met en vedette Hugh Grant. Deux jeunes femmes missionnaires frappent à la porte d'un homme courtois qui les enferme dans un labyrinthe mortel destiné à tester les limites de leurs convictions.",
       review: "Produit par le studio A24, ce thriller captivant met en vedette Hugh Grant. Deux jeunes femmes missionnaires frappent à la porte d'un homme courtois qui les enferme dans un labyrinthe mortel destiné à tester les limites de leurs convictions.",
       trailerUrl: "https://www.youtube.com/watch?v=gYmVGmLdArs",
@@ -211,8 +211,8 @@ const DEFAULT_DATA = {
       category: "A24 / Drame Historique / Cannes",
       year: "2024",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/zone-of-interest.jpg",
+      image: "assets/posters/zone-of-interest.jpg",
       summary: "Grand Prix au Festival de Cannes et couronné par deux Oscars, ce chef-d'œuvre du studio A24 dépeint la vie domestique apparemment paisible de la famille du commandant d'Auschwitz, juste de l'autre côté du mur du camp.",
       review: "Grand Prix au Festival de Cannes et couronné par deux Oscars, ce chef-d'œuvre du studio A24 dépeint la vie domestique apparemment paisible de la famille du commandant d'Auschwitz, juste de l'autre côté du mur du camp.",
       trailerUrl: "https://www.youtube.com/watch?v=m6cz6xTgkIY",
@@ -228,8 +228,8 @@ const DEFAULT_DATA = {
       category: "A24 / Multivers / Comédie / SF",
       year: "2022",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/everything-everywhere.jpg",
+      image: "assets/posters/everything-everywhere.jpg",
       summary: "Lauréat historique de 7 Oscars pour le studio A24 dont Meilleur Film. Une gérante de laverie sino-américaine est soudainement plongée dans le multivers et doit canaliser les compétences de ses versions alternatives pour sauver le monde.",
       review: "Lauréat historique de 7 Oscars pour le studio A24 dont Meilleur Film. Une gérante de laverie sino-américaine est soudainement plongée dans le multivers et doit canaliser les compétences de ses versions alternatives pour sauver le monde.",
       trailerUrl: "https://www.youtube.com/watch?v=lmDIcuDO6gc",
@@ -245,8 +245,8 @@ const DEFAULT_DATA = {
       category: "Christopher Nolan / Biopic / Histoire",
       year: "2023",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/oppenheimer.jpg",
+      image: "assets/posters/oppenheimer.jpg",
       summary: "Le triomphe de Christopher Nolan couronné de 7 Oscars. Une plongée vertigineuse dans la psyché de J. Robert Oppenheimer lors de la création de la bombe atomique au laboratoire secret de Los Alamos, et le cataclysme géopolitique qui s'ensuivit.",
       review: "Le triomphe de Christopher Nolan couronné de 7 Oscars. Une plongée vertigineuse dans la psyché de J. Robert Oppenheimer lors de la création de la bombe atomique au laboratoire secret de Los Alamos, et le cataclysme géopolitique qui s'ensuivit.",
       trailerUrl: "https://www.youtube.com/watch?v=gOMntAPrcAU",
@@ -262,8 +262,8 @@ const DEFAULT_DATA = {
       category: "Christopher Nolan / Science-Fiction / Espace",
       year: "2014",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/interstellar.jpg",
+      image: "assets/posters/interstellar.jpg",
       summary: "Le chef-d'œuvre cosmique de Christopher Nolan avec Matthew McConaughey. Devant une Terre exsangue, un groupe de pionniers s'aventure au-delà de notre galaxie via un trou de ver pour assurer la pérennité de l'espèce humaine.",
       review: "Le chef-d'œuvre cosmique de Christopher Nolan avec Matthew McConaughey. Devant une Terre exsangue, un groupe de pionniers s'aventure au-delà de notre galaxie via un trou de ver pour assurer la pérennité de l'espèce humaine.",
       trailerUrl: "https://www.youtube.com/watch?v=HsPP6xSzQoE",
@@ -279,8 +279,8 @@ const DEFAULT_DATA = {
       category: "Christopher Nolan / Science-Fiction / Thriller",
       year: "2010",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/inception.jpg",
+      image: "assets/posters/inception.jpg",
       summary: "Leonardo DiCaprio incarne Dom Cobb, maître voleur capable de s'infiltrer dans les rêves de ses cibles pour en dérober les secrets les plus intimes. Pour retrouver ses enfants, il accepte la mission inverse : implanter une idée dans l'esprit d'un héritier d'empire.",
       review: "Leonardo DiCaprio incarne Dom Cobb, maître voleur capable de s'infiltrer dans les rêves de ses cibles pour en dérober les secrets les plus intimes. Pour retrouver ses enfants, il accepte la mission inverse : implanter une idée dans l'esprit d'un héritier d'empire.",
       trailerUrl: "https://www.youtube.com/watch?v=HcoZbHBDHQA",
@@ -296,8 +296,8 @@ const DEFAULT_DATA = {
       category: "Christopher Nolan / Espionnage / Temps",
       year: "2020",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/tenet.jpg",
+      image: "assets/posters/tenet.jpg",
       summary: "Une œuvre d'espionnage quantique vertigineuse. Muni d'un seul mot – Tenet – et face à la menace d'un holocauste planétaire déclenché depuis le futur, le Protagoniste plonge dans l'art de l'inversion temporelle.",
       review: "Une œuvre d'espionnage quantique vertigineuse. Muni d'un seul mot – Tenet – et face à la menace d'un holocauste planétaire déclenché depuis le futur, le Protagoniste plonge dans l'art de l'inversion temporelle.",
       trailerUrl: "https://www.youtube.com/watch?v=dGYtI0HlPYM",
@@ -313,8 +313,8 @@ const DEFAULT_DATA = {
       category: "Marvel / Action / Thriller Politique",
       year: "2025",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1563089145-599997674d42?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1563089145-599997674d42?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/captain-america-bnw.jpg",
+      image: "assets/posters/captain-america-bnw.jpg",
       summary: "Anthony Mackie endosse le costume et le bouclier du nouveau Captain America. Après avoir rencontré le président Thaddeus Ross (Harrison Ford), Sam se retrouve au cœur d'un incident diplomatique mondial orchestré par des forces conspiratrices.",
       review: "Anthony Mackie endosse le costume et le bouclier du nouveau Captain America. Après avoir rencontré le président Thaddeus Ross (Harrison Ford), Sam se retrouve au cœur d'un incident diplomatique mondial orchestré par des forces conspiratrices.",
       trailerUrl: "https://www.youtube.com/watch?v=Hh9fV_5iP2Q",
@@ -330,8 +330,8 @@ const DEFAULT_DATA = {
       category: "Marvel / Action / Anti-Héros",
       year: "2025",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/thunderbolts.jpg",
+      image: "assets/posters/thunderbolts.jpg",
       summary: "Marvel réunit ses anti-héros les plus charismatiques et dysfonctionnels : Yelena Belova, Bucky Barnes, Red Guardian, Ghost, Taskmaster et John Walker. Pris dans un traquenard, ils doivent s'allier pour mener une opération d'infiltration à haut risque.",
       review: "Marvel réunit ses anti-héros les plus charismatiques et dysfonctionnels : Yelena Belova, Bucky Barnes, Red Guardian, Ghost, Taskmaster et John Walker. Pris dans un traquenard, ils doivent s'allier pour mener une opération d'infiltration à haut risque.",
       trailerUrl: "https://www.youtube.com/watch?v=950vjjYfuxk",
@@ -347,8 +347,8 @@ const DEFAULT_DATA = {
       category: "Science-Fiction / Épopée / Sortie Récente",
       year: "2024",
       aspectRatio: "portrait",
-      poster: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=800&auto=format&fit=crop&q=80",
-      image: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=800&auto=format&fit=crop&q=80",
+      poster: "assets/posters/dune-2.jpg",
+      image: "assets/posters/dune-2.jpg",
       summary: "La conclusion magistrale de l'épopée de Frank Herbert par Denis Villeneuve. Paul Muad'Dib s'allie aux Fremen pour venger sa lignée et reconquérir la planète des sables, tout en essayant d'échapper à la terrible guerre sainte qui menace l'humanité.",
       review: "La conclusion magistrale de l'épopée de Frank Herbert par Denis Villeneuve. Paul Muad'Dib s'allie aux Fremen pour venger sa lignée et reconquérir la planète des sables, tout en essayant d'échapper à la terrible guerre sainte qui menace l'humanité.",
       trailerUrl: "https://www.youtube.com/watch?v=0lRz2l8yO9U",
@@ -610,10 +610,27 @@ class StorageService {
         if (!defaultList || defaultList.length === 0) return cleanParsed;
         if (cleanParsed.length === 0) return filterDeleted(defaultList);
 
+        const defaultMap = new Map((defaultList || []).map(d => [d.id, d]));
+        const updatedParsed = cleanParsed.map(item => {
+          const def = defaultMap.get(item.id);
+          if (def) {
+            const needsPosterUpdate = !item.poster || item.poster.includes("unsplash.com") || item.poster.includes("wikimedia.org");
+            if (needsPosterUpdate && def.poster) {
+              return {
+                ...item,
+                poster: def.poster,
+                image: def.image || def.poster,
+                trailerUrl: def.trailerUrl || item.trailerUrl
+              };
+            }
+          }
+          return item;
+        });
+
         // Merge default items that are not in parsed and not deleted
-        const existingIds = new Set(cleanParsed.map(item => item.id));
+        const existingIds = new Set(updatedParsed.map(item => item.id));
         const missingDefaults = filterDeleted(defaultList).filter(item => !existingIds.has(item.id));
-        return [...cleanParsed, ...missingDefaults];
+        return [...updatedParsed, ...missingDefaults];
       };
 
       return {
