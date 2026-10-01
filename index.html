@@ -33,7 +33,7 @@
   <meta http-equiv="Expires" content="0">
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="assets/style.css?v=2026.65">
+  <link rel="stylesheet" href="assets/style.css?v=2026.70">
 </head>
 <body>
 
@@ -153,26 +153,31 @@
       </li>
     </ul>
 
-    <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu" aria-expanded="false">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+        <line class="l1" x1="4" y1="6" x2="20" y2="6"/>
+        <line class="l2" x1="4" y1="12" x2="20" y2="12"/>
+        <line class="l3" x1="4" y1="18" x2="20" y2="18"/>
       </svg>
     </button>
   </nav>
 
-  <!-- Mobile Dropdown Menu (Glassmorphism Floating Dropdown) -->
+  <!-- Arrière-plan flou immersif pour le menu mobile -->
+  <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" aria-hidden="true"></div>
+
+  <!-- Mobile Dropdown Menu (Glassmorphism & flou haute fidélité) -->
   <div class="mobile-menu" id="mobileMenu" aria-label="Menu mobile">
     <ul>
-      <li><a href="#/" class="mobile-route-link active" data-route="home">🏠 Accueil</a></li>
-      <li><a href="#/cinema" class="mobile-route-link" data-route="cinema">🎬 Cinéma & Séries</a></li>
-      <li><a href="#/actualites" class="mobile-route-link" data-route="news">📰 Actualités</a></li>
-      <li><a href="#/projets" class="mobile-route-link" data-route="projects">📁 Projets</a></li>
-      <li><a href="#/astuces" class="mobile-route-link" data-route="tips">💡 Astuces Tech</a></li>
-      <li><a href="#/code" class="mobile-route-link" data-route="code">💻 Code & Scripts</a></li>
-      <li><a href="#/gaming" class="mobile-route-link" data-route="gaming">🎮 Gaming & 3D</a></li>
-      <li><a href="#/documents" class="mobile-route-link" data-route="documents">📚 Documents & Fichiers</a></li>
-      <li><a href="#/portfolio" class="mobile-route-link" data-route="portfolio">💼 Portfolio Auberson</a></li>
-      <li><a href="#/contact" class="mobile-route-link" data-route="contact">✉️ Contact direct</a></li>
+      <li><a href="#/" class="mobile-route-link active" data-route="home"><span class="m-ico">🏠</span> Accueil</a></li>
+      <li><a href="#/portfolio" class="mobile-route-link" data-route="portfolio"><span class="m-ico">💼</span> Portfolio</a></li>
+      <li><a href="#/cinema" class="mobile-route-link" data-route="cinema"><span class="m-ico">🎬</span> Cinéma &amp; Séries</a></li>
+      <li><a href="#/actualites" class="mobile-route-link" data-route="news"><span class="m-ico">📰</span> Actualités</a></li>
+      <li><a href="#/documents" class="mobile-route-link" data-route="documents"><span class="m-ico">📚</span> Documents &amp; Fichiers</a></li>
+      <li><a href="#/projets" class="mobile-route-link" data-route="projects"><span class="m-ico">📁</span> Projets</a></li>
+      <li><a href="#/astuces-tech" class="mobile-route-link" data-route="tips"><span class="m-ico">💡</span> Astuces Tech</a></li>
+      <li><a href="#/code" class="mobile-route-link" data-route="code"><span class="m-ico">💻</span> Code &amp; Scripts</a></li>
+      <li><a href="#/gaming" class="mobile-route-link" data-route="gaming"><span class="m-ico">🎮</span> Gaming &amp; 3D</a></li>
+      <li><a href="#/contact" class="mobile-route-link" data-route="contact"><span class="m-ico">✉️</span> Contact direct</a></li>
     </ul>
   </div>
 
@@ -184,141 +189,92 @@
            VUE 1 : ACCUEIL IMMERSIF (OUTLOOK STUDIO)
            ========================================================= -->
       <section id="view-home" class="spa-view active">
-        <!-- Hero Section (Style Éditorial Moderne & Visuel Organique Inspiré de la Référence) -->
-        <div class="hero">
-          <div class="hero-grid">
-            <!-- Colonne Gauche : Typographie d'Impact, Recherche & Social Proof -->
-            <div class="hero-text-content">
-              <div class="hero-badge-pill scroll-reveal" data-delay="0.05s">
-                <span class="badge-icon">✨</span>
-                <span class="badge-text">PLATEFORME TECHNOLOGIQUE & CRÉATIVE</span>
-              </div>
+        <!-- =====================================================================
+             ACCUEIL OUTLOOK STUDIO – Exact User Design
+             Fond 100 % noir, animation canvas (particules & alvéoles HUD),
+             grille typographique d'impact, carte droite givrée & statistiques
+             ===================================================================== -->
+        <section class="hx" id="accueil">
+          <canvas class="hx-canvas" id="hxCanvas" aria-hidden="true"></canvas>
 
-              <h1 class="hero-main-title scroll-reveal" data-delay="0.12s">
-                Découvrir, Explorer,<br>
-                <span class="hero-accent-text">Inspirez-vous.</span>
-              </h1>
+          <div class="hx-inner">
+            <div class="hx-grid">
 
-              <p class="hero-main-desc scroll-reveal" data-delay="0.18s" id="platform-tagline">
-                Plateforme technologique de référence rassemblant cinéma haute définition, ingénierie logicielle, astuces informatiques et culture gaming au sein d'une expérience fluide et unifiée.
-              </p>
+              <!-- Colonne gauche -->
+              <div>
+                <span class="hx-badge"><span class="dot"></span>Plateforme technologique &amp; créative</span>
 
-              <!-- Barre d'exploration Rapide -->
-              <div class="hero-action-row scroll-reveal" data-delay="0.25s">
-                <div class="hero-input-pill">
-                  <input type="text" id="hero-quick-search" placeholder="Rechercher un film, une astuce, un code..." autocomplete="off">
-                  <button type="button" class="hero-search-submit" onclick="location.hash='#/cinema'">Explorer →</button>
+                <h1 class="hx-title">Découvrir, Explorer, <span class="grad">Inspirez-vous.</span></h1>
+
+                <p class="hx-lead" id="platform-tagline">
+                  Outlook Studio rassemble des ressources, astuces technologiques, documents,
+                  programmes, actualités et contenus autour du cinéma, du gaming, du code
+                  et des innovations numériques.
+                </p>
+
+                <form class="hx-search" id="hxSearch" role="search">
+                  <input type="search" id="hxQuery" placeholder="Rechercher un film, une astuce, un code…" aria-label="Rechercher">
+                  <button class="hx-btn-white" type="submit">
+                    Explorer
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  </button>
+                </form>
+
+                <div class="hx-by">
+                  <span class="hx-by-label">Plateforme indépendante</span>
+                  <span class="hx-by-sep" aria-hidden="true"></span>
+                  <span class="hx-by-name">Développée par <b>Auberson</b></span>
+                </div>
+
+                <div class="hx-contacts">
+                  <a class="hx-chip wa" href="https://wa.me/50931849385" id="hero-whatsapp-link" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.7-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
+                    WhatsApp
+                  </a>
+                  <a class="hx-chip ph" href="tel:+50931849385" id="hero-phone-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+                    <span id="hero-phone-text">+509 31 84 93 85</span>
+                  </a>
+                  <a class="hx-chip ml" href="#/contact" id="hero-email-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                    Contact
+                  </a>
                 </div>
               </div>
 
-              <!-- Social Proof / Créateur Signature -->
-              <div class="hero-social-proof scroll-reveal" data-delay="0.32s">
-                <div class="avatar-stack">
-                  <span class="avatar-circle">🎬</span>
-                  <span class="avatar-circle">💻</span>
-                  <span class="avatar-circle">🎮</span>
+              <!-- Carte de droite -->
+              <aside class="hx-card">
+                <div class="hx-links">
+                  <a class="hx-link" href="#/cinema">
+                    <span class="hx-thumb t1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg></span>
+                    <span><strong>Cinéma &amp; Séries</strong><small>Streaming HD &amp; Avis critiques</small></span>
+                  </a>
+                  <a class="hx-link" href="#/astuces-tech">
+                    <span class="hx-thumb t2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg></span>
+                    <span><strong>Astuces &amp; Code</strong><small>Guides, Windows &amp; Scripts</small></span>
+                  </a>
+                  <a class="hx-link" href="#/gaming">
+                    <span class="hx-thumb t3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 11h4M8 9v4"/><path d="M15 12h.01M18 10h.01"/><path d="M17.32 5H6.68a4 4 0 0 0-3.98 3.59C2.6 9.42 2 14.46 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.41-1.41A2 2 0 0 1 9.83 16h4.34a2 2 0 0 1 1.42.59L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.55-.6-6.58-.68-7.26A4 4 0 0 0 17.32 5z"/></svg></span>
+                    <span><strong>Gaming &amp; 3D</strong><small>Moteurs Unreal, RTX &amp; Démos</small></span>
+                  </a>
                 </div>
-                <div class="proof-text">
-                  <span>Plateforme indépendante développée par <strong>Auberson</strong></span>
-                </div>
-              </div>
 
-              <!-- Lignes Directes de Contact -->
-              <div class="hero-social-dock scroll-reveal" data-delay="0.38s">
-                <a href="https://wa.me/50931849385" id="hero-whatsapp-link" target="_blank" rel="noopener noreferrer" class="hero-social-pill" title="WhatsApp direct">
-                  <span>💬</span> WhatsApp
+                <a class="hx-discover" href="#/cinema">
+                  <span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg></span>
+                  Découvrir l'univers
                 </a>
-                <a href="tel:" id="hero-phone-link" class="hero-social-pill" title="Téléphone direct">
-                  <span>📞</span> <span id="hero-phone-text">Téléphone direct</span>
-                </a>
-                <a href="mailto:contact@nicaisseauberson.ch" id="hero-email-link" class="hero-social-pill" title="Email officiel">
-                  <span>✉️</span> Contact
-                </a>
-              </div>
+              </aside>
             </div>
 
-            <!-- Colonne Droite : Vitrine Visuelle Organique avec Cartes Centrées au Milieu de l'Image -->
-            <div class="hero-visual-showcase scroll-reveal" data-delay="0.2s">
-              <div class="showcase-card-frame">
-                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=75" alt="Outlook Studio Architecture" class="showcase-bg-img" loading="eager" fetchpriority="high" decoding="async">
-                <div class="showcase-gradient-overlay"></div>
-
-                <!-- Conteneur centré au milieu de l'image -->
-                <div class="showcase-cards-center">
-                  <!-- 1. Carte Flottante : Cinéma -->
-                  <div class="floating-showcase-card card-cinema" onclick="location.hash='#/cinema'">
-                    <div class="card-thumb">
-                      <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=120&auto=format&fit=crop&q=75" alt="Cinéma" loading="lazy" decoding="async">
-                    </div>
-                    <div class="card-text">
-                      <strong>Cinéma & Séries</strong>
-                      <span>Streaming HD & Avis critiques</span>
-                    </div>
-                  </div>
-
-                  <!-- 2. Carte Flottante : Astuces Tech & Code -->
-                  <div class="floating-showcase-card card-tips" onclick="location.hash='#/astuces'">
-                    <div class="card-thumb">
-                      <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=120&auto=format&fit=crop&q=75" alt="Astuces Tech" loading="lazy" decoding="async">
-                    </div>
-                    <div class="card-text">
-                      <strong>Astuces & Code</strong>
-                      <span>Guides, Windows & Scripts</span>
-                    </div>
-                  </div>
-
-                  <!-- 3. Carte Flottante : Gaming & Moteurs 3D -->
-                  <div class="floating-showcase-card card-gaming" onclick="location.hash='#/gaming'">
-                    <div class="card-thumb">
-                      <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=120&auto=format&fit=crop&q=75" alt="Gaming" loading="lazy" decoding="async">
-                    </div>
-                    <div class="card-text">
-                      <strong>Gaming & 3D</strong>
-                      <span>Moteurs Unreal, RTX & Démos</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Bouton Interactif Flottant "Découvrir l'univers" (Style Watch Story) -->
-                <a href="#/cinema" class="hero-watch-pill">
-                  <span class="hero-play-icon">▶</span>
-                  <span>Découvrir l'univers</span>
-                </a>
-              </div>
+            <!-- Statistiques -->
+            <div class="hx-stats">
+              <div class="hx-stat"><div class="num">100+</div><div class="lbl">Films &amp; séries HD</div></div>
+              <div class="hx-stat"><div class="num">50+</div><div class="lbl">Astuces &amp; scripts</div></div>
+              <div class="hx-stat"><div class="num">100%</div><div class="lbl">Gratuit &amp; libre</div></div>
+              <div class="hx-stat"><div class="num">Cloud</div><div class="lbl">Temps réel</div></div>
             </div>
           </div>
-
-          <!-- Barre de 4 Statistiques Clés (Directement Inspirée de la Maquette) -->
-          <div class="hero-stats-row scroll-reveal" data-delay="0.45s">
-            <div class="hero-stat-card">
-              <span class="stat-number">100+</span>
-              <span class="stat-label">Films & Séries HD</span>
-            </div>
-            <div class="hero-stat-card">
-              <span class="stat-number">50+</span>
-              <span class="stat-label">Astuces & Scripts</span>
-            </div>
-            <div class="hero-stat-card">
-              <span class="stat-number">100%</span>
-              <span class="stat-label">Gratuit & Libre</span>
-            </div>
-            <div class="hero-stat-card">
-              <span class="stat-number">Cloud</span>
-              <span class="stat-label">Temps Réel</span>
-            </div>
-          </div>
-
-          <!-- Indicateur de défilement mobile centré au pixel près -->
-          <div class="hero-scroll-indicator scroll-reveal" data-delay="0.5s" aria-label="Faire défiler vers le bas" onclick="document.getElementById('bento-categories')?.scrollIntoView({ behavior: 'smooth' })">
-            <div class="scroll-mouse-pill">
-              <span class="scroll-wheel-dot"></span>
-            </div>
-            <span class="scroll-label">Défiler</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="scroll-chevron-bounce">
-              <path d="M7 10l5 5 5-5"/>
-            </svg>
-          </div>
-        </div>
+        </section>
 
         <!-- Grille de découverte des catégories principales -->
         <div id="bento-categories" class="scroll-reveal" style="margin-top: 48px; margin-bottom: 24px;">
@@ -735,15 +691,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.65"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.70"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.65"></script>
+  <script src="assets/data.js?v=2026.70"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.65"></script>
+  <script src="assets/cloudinary-service.js?v=2026.70"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.65"></script>
+  <script src="assets/app.js?v=2026.70"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.65"></script>
+  <script src="assets/admin.js?v=2026.70"></script>
 
 </body>
 </html>

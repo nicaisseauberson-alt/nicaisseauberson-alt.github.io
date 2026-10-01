@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.65";
+  const APP_VERSION = "2026.70";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initFloatingNavbar();
   initOsNavbar();
   initHeroSearch();
+  initHxCanvas();
   initScrollReveal();
   renderApp();
   setupEventListeners();
@@ -97,7 +98,17 @@ const VALID_ROUTES = {
 
 function initRouter() {
   const handleRouteChange = () => {
-    let hash = window.location.hash.toLowerCase().trim();
+    let rawHash = window.location.hash.trim();
+    let queryParam = "";
+    if (rawHash.includes("?")) {
+      const parts = rawHash.split("?");
+      rawHash = parts[0];
+      try {
+        const params = new URLSearchParams(parts[1]);
+        queryParam = params.get("q") || "";
+      } catch (e) {}
+    }
+    let hash = rawHash.toLowerCase().trim();
     if (hash === "#/admin") {
       if (window.adminManager) adminManager.openLoginOrDashboard();
       window.location.hash = "#/";
@@ -106,6 +117,16 @@ function initRouter() {
 
     const routeKey = VALID_ROUTES[hash] || "home";
     switchView(routeKey);
+
+    if (routeKey === "cinema" && queryParam) {
+      setTimeout(() => {
+        const cinemaInput = document.getElementById("cinema-search");
+        if (cinemaInput) {
+          cinemaInput.value = queryParam;
+          cinemaInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }, 100);
+    }
   };
 
   window.addEventListener("hashchange", handleRouteChange);
@@ -176,6 +197,13 @@ function switchView(routeKey) {
     setTimeout(() => {
       window.initScrollReveal();
     }, 60);
+  }
+
+  // 7. Refresh canvas if returning to home view
+  if (routeKey === "home" && window.initHxCanvas) {
+    setTimeout(() => {
+      window.initHxCanvas();
+    }, 50);
   }
 }
 
@@ -265,8 +293,11 @@ function initFloatingNavbar() {
   }
 
   // Mobile Dropdown Menu Controls
+  const mobileMenuBackdrop = document.getElementById("mobileMenuBackdrop");
+
   function closeMobileMenu() {
     if (mobileMenu) mobileMenu.classList.remove("open");
+    if (mobileMenuBackdrop) mobileMenuBackdrop.classList.remove("open");
     if (menuToggle) {
       menuToggle.classList.remove("open");
       menuToggle.setAttribute("aria-expanded", "false");
@@ -277,8 +308,15 @@ function initFloatingNavbar() {
   function toggleMobileMenu() {
     if (!mobileMenu || !menuToggle) return;
     const isOpen = mobileMenu.classList.toggle("open");
+    if (mobileMenuBackdrop) mobileMenuBackdrop.classList.toggle("open", isOpen);
     menuToggle.classList.toggle("open", isOpen);
     menuToggle.setAttribute("aria-expanded", String(isOpen));
+  }
+
+  if (mobileMenuBackdrop) {
+    mobileMenuBackdrop.addEventListener("click", () => {
+      closeMobileMenu();
+    });
   }
 
   if (menuToggle) {
@@ -509,42 +547,257 @@ function initScrollReveal() {
 window.initScrollReveal = initScrollReveal;
 
 /* -------------------------------------------------------------
- * 1.ter HERO QUICK SEARCH HELPER
+ * 1.ter HERO QUICK SEARCH HELPER (Compatible avec #hxSearch)
  * ----------------------------------------------------------- */
 function initHeroSearch() {
-  const input = document.getElementById("hero-quick-search");
-  const submitBtn = document.querySelector(".hero-search-submit");
-  if (!input) return;
-
-  function doSearch() {
-    const q = input.value.trim();
-    location.hash = "#/cinema";
-    if (q) {
-      setTimeout(() => {
-        const cinemaInput = document.getElementById("cinema-search");
-        if (cinemaInput) {
-          cinemaInput.value = q;
-          cinemaInput.dispatchEvent(new Event("input", { bubbles: true }));
-        }
-      }, 120);
-    }
+  const hxSearch = document.getElementById("hxSearch");
+  const hxQuery = document.getElementById("hxQuery");
+  if (hxSearch && hxQuery) {
+    hxSearch.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const q = hxQuery.value.trim();
+      location.hash = q ? "#/cinema?q=" + encodeURIComponent(q) : "#/cinema";
+      if (q) {
+        setTimeout(() => {
+          const cinemaInput = document.getElementById("cinema-search");
+          if (cinemaInput) {
+            cinemaInput.value = q;
+            cinemaInput.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        }, 120);
+      }
+    });
   }
 
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      doSearch();
+  const input = document.getElementById("hero-quick-search");
+  const submitBtn = document.querySelector(".hero-search-submit");
+  if (input) {
+    function doSearch() {
+      const q = input.value.trim();
+      location.hash = q ? "#/cinema?q=" + encodeURIComponent(q) : "#/cinema";
+      if (q) {
+        setTimeout(() => {
+          const cinemaInput = document.getElementById("cinema-search");
+          if (cinemaInput) {
+            cinemaInput.value = q;
+            cinemaInput.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        }, 120);
+      }
     }
-  });
 
-  if (submitBtn) {
-    submitBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      doSearch();
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        doSearch();
+      }
     });
+
+    if (submitBtn) {
+      submitBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        doSearch();
+      });
+    }
   }
 }
 window.initHeroSearch = initHeroSearch;
+
+/* =====================================================================
+ * ACCUEIL ULTRA-MODERNE CANVAS – Réseau de particules & alvéoles HUD
+ * Animation de points avec liaisons douces et répulsion interactive
+ * ===================================================================== */
+function initHxCanvas() {
+  const canvas = document.getElementById("hxCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const section = canvas.parentElement;
+  if (!section) return;
+
+  const COLORS = ["96,165,250", "139,123,255", "255,255,255"];
+  const DENSITY = 0.00028;
+  const LINK_DIST = 125;
+  const SPEED = 0.24;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let w = 0, h = 0, dpr = 1, pts = [], raf = 0;
+  const mouse = { x: -9999, y: -9999 };
+
+  function resize() {
+    if (!section || !canvas) return;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = section.clientWidth;
+    h = section.clientHeight;
+    if (w === 0 || h === 0) return;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const count = Math.min(420, Math.round(w * h * DENSITY));
+    pts = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * SPEED * 2,
+      vy: (Math.random() - 0.5) * SPEED * 2,
+      r: Math.random() < 0.16 ? Math.random() * 1.6 + 2.2 : Math.random() * 1.4 + 0.5,
+      c: COLORS[(Math.random() * COLORS.length) | 0],
+      a: Math.random() * 0.55 + 0.3
+    }));
+    buildHex();
+    draw(false);
+  }
+
+  /* Alvéoles technologiques (HUD) */
+  const HEX_RAD = 190, HEX_PUSH = 26;
+  let hexes = [], HEX_R = 30;
+
+  function buildHex() {
+    HEX_R = w > 1600 ? 52 : 40;
+    const sx = HEX_R * 1.5, sy = HEX_R * Math.sqrt(3);
+    const cols = Math.ceil(w / sx) + 2, rows = Math.ceil(h / sy) + 2;
+    hexes = [];
+    for (let c = -1; c < cols; c++) {
+      for (let r = -1; r < rows; r++) {
+        hexes.push({ x: c * sx, y: r * sy + (c & 1 ? sy / 2 : 0), ox: 0, oy: 0, k: 0, g: 0, ph: Math.random() * 6.283 });
+      }
+    }
+  }
+
+  function hexPath(cx, cy, r) {
+    ctx.moveTo(cx + r, cy);
+    for (let i = 1; i < 6; i++) {
+      const a = (i * Math.PI) / 3;
+      ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+    }
+    ctx.closePath();
+  }
+
+  function drawHexes(t) {
+    const rr = HEX_R - 1.5, hot = [];
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(30,64,140,0.3)";
+    ctx.beginPath();
+    for (const q of hexes) {
+      let tx = 0, ty = 0, tk = 0;
+      const mx = q.x - mouse.x, my = q.y - mouse.y, d2 = mx * mx + my * my;
+      if (d2 < HEX_RAD * HEX_RAD) {
+        const d = Math.sqrt(d2) + 0.001, f = 1 - d / HEX_RAD;
+        tx = (mx / d) * f * f * HEX_PUSH;
+        ty = (my / d) * f * f * HEX_PUSH;
+        tk = f;
+      }
+      q.ox += (tx - q.ox) * 0.03;
+      q.oy += (ty - q.oy) * 0.03;
+      q.k += (tk - q.k) * 0.03;
+      const pulse = Math.sin(t * 0.00025 + q.ph + q.x * 0.0015 + q.y * 0.0012);
+      const u = Math.max(0, (pulse - 0.9) / 0.1);
+      q.g = u * u * (3 - 2 * u);
+      if (q.k > 0.02 || q.g > 0) hot.push(q);
+      else hexPath(q.x + q.ox, q.y + q.oy, rr);
+    }
+    ctx.stroke();
+    for (const q of hot) {
+      const e = Math.min(1, q.k + q.g);
+      ctx.beginPath();
+      hexPath(q.x + q.ox, q.y + q.oy, rr * (1 - 0.2 * q.k));
+      ctx.fillStyle = "rgba(37,99,235," + (0.045 * e) + ")";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(37,99,235," + (0.3 + 0.3 * e) + ")";
+      ctx.lineWidth = 1 + e * 0.4;
+      ctx.stroke();
+    }
+  }
+
+  function draw(move) {
+    ctx.clearRect(0, 0, w, h);
+    drawHexes(performance.now());
+
+    for (const p of pts) {
+      if (move) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < -20) p.x = w + 20;
+        else if (p.x > w + 20) p.x = -20;
+        if (p.y < -20) p.y = h + 20;
+        else if (p.y > h + 20) p.y = -20;
+
+        const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
+        if (d2 < 14000) {
+          const f = (1 - d2 / 14000) * 0.6;
+          p.x += dx * 0.02 * f * 10 * 0.1 + (dx / (Math.sqrt(d2) + 1)) * f;
+          p.y += dy * 0.02 * f * 10 * 0.1 + (dy / (Math.sqrt(d2) + 1)) * f;
+        }
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+      ctx.fillStyle = "rgba(" + p.c + "," + p.a + ")";
+      ctx.fill();
+    }
+
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const a = pts[i], b = pts[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < LINK_DIST) {
+          ctx.strokeStyle = "rgba(96,165,250," + (0.16 * (1 - d / LINK_DIST)) + ")";
+          ctx.lineWidth = 0.7;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function loop() {
+    draw(true);
+    raf = requestAnimationFrame(loop);
+  }
+
+  if (window._hxCanvasRaf) {
+    cancelAnimationFrame(window._hxCanvasRaf);
+  }
+
+  if (!section._hasHxPointer) {
+    section.addEventListener("pointermove", (e) => {
+      const r = section.getBoundingClientRect();
+      mouse.x = e.clientX - r.left;
+      mouse.y = e.clientY - r.top;
+    });
+    section.addEventListener("pointerleave", () => {
+      mouse.x = mouse.y = -9999;
+    });
+    section._hasHxPointer = true;
+  }
+
+  if (!window._hasHxResize) {
+    let t;
+    window.addEventListener("resize", () => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        if (document.getElementById("hxCanvas")) resize();
+      }, 150);
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        cancelAnimationFrame(raf);
+      } else if (!reduced) {
+        loop();
+        window._hxCanvasRaf = raf;
+      }
+    });
+    window._hasHxResize = true;
+  }
+
+  resize();
+  if (!reduced) {
+    loop();
+    window._hxCanvasRaf = raf;
+  }
+}
+window.initHxCanvas = initHxCanvas;
 
 /* -------------------------------------------------------------
  * 2. VISITOR TELEMETRY & PRESENCE ENGINE
