@@ -203,7 +203,7 @@ main {
 .os-nav {
   /* Couleurs au repos */
   --os-bg: rgba(14, 18, 28, 0.55);
-  --os-border: rgba(255, 255, 255, 0.28);
+  --os-border: rgba(255, 255, 255, 0.65);
   --os-text: #ffffff;
   --os-soft: rgba(255, 255, 255, 0.62);
   --os-chip: rgba(255, 255, 255, 0.08);        /* fond des ronds et du survol d'un lien */
@@ -234,7 +234,7 @@ main {
   border-radius: inherit;
   background: var(--os-bg);
   border: 1.5px solid var(--os-border);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   pointer-events: none;
@@ -373,9 +373,9 @@ main {
   background: rgba(14, 18, 28, 0.60) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
   border-radius: 22px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px) scale(0.98);
@@ -453,10 +453,10 @@ nav.floating {
   padding: 6px 16px 6px 18px;
   border-radius: 999px;
   background: rgba(14, 18, 28, 0.52) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
   backdrop-filter: blur(20px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
   transition: all 0.25s ease;
   overflow: hidden;
 }
@@ -824,11 +824,11 @@ nav.floating button:focus-visible {
   border-radius: 24px;
   /* Effet de flou d'arrière-plan immersif sur le rectangle arrondi */
   background: rgba(14, 18, 28, 0.60) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   will-change: backdrop-filter;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25), 0 20px 50px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
   padding: 10px;
   opacity: 0;
   visibility: hidden;
@@ -912,8 +912,8 @@ nav.floating button:focus-visible {
     border-radius: 999px !important;
     /* Verre givré translucide et flou d'arrière-plan immersif */
     background: rgba(14, 18, 28, 0.52) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, .5), 0 8px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25), 0 8px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
     backdrop-filter: blur(20px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
     will-change: backdrop-filter;
@@ -978,38 +978,84 @@ nav.floating button:focus-visible {
     height: 34px !important;
     min-width: 34px !important;
     min-height: 34px !important;
-    padding: 0 9.5px !important;
     box-sizing: border-box !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    gap: 4px !important;
-    background: none !important;
-    border: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+    border-radius: 50% !important;
     cursor: pointer !important;
     flex: none !important;
     outline: none !important;
     -webkit-tap-highlight-color: transparent !important;
-    border-radius: 50% !important;
     margin: 0 !important;
+    padding: 0 !important;
+    color: #ffffff !important;
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease !important;
   }
 
+  .burger:hover,
+  .nav-burger:hover,
+  .menu-toggle:hover {
+    background: rgba(255, 255, 255, 0.22) !important;
+    border-color: rgba(255, 255, 255, 0.60) !important;
+  }
+
+  .burger svg,
+  .nav-burger svg,
+  .menu-toggle svg {
+    width: 18px !important;
+    height: 18px !important;
+    display: block !important;
+    overflow: visible !important;
+    stroke: #ffffff !important;
+  }
+
+  .burger line,
+  .nav-burger line,
+  .menu-toggle line {
+    stroke: #ffffff !important;
+    stroke-width: 2.4 !important;
+    transform-box: fill-box !important;
+    transform-origin: center !important;
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease !important;
+  }
+
+  /* Animation fluide burger vers Croix (X) en SVG quand le menu est ouvert */
+  .burger.open .l1,
+  .nav-burger.open .l1,
+  .menu-toggle.open .l1 {
+    transform: translateY(6px) rotate(45deg) !important;
+  }
+  .burger.open .l2,
+  .nav-burger.open .l2,
+  .menu-toggle.open .l2 {
+    opacity: 0 !important;
+    transform: scaleX(0) !important;
+  }
+  .burger.open .l3,
+  .nav-burger.open .l3,
+  .menu-toggle.open .l3 {
+    transform: translateY(-6px) rotate(-45deg) !important;
+  }
+
+  /* Support fallback pour les balises <i> si présentes */
   .burger i,
   .nav-burger i,
   .bt i,
   .menu-toggle i {
     display: block !important;
-    height: 1.6px !important;
+    height: 2px !important;
     background: #ffffff !important;
     border-radius: 2px !important;
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease !important;
     transform-origin: center !important;
-    width: 100% !important;
+    width: 15px !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin: 1.5px 0 !important;
   }
 
-  /* Animation fluide burger vers Croix (X) quand le menu est ouvert */
   .burger.open i:nth-child(1),
   .nav-burger.open i:nth-child(1),
   .menu-toggle.open i:nth-child(1) {
@@ -1163,10 +1209,10 @@ nav.floating button:focus-visible {
   align-items: center;
   gap: 10px;
   padding: 9px 16px;
-  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
   border-radius: 100px;
   background: rgba(14, 18, 28, 0.58) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
   -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
   backdrop-filter: blur(16px) saturate(160%) !important;
   font-size: 12px;
@@ -1218,8 +1264,8 @@ nav.floating button:focus-visible {
   max-width: 620px;
   margin: 30px 0 0;
   padding: 6px;
-  border: 1.5px solid rgba(255, 255, 255, 0.30) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.20), 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 24px rgba(0, 0, 0, 0.45) !important;
   border-radius: 100px;
   background: rgba(14, 18, 28, 0.58) !important;
   -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
@@ -1333,11 +1379,11 @@ nav.floating button:focus-visible {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
   border-radius: 100px;
   /* Effet de flou d'arrière-plan immersif */
   background: rgba(14, 18, 28, 0.58) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
   -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
   backdrop-filter: blur(16px) saturate(160%) !important;
   will-change: backdrop-filter;
@@ -1350,9 +1396,9 @@ nav.floating button:focus-visible {
 }
 
 .hx-chip:hover {
-  background: rgba(255, 255, 255, 0.14) !important;
-  border-color: rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.40) !important;
   transform: translateY(-1px);
 }
 
@@ -1375,12 +1421,12 @@ nav.floating button:focus-visible {
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
   border-radius: 30px;
   background: rgba(14, 18, 28, 0.58) !important;
   -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
   backdrop-filter: blur(18px) saturate(160%) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 16px 38px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), 0 16px 38px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
 }
 
 .hx-links {
@@ -1394,10 +1440,10 @@ nav.floating button:focus-visible {
   align-items: center;
   gap: 16px;
   padding: 14px 18px 14px 14px;
-  border: 1.5px solid rgba(255, 255, 255, 0.26) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
   border-radius: 18px;
   background: rgba(14, 18, 28, 0.55) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
   -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
   backdrop-filter: blur(14px) saturate(150%) !important;
   color: inherit;
@@ -1478,12 +1524,12 @@ nav.floating button:focus-visible {
 
 .hx-stat {
   padding: 32px 28px;
-  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
   border-radius: 24px;
   background: rgba(14, 18, 28, 0.58) !important;
   -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
   backdrop-filter: blur(18px) saturate(160%) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
   transition: border-color 0.3s ease, transform 0.35s var(--hx-ease, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
@@ -1628,6 +1674,8 @@ nav.floating button:focus-visible {
     gap: 6px !important;
     white-space: nowrap !important;
     background: rgba(14, 18, 28, 0.58) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
     backdrop-filter: blur(16px) saturate(160%) !important;
     -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
   }
@@ -3783,8 +3831,8 @@ body:not([data-current-route="home"]) .footer-content {
 .modal-card,
 .modal-sheet,
 .admin-card {
-  border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
 }
 
 .hx-card,
@@ -3807,7 +3855,7 @@ body:not([data-current-route="home"]) .footer-content {
   background: rgba(14, 18, 28, 0.58) !important;
   backdrop-filter: blur(18px) saturate(160%) !important;
   -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
 }
 
 .hx-badge,
@@ -3818,6 +3866,8 @@ body:not([data-current-route="home"]) .footer-content {
 .filter-btn,
 .tag {
   background: rgba(14, 18, 28, 0.58) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
   backdrop-filter: blur(16px) saturate(160%) !important;
   -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
 }
@@ -3837,6 +3887,6 @@ body:not([data-current-route="home"]) .footer-content {
 .hx-link:hover,
 .hx-chip:hover {
   background: rgba(22, 28, 44, 0.70) !important;
-  border-color: rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.20), 0 18px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.30) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 18px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
 }

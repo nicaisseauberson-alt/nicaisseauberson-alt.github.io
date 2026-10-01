@@ -34,7 +34,7 @@
   
   <!-- Stylesheets -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.42.0/dist/tabler-icons.min.css">
-  <link rel="stylesheet" href="assets/style.css?v=2026.94">
+  <link rel="stylesheet" href="assets/style.css?v=2026.95">
 </head>
 <body>
 
@@ -89,8 +89,12 @@
       <img class="logo nav-logo" alt="Logo Outlook Studio" src="assets/logo.png">
       <span class="nm nav-name">Outlook Studio</span>
     </a>
-    <button class="burger nav-burger menu-toggle" id="menuToggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
-      <i></i><i></i><i></i>
+    <button class="burger nav-burger menu-toggle os-menu-btn" id="menuToggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+        <line class="l1" x1="4" y1="6" x2="20" y2="6"/>
+        <line class="l2" x1="4" y1="12" x2="20" y2="12"/>
+        <line class="l3" x1="4" y1="18" x2="20" y2="18"/>
+      </svg>
     </button>
   </nav>
 
@@ -142,8 +146,8 @@
                   et des innovations numériques.
                 </p>
 
-                <form class="hx-search" id="hxSearch" role="search">
-                  <input type="search" id="hxQuery" placeholder="Rechercher un film, une astuce, un code…" aria-label="Rechercher">
+                <form class="hx-search" id="hxSearch" role="search" action="javascript:void(0);">
+                  <input type="search" id="hxQuery" placeholder="Rechercher un film, une astuce, un code…" aria-label="Rechercher" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                   <button class="hx-btn-white" type="submit">
                     Explorer
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -556,15 +560,15 @@
 
   <!-- SCRIPTS (Zero 3D overhead - Pure High-Performance Architecture) -->
   <!-- 0. Firebase Cloud Infrastructure (Firestore & Auth) -->
-  <script type="module" src="assets/firebase-config.js?v=2026.94"></script>
+  <script type="module" src="assets/firebase-config.js?v=2026.95"></script>
   <!-- 1. Data & Storage Engine -->
-  <script src="assets/data.js?v=2026.94"></script>
+  <script src="assets/data.js?v=2026.95"></script>
   <!-- 1.bis Cloudinary File Storage & Direct Download Engine -->
-  <script src="assets/cloudinary-service.js?v=2026.94"></script>
+  <script src="assets/cloudinary-service.js?v=2026.95"></script>
   <!-- 2. Main Application UI & SPA Router -->
-  <script src="assets/app.js?v=2026.94"></script>
+  <script src="assets/app.js?v=2026.95"></script>
   <!-- 3. Admin & Mini-CMS Engine -->
-  <script src="assets/admin.js?v=2026.94"></script>
+  <script src="assets/admin.js?v=2026.95"></script>
 
 </body>
 </html>

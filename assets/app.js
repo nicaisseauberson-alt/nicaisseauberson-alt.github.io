@@ -4,9 +4,37 @@
  * Real-time rendering, dynamic neon/backgrounds, visitor telemetry & streaming UI
  */
 
+// Correction bug Safari : empêche le scroll automatique et le focus inopiné dans la barre de recherche au rafraîchissement
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+function preventSafariSearchAutofocus() {
+  try {
+    if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA")) {
+      document.activeElement.blur();
+    }
+    const hxQuery = document.getElementById("hxQuery");
+    if (hxQuery) {
+      hxQuery.blur();
+    }
+    const rawHash = window.location.hash;
+    if (!rawHash || rawHash === "#/" || rawHash === "#" || rawHash === "#accueil") {
+      window.scrollTo(0, 0);
+    }
+  } catch (err) {}
+}
+
+window.addEventListener("pageshow", preventSafariSearchAutofocus);
+window.addEventListener("load", preventSafariSearchAutofocus);
+
 document.addEventListener("DOMContentLoaded", () => {
+  preventSafariSearchAutofocus();
+  setTimeout(preventSafariSearchAutofocus, 60);
+  setTimeout(preventSafariSearchAutofocus, 180);
+
   // Multi-device Cache Busting & Version Verification
-  const APP_VERSION = "2026.94";
+  const APP_VERSION = "2026.95";
   try {
     const cachedVersion = localStorage.getItem("outlook_studio_build_ver");
     if (cachedVersion && cachedVersion !== APP_VERSION) {
@@ -554,6 +582,9 @@ function initHeroSearch() {
   const hxSearch = document.getElementById("hxSearch");
   const hxQuery = document.getElementById("hxQuery");
   if (hxSearch && hxQuery) {
+    if (document.activeElement === hxQuery) {
+      hxQuery.blur();
+    }
     hxSearch.addEventListener("submit", (e) => {
       e.preventDefault();
       const q = hxQuery.value.trim();
